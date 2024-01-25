@@ -10,7 +10,7 @@ const LandingPage = () => {
         Cosmos Treasury DAO established on Migaloo. We are seeking a lost city of gold. We have no respect for the currency of men.
         </p>
         <a href="https://app.whitewhale.money/migaloo/swap?from=WHALE&to=OPHIR" target="_blank" rel="noopener noreferrer" className="bg-yellow-400 text-black font-bold py-2 px-4 rounded hover:bg-yellow-500">
-          Get Ophir
+          Get $OPHIR
         </a>
       </main>
     </div>

@@ -8,11 +8,13 @@ const Nav = () => {
   return (
     <header className="bg-black text-white w-full fixed top-0 left-0 z-50">
       <div className="flex justify-between items-center p-4">
+      <a href="/">
         <img
-          src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png"
-          alt="Logo"
-          className="w-8 h-8"
+            src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png"
+            alt="Logo"
+            className="w-8 h-8"
         />
+      </a>
 
         <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <svg
@@ -47,7 +49,7 @@ const Nav = () => {
           </a>
           <div className="text-white text-lg py-2 rounded group cursor-pointer">
             <div onClick={() => setIsBuyMenuOpen(!isBuyMenuOpen)} className="flex justify-between items-center">
-              Buy Ophir
+              Buy $OPHIR
               <svg
                 className="w-4 h-4 ml-2"
                 fill="none"
