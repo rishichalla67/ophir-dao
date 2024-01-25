@@ -10,6 +10,7 @@ const formatNumber = (number, digits) => {
 
 const AnalyticsDashboard = () => {
     const [ophirStats, setOphirStats] = useState(null);
+    
     const fetchData = async () => {
         try {
             const response = await axios.get('https://parallax-analytics.onrender.com/ophir/stats');
@@ -21,6 +22,14 @@ const AnalyticsDashboard = () => {
     useEffect(() => {
         fetchData();
     }, []);
+
+    if (!ophirStats) {
+        return (
+          <div className="flex justify-center items-center h-screen">
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
+            </div>
+        );
+      }
   return (
     <>
         {ophirStats && 
