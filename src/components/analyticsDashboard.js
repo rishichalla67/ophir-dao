@@ -57,7 +57,7 @@ const AnalyticsDashboard = () => {
         {ophirStats && 
             <div className="pt-12 bg-black text-white min-h-screen">
                 <div className="p-3 bg-black">
-                <div className="text-3xl font-bold text-white mb-4">Ophir Statistics</div>
+                    <div className="text-3xl font-bold text-white mb-4">Ophir Statistics</div>
                     <div className="
                     grid 
                     grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
@@ -98,7 +98,14 @@ const AnalyticsDashboard = () => {
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Total Supply</div>
                             <div className="sm:text-xl text-md ">{formatNumber(ophirStats?.totalSupply,0)}</div>
                         </div>
-                        {/* Total Treasury Value */}
+                    </div>
+                </div>
+                <div className="p-3 bg-black">
+                    <div className="text-3xl font-bold text-white mb-4">Ophir Treasury</div>
+                    <div className="
+                    grid 
+                    grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
+                    ">
                         <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center cursor-pointer" onClick={toggleBitcoinDenomination}>
                             <img src="https://cdn-icons-png.flaticon.com/512/7185/7185535.png" alt="Icon" className="h-8 w-8 mb-1" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Total Treasury Value</div>
