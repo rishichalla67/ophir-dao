@@ -128,7 +128,7 @@ const AnalyticsDashboard = () => {
                                 {inLuna ? 
                                     <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'allianceStake' && `${parseFloat(value.rewards).toLocaleString()} luna`}</td>
                                     :
-                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'allianceStake' && `$${formatNumber(parseFloat(value.rewards),2)}`}</td>
+                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'allianceStake' && `$${formatNumber(parseFloat(value.rewards*priceData['luna']),2)}`}</td>
                                 }
                                 <td className="text-center py-3 px-4">{value.location}</td>
                             </tr>
