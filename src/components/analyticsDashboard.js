@@ -21,7 +21,7 @@ const AnalyticsDashboard = () => {
         if (isNaN(numericValue)) {
             throw new Error('Invalid number input');
         }
-        return formatNumber(numericValue / priceData['wBTC'], 6);
+        return formatNumber(numericValue / priceData['wBTC'], 4);
     }
 
     const fetchData = async () => {
