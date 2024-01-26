@@ -15,6 +15,9 @@ const AnalyticsDashboard = () => {
     const [ophirTreasury, setOphirTreasury] = useState(null);
     const [priceData, setPriceData] = useState(null);
     const [inBitcoin, setInBitcoin] = useState(false);
+    const [inLuna, setInLuna] = useState(false);
+
+    
 
     const formatNumberInBitcoin = (number) => {
         let numericValue = typeof number === 'string' ? parseFloat(number.replace(/,/g, '')) : number;
@@ -44,6 +47,9 @@ const AnalyticsDashboard = () => {
         setInBitcoin(!inBitcoin);
     };
 
+    const toggleLunaDenomination = () => {
+        setInLuna(!inLuna);
+    };
 
     if (!ophirStats) {
         return (
@@ -54,7 +60,7 @@ const AnalyticsDashboard = () => {
       }
   return (
     <>
-        {ophirStats && 
+        {ophirStats && ophirTreasury && priceData &&
             <div className="pt-12 bg-black text-white min-h-screen">
                 <div className="p-3 bg-black">
                     <div className="text-3xl font-bold text-white mb-4">Ophir Statistics</div>
@@ -102,10 +108,35 @@ const AnalyticsDashboard = () => {
                 </div>
                 <div className="p-3 bg-black">
                     <div className="text-3xl font-bold text-white mb-4">Ophir Treasury</div>
-                    <div className="
-                    grid 
-                    grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
-                    ">
+                    <div className="overflow-x-auto pb-2">
+                    <table className="max-w-full bg-black mx-auto">
+                        <thead className="bg-yellow-400 text-black">
+                        <tr>
+                            <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Asset</th>
+                            <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Balance</th>
+                            <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Value (USD)</th>
+                            <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Pending Rewards</th>
+                            <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Location</th>
+                        </tr>
+                        </thead>
+                        <tbody className="text-white">
+                        {Object.entries(ophirTreasury).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir').map(([key, value]) => (
+                            <tr key={key}>
+                                <td className="text-left py-3 px-4">{key}</td>
+                                <td className="text-center py-3 px-4">{parseFloat(value.balance).toLocaleString()}</td>
+                                <td className="text-center py-3 px-4">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
+                                {inLuna ? 
+                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'allianceStake' && `${parseFloat(value.rewards).toLocaleString()} luna`}</td>
+                                    :
+                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'allianceStake' && `$${formatNumber(parseFloat(value.rewards),2)}`}</td>
+                                }
+                                <td className="text-center py-3 px-4">{value.location}</td>
+                            </tr>
+                        ))}
+                        </tbody>
+                    </table>
+                </div>
+                    <div className="mx-[10dvw]">
                         <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center cursor-pointer" onClick={toggleBitcoinDenomination}>
                             <img src="https://cdn-icons-png.flaticon.com/512/7185/7185535.png" alt="Icon" className="h-8 w-8 mb-1" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Total Treasury Value</div>
@@ -123,6 +154,7 @@ const AnalyticsDashboard = () => {
                         </div>
                     </div>
                 </div>
+                
             </div>
         }
     </>
