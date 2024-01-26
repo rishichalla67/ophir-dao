@@ -126,9 +126,9 @@ const AnalyticsDashboard = () => {
                                 <td className="text-center py-3 px-4">{parseFloat(value.balance).toLocaleString()}</td>
                                 <td className="text-center py-3 px-4">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
                                 {inLuna ? 
-                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'allianceStake' && `${parseFloat(value.rewards).toLocaleString()} luna`}</td>
+                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'Alliance' && `${parseFloat(value.rewards).toLocaleString()} luna`}</td>
                                     :
-                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'allianceStake' && `$${formatNumber(parseFloat(value.rewards*priceData['luna']),2)}`}</td>
+                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'Alliance' && `$${formatNumber(parseFloat(value.rewards*priceData['luna']),2)}`}</td>
                                 }
                                 <td className="text-center py-3 px-4">{value.location}</td>
                             </tr>
