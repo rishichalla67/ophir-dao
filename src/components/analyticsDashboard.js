@@ -8,13 +8,30 @@ const formatNumber = (number, digits) => {
     });
   };
 
+
+
 const AnalyticsDashboard = () => {
     const [ophirStats, setOphirStats] = useState(null);
-    
+    const [ophirTreasury, setOphirTreasury] = useState(null);
+    const [priceData, setPriceData] = useState(null);
+    const [inBitcoin, setInBitcoin] = useState(false);
+
+    const formatNumberInBitcoin = (number) => {
+        let numericValue = typeof number === 'string' ? parseFloat(number.replace(/,/g, '')) : number;
+        if (isNaN(numericValue)) {
+            throw new Error('Invalid number input');
+        }
+        return formatNumber(numericValue / priceData['wBTC'], 6);
+    }
+
     const fetchData = async () => {
         try {
-            const response = await axios.get('https://parallax-analytics.onrender.com/ophir/stats');
-            setOphirStats(response.data);
+            const statsResponse = await axios.get('https://parallax-analytics.onrender.com/ophir/stats');
+            const treasuryResponse = await axios.get('https://parallax-analytics.onrender.com/ophir/treasury');
+            const prices = await axios.get('https://parallax-analytics.onrender.com/ophir/prices');
+            setOphirStats(statsResponse.data);
+            setOphirTreasury(treasuryResponse.data);
+            setPriceData(prices.data);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -22,6 +39,11 @@ const AnalyticsDashboard = () => {
     useEffect(() => {
         fetchData();
     }, []);
+
+    const toggleBitcoinDenomination = () => {
+        setInBitcoin(!inBitcoin);
+    };
+
 
     if (!ophirStats) {
         return (
@@ -75,6 +97,22 @@ const AnalyticsDashboard = () => {
                             <img src="https://cdn2.iconfinder.com/data/icons/ios-7-icons/50/speedometer-512.png" alt="Icon" className="h-8 w-8 mb-1" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Total Supply</div>
                             <div className="sm:text-xl text-md ">{formatNumber(ophirStats?.totalSupply,0)}</div>
+                        </div>
+                        {/* Total Treasury Value */}
+                        <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center cursor-pointer" onClick={toggleBitcoinDenomination}>
+                            <img src="https://cdn-icons-png.flaticon.com/512/7185/7185535.png" alt="Icon" className="h-8 w-8 mb-1" />
+                            <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Total Treasury Value</div>
+                            {inBitcoin ? 
+                                <div className="sm:text-xl text-md ">{formatNumberInBitcoin(ophirTreasury?.totalTreasuryValue)} BTC</div>
+                                :
+                                <div className="sm:text-xl text-md ">${formatNumber(ophirTreasury?.totalTreasuryValue,0)}</div>
+                            }
+                            {inBitcoin ? 
+                                <div className="sm:text-md text-sm text-center mt-1"><a className="font-bold sm:text-sm text-xsm">W/O Ophir:</a> {formatNumberInBitcoin(ophirTreasury?.treasuryValueWithoutOphir)} BTC</div>
+                                :
+                                <div className="sm:text-md text-sm text-center mt-1"><a className="font-bold sm:text-sm text-xsm">W/O Ophir:</a> ${formatNumber(ophirTreasury?.treasuryValueWithoutOphir,0)}</div>
+                            }
+                            
                         </div>
                     </div>
                 </div>

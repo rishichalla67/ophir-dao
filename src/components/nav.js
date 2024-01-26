@@ -4,7 +4,6 @@ const Nav = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isBuyMenuOpen, setIsBuyMenuOpen] = useState(false);
 
-
   return (
     <header className="bg-black text-white w-full fixed top-0 left-0 z-50">
       <div className="flex justify-between items-center p-4">
