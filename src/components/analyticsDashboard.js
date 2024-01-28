@@ -89,7 +89,7 @@ const AnalyticsDashboard = () => {
                         {/* Ophir Mine */}
                         <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center" title="Ophir that will be distributed to stakers...">
                             <img src="https://cdn-icons-png.flaticon.com/512/5895/5895891.png" alt="Icon" className="h-8 w-8 mb-1" />
-                            <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Ophir In Mine</div>
+                            <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Mined Ophir</div>
                             <div className="sm:text-xl text-md ">{formatNumber(ophirStats?.ophirInMine,0)}</div>
                         </div>
                         {/* Circulating Supply */}
