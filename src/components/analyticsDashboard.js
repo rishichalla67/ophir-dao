@@ -17,7 +17,7 @@ const AnalyticsDashboard = () => {
     const [inBitcoin, setInBitcoin] = useState(false);
     const [inLuna, setInLuna] = useState(false);
 
-    
+    const totalSupply = 1000000000;
 
     const formatNumberInBitcoin = (number) => {
         let numericValue = typeof number === 'string' ? parseFloat(number.replace(/,/g, '')) : number;
@@ -50,6 +50,10 @@ const AnalyticsDashboard = () => {
     const toggleLunaDenomination = () => {
         setInLuna(!inLuna);
     };
+
+    const getPercentageOfTotalOphirSupply = (value) => {
+        return (value/totalSupply)*100;
+    }
 
     if (!ophirStats) {
         return (
@@ -97,19 +101,22 @@ const AnalyticsDashboard = () => {
                             <img src="https://static.thenounproject.com/png/3844310-200.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Circulating Supply</div>
                             <div className="sm:text-xl text-md">{formatNumber(ophirStats?.circulatingSupply,0)}</div>
+                            <div className="sm:text-sm text-sm text-center text-slate-600" title="(circulating supply / total supply) * 100">{formatNumber(getPercentageOfTotalOphirSupply(ophirStats?.circulatingSupply),2)}%</div>
+
                         </div>
                         {/* Staked Supply */}
                         <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
                             <img src="https://static.thenounproject.com/png/904757-200.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Staked Supply</div>
                             <div className="sm:text-xl text-md">{formatNumber(ophirStats?.stakedSupply,0)}</div>
+                            <div className="sm:text-sm text-sm text-center text-slate-600" title="(staked supply / total supply) * 100">{formatNumber(getPercentageOfTotalOphirSupply(ophirStats?.stakedSupply),2)}%</div>
                         </div>
                         {/* Total Supply */}
-                        <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
+                        {/* <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
                             <img src="https://cdn2.iconfinder.com/data/icons/ios-7-icons/50/speedometer-512.png" alt="Icon" className="h-8 w-8 mb-1" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Total Supply</div>
                             <div className="sm:text-xl text-md ">{formatNumber(ophirStats?.totalSupply,0)}</div>
-                        </div>
+                        </div> */}
                     </div>
                 </div>
                 <div className="p-3 bg-black">
