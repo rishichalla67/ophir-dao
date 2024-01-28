@@ -86,6 +86,12 @@ const AnalyticsDashboard = () => {
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">FDV</div>
                             <div className="sm:text-xl text-md">${formatNumber(ophirStats?.fdv,0)}</div>
                         </div>
+                        {/* Ophir Mine */}
+                        <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center" title="Ophir that will be distributed to stakers...">
+                            <img src="https://cdn-icons-png.flaticon.com/512/5895/5895891.png" alt="Icon" className="h-8 w-8 mb-1" />
+                            <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Ophir In Mine</div>
+                            <div className="sm:text-xl text-md ">{formatNumber(ophirStats?.ophirInMine,0)}</div>
+                        </div>
                         {/* Circulating Supply */}
                         <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
                             <img src="https://static.thenounproject.com/png/3844310-200.png" alt="Icon" className="h-8 w-8 mb-2" />
@@ -112,11 +118,11 @@ const AnalyticsDashboard = () => {
                     <table className="max-w-full bg-black mx-auto">
                         <thead className="bg-yellow-400 text-black">
                         <tr>
-                            <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Asset</th>
-                            <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Balance</th>
-                            <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Value (USD)</th>
-                            <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Pending Rewards</th>
-                            <th className="text-center py-3 px-4 uppercase font-semibold text-sm">Location</th>
+                            <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Asset</th>
+                            <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Balance</th>
+                            <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Value (USD)</th>
+                            <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Pending Rewards</th>
+                            <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Location</th>
                         </tr>
                         </thead>
                         <tbody className="text-white">
@@ -136,7 +142,7 @@ const AnalyticsDashboard = () => {
                         </tbody>
                     </table>
                 </div>
-                    <div className="mx-[10dvw]">
+                    <div className="mx-[20dvw]">
                         <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center cursor-pointer" onClick={toggleBitcoinDenomination}>
                             <img src="https://cdn-icons-png.flaticon.com/512/7185/7185535.png" alt="Icon" className="h-8 w-8 mb-1" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Total Treasury Value</div>
