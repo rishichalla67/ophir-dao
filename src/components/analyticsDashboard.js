@@ -77,6 +77,8 @@ const AnalyticsDashboard = () => {
                             <img src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Price</div>
                             <div className="sm:text-xl text-md">${formatNumber(ophirStats?.price, 5)}</div>
+                            <div className="sm:text-sm text-sm text-center text-slate-600" title="Redemption Price">RP: ${formatNumber(ophirTreasury?.ophirRedemptionPrice, 4)}</div>
+
                         </div>
                         {/* Market Cap */}
                         <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
@@ -133,7 +135,7 @@ const AnalyticsDashboard = () => {
                         </tr>
                         </thead>
                         <tbody className="text-white">
-                        {Object.entries(ophirTreasury).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir').map(([key, value]) => (
+                        {Object.entries(ophirTreasury).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
                             <tr key={key}>
                                 <td className="text-left py-3 px-4">{key}</td>
                                 <td className="text-center py-3 px-4">{parseFloat(value.balance).toLocaleString()}</td>
