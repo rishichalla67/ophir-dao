@@ -43,7 +43,12 @@ const Nav = () => {
           <a href="/analytics" className="text-white text-lg py-2 hover:text-yellow-400 rounded">
             Analytics Dashboard
           </a>
-          <a href="https://daodao.zone/dao/migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc/treasury"  className="text-white text-lg py-2 hover:text-yellow-400 rounded" target="_blank" rel="noopener noreferrer">
+          <a href="https://daodao.zone/dao/migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc/treasury" className="text-white text-lg py-2 hover:text-yellow-400 rounded flex items-center" target="_blank" rel="noopener noreferrer">
+            <img
+              src="https://daodao.zone/yin_yang.png"
+              alt="Dao Dao"
+              className="w-6 h-6 mr-2"
+            />
             Dao Dao
           </a>
           <div className="text-white text-lg py-2 rounded group cursor-pointer">
@@ -60,8 +65,22 @@ const Nav = () => {
               </svg>
             </div>
             <div className={`bg-black rounded-md mt-2 ${isBuyMenuOpen ? 'block' : 'hidden'}`}>
-              <a href="https://app.whitewhale.money/migaloo/swap?from=WHALE&to=OPHIR" className="block text-yellow-400 px-4 py-2 hover:text-white rounded" target="_blank" rel="noopener noreferrer">Migaloo</a>
-              <a href="https://plasma.fuzion.app/" className="block text-yellow-400 px-4 py-2 hover:text-white rounded" target="_blank" rel="noopener noreferrer">OTC Via Fuzion</a>
+              <a href="https://app.whitewhale.money/migaloo/swap?from=WHALE&to=OPHIR" className="block text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center" target="_blank" rel="noopener noreferrer">
+                <img
+                  src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/white-whale.png"
+                  alt="White Whale"
+                  className="w-6 h-6 mr-2"
+                />
+                Migaloo
+              </a>
+              <a href="https://plasma.fuzion.app/" className="block text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center" target="_blank" rel="noopener noreferrer">
+                <img
+                  src="https://dashboard.fuzion.app/png/ic_plasma.png"
+                  alt="Fuzion OTC"
+                  className="w-6 h-6 mr-2"
+                />
+                OTC Via Fuzion
+              </a>
             </div>
           </div>
           <a href="https://twitter.com/Ophir_DAO" className="text-white text-lg py-2 hover:text-yellow-400 rounded">
