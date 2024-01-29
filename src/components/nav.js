@@ -44,7 +44,7 @@ const Nav = () => {
             Analytics Dashboard
           </a>
           <a href="https://daodao.zone/dao/migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc/treasury"  className="text-white text-lg py-2 hover:text-yellow-400 rounded" target="_blank" rel="noopener noreferrer">
-            DaoDao
+            Dao Dao
           </a>
           <div className="text-white text-lg py-2 rounded group cursor-pointer">
             <div onClick={() => setIsBuyMenuOpen(!isBuyMenuOpen)} className="flex justify-between items-center">
