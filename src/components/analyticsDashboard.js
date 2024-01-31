@@ -57,9 +57,10 @@ const AnalyticsDashboard = () => {
 
     if (!ophirStats) {
         return (
-          <div className="flex justify-center items-center h-screen">
+          <div className="flex flex-col justify-center items-center h-screen">
+              <div className="text-white mb-4">Fetching On-Chain Data...</div>
               <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
-            </div>
+          </div>
         );
       }
   return (
