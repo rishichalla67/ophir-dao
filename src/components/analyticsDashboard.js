@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import CryptoPieChart from './pieChart';
 
 const formatNumber = (number, digits) => {
     return number.toLocaleString('en-US', {
@@ -53,6 +54,26 @@ const AnalyticsDashboard = () => {
 
     const getPercentageOfTotalOphirSupply = (value) => {
         return (value/totalSupply)*100;
+    }
+
+    function formatDataForChart(data) {
+        let formattedData = [];
+    
+        for (const key in data) {
+            // Exclude the "ophir" key
+            if (key === 'ophir') {
+                continue;
+            }
+            console.log(priceData);
+            if (data[key].hasOwnProperty('balance')) {
+                formattedData.push({
+                    name: key,
+                    value: parseFloat((data[key].balance*priceData[key]))
+                });
+            }
+        }
+    
+        return formattedData;
     }
 
     if (!ophirStats) {
@@ -114,44 +135,41 @@ const AnalyticsDashboard = () => {
                             <div className="sm:text-xl text-md">{formatNumber(ophirStats?.stakedSupply,0)}</div>
                             <div className="sm:text-sm text-sm text-center text-slate-600" title="(staked supply / total supply) * 100">{formatNumber(getPercentageOfTotalOphirSupply(ophirStats?.stakedSupply),2)}%</div>
                         </div>
-                        {/* Total Supply */}
-                        {/* <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
-                            <img src="https://cdn2.iconfinder.com/data/icons/ios-7-icons/50/speedometer-512.png" alt="Icon" className="h-8 w-8 mb-1" />
-                            <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Total Supply</div>
-                            <div className="sm:text-xl text-md ">{formatNumber(ophirStats?.totalSupply,0)}</div>
-                        </div> */}
                     </div>
                 </div>
-                <div className="p-3 bg-black">
-                    <div className="text-3xl font-bold text-white mb-4">Ophir Treasury</div>
-                    <div className="overflow-x-auto pb-2">
-                    <table className="max-w-full bg-black mx-auto">
-                        <thead className="bg-yellow-400 text-black">
-                        <tr>
-                            <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Asset</th>
-                            <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Balance</th>
-                            <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Value (USD)</th>
-                            <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Pending Rewards</th>
-                            <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Location</th>
-                        </tr>
-                        </thead>
-                        <tbody className="text-white">
-                        {Object.entries(ophirTreasury).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
-                            <tr key={key}>
-                                <td className="text-left py-3 px-4">{key}</td>
-                                <td className="text-center py-3 px-4">{parseFloat(value.balance).toLocaleString()}</td>
-                                <td className="text-center py-3 px-4">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
-                                {inLuna ? 
-                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'Alliance' && `${parseFloat(value.rewards).toLocaleString()} luna`}</td>
-                                    :
-                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'Alliance' && `$${formatNumber(parseFloat(value.rewards*priceData['luna']),2)}`}</td>
-                                }
-                                <td className="text-center py-3 px-4">{value.location}</td>
+                    <div className="p-3 bg-black">
+                        <div className="text-3xl font-bold text-white mb-4">Ophir Treasury</div>
+                        <div className="overflow-x-auto pb-2">
+                        <table className="max-w-full bg-black mx-auto">
+                            <thead className="bg-yellow-400 text-black">
+                            <tr>
+                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Asset</th>
+                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Balance</th>
+                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Value (USD)</th>
+                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Pending Rewards</th>
+                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Location</th>
                             </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
+                            <tbody className="text-white">
+                            {Object.entries(ophirTreasury).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
+                                <tr key={key}>
+                                    <td className="text-left py-3 px-4">{key}</td>
+                                    <td className="text-center py-3 px-4">{parseFloat(value.balance).toLocaleString()}</td>
+                                    <td className="text-center py-3 px-4">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
+                                    {inLuna ? 
+                                        <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'Alliance' && `${parseFloat(value.rewards).toLocaleString()} luna`}</td>
+                                        :
+                                        <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'Alliance' && `$${formatNumber(parseFloat(value.rewards*priceData['luna']),2)}`}</td>
+                                    }
+                                    <td className="text-center py-3 px-4">{value.location}</td>
+                                </tr>
+                            ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div className="flex justify-center pb-2">
+                        <CryptoPieChart data={formatDataForChart(ophirTreasury)} />
+                    </div>
                     <div className="mx-[20dvw]">
                         <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center cursor-pointer" onClick={toggleBitcoinDenomination}>
                             <img src="https://cdn-icons-png.flaticon.com/512/7185/7185535.png" alt="Icon" className="h-8 w-8 mb-1" />
@@ -170,7 +188,6 @@ const AnalyticsDashboard = () => {
                         </div>
                     </div>
                 </div>
-                
             </div>
         }
     </>
