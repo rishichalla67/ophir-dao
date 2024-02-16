@@ -9,6 +9,8 @@ const formatNumber = (number, digits) => {
     });
   };
 
+  const prodUrl = 'https://parallax-analytics.onrender.com';
+  const localUrl = 'http://localhost:225';
 
 
 const AnalyticsDashboard = () => {
@@ -30,9 +32,9 @@ const AnalyticsDashboard = () => {
 
     const fetchData = async () => {
         try {
-            const statsResponse = await axios.get('https://parallax-analytics.onrender.com/ophir/stats');
-            const treasuryResponse = await axios.get('https://parallax-analytics.onrender.com/ophir/treasury');
-            const prices = await axios.get('https://parallax-analytics.onrender.com/ophir/prices');
+            const statsResponse = await axios.get(`${prodUrl}/ophir/stats`);
+            const treasuryResponse = await axios.get(`${prodUrl}/ophir/treasury`);
+            const prices = await axios.get(`${prodUrl}/ophir/prices`);
             setOphirStats(statsResponse.data);
             setOphirTreasury(treasuryResponse.data);
             setPriceData(prices.data);
@@ -64,7 +66,6 @@ const AnalyticsDashboard = () => {
             if (key === 'ophir') {
                 continue;
             }
-            console.log(priceData);
             if (data[key].hasOwnProperty('balance')) {
                 formattedData.push({
                     name: key,
