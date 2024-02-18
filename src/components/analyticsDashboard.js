@@ -20,6 +20,7 @@ const AnalyticsDashboard = () => {
     const [inBitcoin, setInBitcoin] = useState(false);
     const [inLuna, setInLuna] = useState(false);
     const [inWhale, setInWhale] = useState(false);
+    const [sort, setSort] = useState('descending');
 
     const totalSupply = 1000000000;
 
@@ -58,6 +59,38 @@ const AnalyticsDashboard = () => {
     const toggleWhaleDenomination = () => {
         setInWhale(!inWhale);
     };
+
+    const toggleSortOrder = () => {
+        setSort(sort === 'ascending' ? 'descending' : 'ascending');
+    };
+
+
+    function sortAssetsByValue(data, prices, order = 'ascending') {
+        // Calculate total value for each asset
+        const calculatedValues = Object.entries(data).map(([key, asset]) => {
+          const price = prices[key] || 0;
+          const totalValue = (parseFloat(asset.balance) + parseFloat(asset.rewards)) * price;
+          return { key, ...asset, totalValue };
+        });
+      
+        // Sort based on total value
+        calculatedValues.sort((a, b) => {
+          if (order === 'ascending') {
+            return a.totalValue - b.totalValue;
+          } else {
+            return b.totalValue - a.totalValue;
+          }
+        });
+      
+        // Convert back to original data format, preserving sorted order
+        const sortedData = {};
+        calculatedValues.forEach(asset => {
+          const { key, totalValue, ...rest } = asset; // Exclude totalValue from final output
+          sortedData[key] = rest;
+        });
+      
+        return sortedData;
+      }
 
     const getPercentageOfTotalOphirSupply = (value) => {
         return (value/totalSupply)*100;
@@ -151,13 +184,13 @@ const AnalyticsDashboard = () => {
                             <tr>
                                 <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Asset</th>
                                 <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Balance</th>
-                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Value (USD)</th>
+                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
                                 <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Pending Rewards</th>
                                 <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Location</th>
                             </tr>
                             </thead>
                             <tbody className="text-white">
-                            {Object.entries(ophirTreasury).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
+                            {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
                                 <tr key={key}>
                                     <td className="text-left py-3 px-4">{key}</td>
                                     <td className="text-center py-3 px-4">{parseFloat(value.balance).toLocaleString()}</td>
