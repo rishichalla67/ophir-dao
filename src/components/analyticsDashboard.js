@@ -19,6 +19,7 @@ const AnalyticsDashboard = () => {
     const [priceData, setPriceData] = useState(null);
     const [inBitcoin, setInBitcoin] = useState(false);
     const [inLuna, setInLuna] = useState(false);
+    const [inWhale, setInWhale] = useState(false);
 
     const totalSupply = 1000000000;
 
@@ -32,9 +33,9 @@ const AnalyticsDashboard = () => {
 
     const fetchData = async () => {
         try {
-            const statsResponse = await axios.get(`${prodUrl}/ophir/stats`);
-            const treasuryResponse = await axios.get(`${prodUrl}/ophir/treasury`);
-            const prices = await axios.get(`${prodUrl}/ophir/prices`);
+            const statsResponse = await axios.get(`${localUrl}/ophir/stats`);
+            const treasuryResponse = await axios.get(`${localUrl}/ophir/treasury`);
+            const prices = await axios.get(`${localUrl}/ophir/prices`);
             setOphirStats(statsResponse.data);
             setOphirTreasury(treasuryResponse.data);
             setPriceData(prices.data);
@@ -52,6 +53,10 @@ const AnalyticsDashboard = () => {
 
     const toggleLunaDenomination = () => {
         setInLuna(!inLuna);
+    };
+
+    const toggleWhaleDenomination = () => {
+        setInWhale(!inWhale);
     };
 
     const getPercentageOfTotalOphirSupply = (value) => {
@@ -157,11 +162,14 @@ const AnalyticsDashboard = () => {
                                     <td className="text-left py-3 px-4">{key}</td>
                                     <td className="text-center py-3 px-4">{parseFloat(value.balance).toLocaleString()}</td>
                                     <td className="text-center py-3 px-4">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
-                                    {inLuna ? 
-                                        <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'Alliance' && `${parseFloat(value.rewards).toLocaleString()} luna`}</td>
-                                        :
-                                        <td className="text-center py-3 px-4 cursor-pointer" onClick={toggleLunaDenomination}>{value.rewards && value.location === 'Alliance' && `$${formatNumber(parseFloat(value.rewards*priceData['luna']),2)}`}</td>
-                                    }
+                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={value.location === 'Luna Alliance' ? toggleLunaDenomination : value.location === 'Migaloo Alliance' ? toggleWhaleDenomination : null}>
+                                        {value.rewards && (value.location === 'Luna Alliance' || value.location === 'Migaloo Alliance') && (
+                                            inLuna && value.location === 'Luna Alliance' ? `${parseFloat(value.rewards).toLocaleString()} luna` :
+                                            !inLuna && value.location === 'Luna Alliance' ? `$${formatNumber(parseFloat(value.rewards * priceData['luna']), 2)}` :
+                                            inWhale && value.location === 'Migaloo Alliance' ? `${parseFloat(value.rewards).toLocaleString()} whale` :
+                                            `$${formatNumber(parseFloat(value.rewards * priceData['whale']), 2)}`
+                                        )}
+                                    </td>
                                     <td className="text-center py-3 px-4">{value.location}</td>
                                 </tr>
                             ))}
