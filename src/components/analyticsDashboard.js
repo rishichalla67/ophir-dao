@@ -7,34 +7,35 @@ const Modal = ({ isOpen, onClose, data }) => {
     console.log(data)
     let composition = data.composition;
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-        <div className="bg-black border border-yellow-400 p-4 rounded-lg max-w-md w-full m-4">
-          <h2 className="font-bold text-lg mb-4">Composition</h2>
-          <div className="overflow-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr>
-                  <th className="text-left py-2 px-3">Location</th>
-                  <th className="text-right py-2 px-3">Amount</th>
-                  <th className="text-right py-2 px-3">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(composition).map(([walletName, amount], index) => (
-                  <tr key={index}>
-                    <td className="text-sm font-medium py-2 px-3">{walletName}</td>
-                    <td className="text-sm py-2 px-3 text-right">{amount.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                    <td className="text-sm py-2 px-3 text-right">{(amount * data.price).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <button onClick={onClose} className="mt-4 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-slate-700 hover:text-white w-full">
-            Close
-          </button>
-        </div>
-      </div>
+        <div className="absolute inset-0 mt-[20%] bg-black bg-opacity-50 flex justify-center items-center p-4 md:p-10">
+  <div className="bg-black border border-yellow-400 p-4 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-4xl overflow-auto">
+    <h2 className="text-lg font-bold mb-4">Composition</h2>
+    <div className="overflow-auto max-h-[80vh]">
+      <table className="min-w-full">
+        <thead>
+          <tr>
+            <th className="text-left py-2 px-3">Location</th>
+            <th className="text-right py-2 px-3">Amount</th>
+            <th className="text-right py-2 px-3">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          {Object.entries(composition).map(([walletName, amount], index) => (
+            <tr key={index}>
+              <td className="text-sm font-medium py-2 px-3">{walletName}</td>
+              <td className="text-sm py-2 px-3 text-right">{amount.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+              <td className="text-sm py-2 px-3 text-right">{(amount * data.price).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+    <button onClick={onClose} className="mt-4 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 md:hover:bg-slate-700 hover:text-white w-full">
+      Close
+    </button>
+  </div>
+</div>
+
     );
   };
 
@@ -110,7 +111,7 @@ const AnalyticsDashboard = () => {
         const calculatedValues = Object.entries(data).map(([key, asset]) => {
             const price = prices[key] || 0;
             const totalValue = (parseFloat(asset.balance) + parseFloat(asset.rewards)) * price;
-        
+    
             // Exclude specific keys from truncation
             const excludeTruncation = ['ophirRedemptionPrice', 'treasuryValueWithoutOphir', 'totalTreasuryValue'];
             let truncatedKey = key;
@@ -119,8 +120,8 @@ const AnalyticsDashboard = () => {
             }
             
             return { key: truncatedKey, originalKey: key, ...asset, totalValue };
-        });
-      
+        }).filter(asset => asset.totalValue > 0); // Filter out assets with a total value of 0
+    
         // Sort based on total value
         calculatedValues.sort((a, b) => {
           if (order === 'ascending') {
@@ -129,7 +130,7 @@ const AnalyticsDashboard = () => {
             return b.totalValue - a.totalValue;
           }
         });
-      
+    
         // Convert back to original data format, preserving sorted order
         const sortedData = {};
         calculatedValues.forEach(asset => {
@@ -139,6 +140,7 @@ const AnalyticsDashboard = () => {
     
         return sortedData;
     }
+    
 
     const getPercentageOfTotalOphirSupply = (value) => {
         return (value/totalSupply)*100;
@@ -153,6 +155,10 @@ const AnalyticsDashboard = () => {
                 continue;
             }
             if (data[key].hasOwnProperty('balance')) {
+                console.log(data[key].balance * priceData[key])
+                if(isNaN(data[key].balance * priceData[key])){
+                    continue;
+                }
                 formattedData.push({
                     name: key,
                     value: parseFloat((data[key].balance*priceData[key]))
@@ -177,6 +183,7 @@ const AnalyticsDashboard = () => {
             <div className="pt-12 bg-black text-white min-h-screen">
                 <div className="p-3 bg-black">
                     <div className="text-3xl font-bold text-white mb-4">Ophir Statistics</div>
+                    
                     <div className="
                     grid 
                     grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
@@ -224,38 +231,40 @@ const AnalyticsDashboard = () => {
                         </div>
                     </div>
                 </div>
+                <Modal isOpen={isModalOpen} onClose={toggleModal} data={modalData} />
                     <div className="p-3 bg-black">
                         <div className="text-3xl font-bold text-white mb-4">Ophir Treasury</div>
                         <div className="overflow-x-auto pb-2">
-                        <table className="max-w-full bg-black mx-auto">
+                        <table className="max-w-full bg-black mx-auto table-auto sm:w-full">
                             <thead className="bg-yellow-400 text-black">
-                            <tr>
-                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Asset</th>
-                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Balance</th>
-                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
-                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Pending Rewards</th>
-                                <th className="text-center py-1 px-2 uppercase font-semibold text-sm">Location</th>
-                            </tr>
-                            </thead>
-                            <tbody className="text-white">
-                            {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
-                                <tr className={`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
-                                    <td className="text-left py-3 px-4" >{key}</td>
-                                    <td className="text-center py-3 px-4">{parseFloat(value.balance).toLocaleString()}</td>
-                                    <td className="text-center py-3 px-4">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
-                                    <td className="text-center py-3 px-4 cursor-pointer" onClick={value.location === 'Luna Alliance' ? toggleLunaDenomination : value.location === 'Migaloo Alliance' ? toggleWhaleDenomination : null}>
-                                        {value.rewards && (value.location === 'Luna Alliance' || value.location === 'Migaloo Alliance') && (
-                                            inLuna && value.location === 'Luna Alliance' ? `${parseFloat(value.rewards).toLocaleString()} luna` :
-                                            !inLuna && value.location === 'Luna Alliance' ? `$${formatNumber(parseFloat(value.rewards * priceData['luna']), 2)}` :
-                                            inWhale && value.location === 'Migaloo Alliance' ? `${parseFloat(value.rewards).toLocaleString()} whale` :
-                                            `$${formatNumber(parseFloat(value.rewards * priceData['whale']), 2)}`
-                                        )}
-                                    </td>
-                                    <td className="text-center py-3 px-4">{value.location}</td>
+                                <tr>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xs sm:text-xs">Asset</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xs sm:text-xs">Balance</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xs sm:text-xs hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xs sm:text-xs">Rewards</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xs sm:text-xs">Location</th>
                                 </tr>
-                            ))}
+                            </thead>
+                            <tbody className="text-white text-xs sm:text-xs">
+                                {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
+                                    <tr className={`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
+                                        <td className="text-left py-2 px-1 sm:px-1" title={value?.originalKey}>{key}</td>
+                                        <td className="text-center py-2 px-1 sm:px-1">{parseFloat(value.balance).toLocaleString()}</td>
+                                        <td className="text-center py-2 px-1 sm:px-1">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
+                                        <td className="text-center py-2 px-1 sm:px-1 cursor-pointer" onClick={value.location === 'Luna Alliance' ? toggleLunaDenomination : value.location === 'Migaloo Alliance' ? toggleWhaleDenomination : null}>
+                                            {value.rewards && (value.location === 'Luna Alliance' || value.location === 'Migaloo Alliance') && (
+                                                inLuna && value.location === 'Luna Alliance' ? `${parseFloat(value.rewards).toLocaleString()} luna` :
+                                                !inLuna && value.location === 'Luna Alliance' ? `$${formatNumber(parseFloat(value.rewards * priceData['luna']), 2)}` :
+                                                inWhale && value.location === 'Migaloo Alliance' ? `${parseFloat(value.rewards).toLocaleString()} whale` :
+                                                `$${formatNumber(parseFloat(value.rewards * priceData['whale']), 2)}`
+                                            )}
+                                        </td>
+                                        <td className="text-center py-2 px-1 sm:px-1">{value.location}</td>
+                                    </tr>
+                                ))}
                             </tbody>
                         </table>
+
                     </div>
                     <div className="flex justify-center pb-2">
                         <CryptoPieChart data={formatDataForChart(ophirTreasury)} />
@@ -277,7 +286,7 @@ const AnalyticsDashboard = () => {
                             
                         </div>
                     </div>
-                    <Modal isOpen={isModalOpen} onClose={toggleModal} data={modalData} />
+                   
                 </div>
             </div>
         }

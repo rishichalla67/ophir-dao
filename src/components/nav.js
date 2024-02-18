@@ -88,36 +88,6 @@ const Nav = () => {
           </a>
         </nav>
       </div>
-
-      {/* Desktop menu - always visible */}
-        {/* <div className="hidden md:flex justify-between items-center w-full p-4">
-            <nav className="flex justify-between items-center w-full">
-                <a href="#home" className="text-white text-lg py-2 px-4 hover:text-yellow-400 rounded">
-                Home
-                </a>
-                <a href="#analytics" className="text-white text-lg py-2 px-4 hover:text-yellow-400 rounded">
-                Analytics Dashboard
-                </a>
-                <a href="https://daodao.zone/dao/migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc/treasury" className="text-white text-lg py-2 px-4 hover:text-yellow-400 rounded" target="_blank" rel="noopener noreferrer">
-                DaoDao
-                </a>
-                <div className="group relative text-white text-lg py-2 px-4 rounded cursor-pointer">
-                <div className="flex items-center">
-                    Buy Ophir
-                    <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
-                    </svg>
-                </div>
-                <div className="absolute hidden group-hover:block bg-black rounded-md mt-2">
-                    <a href="https://app.whitewhale.money/migaloo/swap?from=WHALE&to=OPHIR" className="block text-yellow-400 px-4 py-2 hover:text-white rounded" target="_blank" rel="noopener noreferrer">Migaloo</a>
-                    <a href="https://plasma.fuzion.app/" className="block text-yellow-400 px-4 py-2 hover:text-white rounded" target="_blank" rel="noopener noreferrer">OTC Via Fuzion</a>
-                </div>
-                </div>
-                <a href="https://twitter.com/Ophir_DAO" className="text-white text-lg py-2 px-4 hover:text-yellow-400 rounded">
-                About us
-                </a>
-            </nav>
-        </div> */}
     </header>
   );
 };
