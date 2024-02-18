@@ -2,6 +2,42 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import CryptoPieChart from './pieChart';
 
+const Modal = ({ isOpen, onClose, data }) => {
+    if (!isOpen) return null;
+    console.log(data)
+    let composition = data.composition;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div className="bg-black border border-yellow-400 p-4 rounded-lg max-w-md w-full m-4">
+          <h2 className="font-bold text-lg mb-4">Composition</h2>
+          <div className="overflow-auto">
+            <table className="min-w-full">
+              <thead>
+                <tr>
+                  <th className="text-left py-2 px-3">Location</th>
+                  <th className="text-right py-2 px-3">Amount</th>
+                  <th className="text-right py-2 px-3">Value</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(composition).map(([walletName, amount], index) => (
+                  <tr key={index}>
+                    <td className="text-sm font-medium py-2 px-3">{walletName}</td>
+                    <td className="text-sm py-2 px-3 text-right">{amount.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                    <td className="text-sm py-2 px-3 text-right">{(amount * data.price).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <button onClick={onClose} className="mt-4 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-slate-700 hover:text-white w-full">
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  };
+
 const formatNumber = (number, digits) => {
     return number.toLocaleString('en-US', {
       minimumFractionDigits: digits,
@@ -21,6 +57,10 @@ const AnalyticsDashboard = () => {
     const [inLuna, setInLuna] = useState(false);
     const [inWhale, setInWhale] = useState(false);
     const [sort, setSort] = useState('descending');
+    const [isModalOpen, setModalOpen] = useState(false);
+    const [modalData, setModalData] = useState({});
+
+    const toggleModal = () => setModalOpen(!isModalOpen);
 
     const totalSupply = 1000000000;
 
@@ -34,9 +74,9 @@ const AnalyticsDashboard = () => {
 
     const fetchData = async () => {
         try {
-            const statsResponse = await axios.get(`${prodUrl}/ophir/stats`);
-            const treasuryResponse = await axios.get(`${prodUrl}/ophir/treasury`);
-            const prices = await axios.get(`${prodUrl}/ophir/prices`);
+            const statsResponse = await axios.get(`${localUrl}/ophir/stats`);
+            const treasuryResponse = await axios.get(`${localUrl}/ophir/treasury`);
+            const prices = await axios.get(`${localUrl}/ophir/prices`);
             setOphirStats(statsResponse.data);
             setOphirTreasury(treasuryResponse.data);
             setPriceData(prices.data);
@@ -68,9 +108,17 @@ const AnalyticsDashboard = () => {
     function sortAssetsByValue(data, prices, order = 'ascending') {
         // Calculate total value for each asset
         const calculatedValues = Object.entries(data).map(([key, asset]) => {
-          const price = prices[key] || 0;
-          const totalValue = (parseFloat(asset.balance) + parseFloat(asset.rewards)) * price;
-          return { key, ...asset, totalValue };
+            const price = prices[key] || 0;
+            const totalValue = (parseFloat(asset.balance) + parseFloat(asset.rewards)) * price;
+        
+            // Exclude specific keys from truncation
+            const excludeTruncation = ['ophirRedemptionPrice', 'treasuryValueWithoutOphir', 'totalTreasuryValue'];
+            let truncatedKey = key;
+            if (!excludeTruncation.includes(key) && key.length > 15) {
+                truncatedKey = `${key.substring(0, 8)}...`;
+            }
+            
+            return { key: truncatedKey, originalKey: key, ...asset, totalValue };
         });
       
         // Sort based on total value
@@ -85,12 +133,12 @@ const AnalyticsDashboard = () => {
         // Convert back to original data format, preserving sorted order
         const sortedData = {};
         calculatedValues.forEach(asset => {
-          const { key, totalValue, ...rest } = asset; // Exclude totalValue from final output
-          sortedData[key] = rest;
+          const { key, originalKey, totalValue, ...rest } = asset; // Exclude totalValue from final output
+          sortedData[key] = { ...rest, originalKey };
         });
-      
+    
         return sortedData;
-      }
+    }
 
     const getPercentageOfTotalOphirSupply = (value) => {
         return (value/totalSupply)*100;
@@ -191,8 +239,8 @@ const AnalyticsDashboard = () => {
                             </thead>
                             <tbody className="text-white">
                             {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
-                                <tr key={key}>
-                                    <td className="text-left py-3 px-4">{key}</td>
+                                <tr className={`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
+                                    <td className="text-left py-3 px-4" >{key}</td>
                                     <td className="text-center py-3 px-4">{parseFloat(value.balance).toLocaleString()}</td>
                                     <td className="text-center py-3 px-4">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
                                     <td className="text-center py-3 px-4 cursor-pointer" onClick={value.location === 'Luna Alliance' ? toggleLunaDenomination : value.location === 'Migaloo Alliance' ? toggleWhaleDenomination : null}>
@@ -229,6 +277,7 @@ const AnalyticsDashboard = () => {
                             
                         </div>
                     </div>
+                    <Modal isOpen={isModalOpen} onClose={toggleModal} data={modalData} />
                 </div>
             </div>
         }
