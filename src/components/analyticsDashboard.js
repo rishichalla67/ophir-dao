@@ -75,9 +75,9 @@ const AnalyticsDashboard = () => {
 
     const fetchData = async () => {
         try {
-            const statsResponse = await axios.get(`${localUrl}/ophir/stats`);
-            const treasuryResponse = await axios.get(`${localUrl}/ophir/treasury`);
-            const prices = await axios.get(`${localUrl}/ophir/prices`);
+            const statsResponse = await axios.get(`${prodUrl}/ophir/stats`);
+            const treasuryResponse = await axios.get(`${prodUrl}/ophir/treasury`);
+            const prices = await axios.get(`${prodUrl}/ophir/prices`);
             setOphirStats(statsResponse.data);
             setOphirTreasury(treasuryResponse.data);
             setPriceData(prices.data);
