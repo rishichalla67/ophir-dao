@@ -75,9 +75,9 @@ const AnalyticsDashboard = () => {
 
     const fetchData = async () => {
         try {
-            const statsResponse = await axios.get(`${prodUrl}/ophir/stats`);
-            const treasuryResponse = await axios.get(`${prodUrl}/ophir/treasury`);
-            const prices = await axios.get(`${prodUrl}/ophir/prices`);
+            const statsResponse = await axios.get(`${localUrl}/ophir/stats`);
+            const treasuryResponse = await axios.get(`${localUrl}/ophir/treasury`);
+            const prices = await axios.get(`${localUrl}/ophir/prices`);
             setOphirStats(statsResponse.data);
             setOphirTreasury(treasuryResponse.data);
             setPriceData(prices.data);
@@ -251,10 +251,10 @@ const AnalyticsDashboard = () => {
                                         <td className="text-left py-2 px-1 sm:px-1" title={value?.originalKey}>{key}</td>
                                         <td className="text-center py-2 px-1 sm:px-1">{parseFloat(value.balance).toLocaleString()}</td>
                                         <td className="text-center py-2 px-1 sm:px-1">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
-                                        <td className="text-center py-2 px-1 sm:px-1 cursor-pointer" onClick={value.location === 'Luna Alliance' ? toggleLunaDenomination : value.location === 'Migaloo Alliance' ? toggleWhaleDenomination : null}>
-                                            {value.rewards && (value.location === 'Luna Alliance' || value.location === 'Migaloo Alliance') && (
-                                                inLuna && value.location === 'Luna Alliance' ? `${parseFloat(value.rewards).toLocaleString()} luna` :
-                                                !inLuna && value.location === 'Luna Alliance' ? `$${formatNumber(parseFloat(value.rewards * priceData['luna']), 2)}` :
+                                        <td className="text-center py-2 px-1 sm:px-1 cursor-pointer" onClick={value.location.includes('Luna Alliance') ? toggleLunaDenomination : value.location === 'Migaloo Alliance' ? toggleWhaleDenomination : null}>
+                                            {value.rewards && (value.location.includes('Luna Alliance') || value.location === 'Migaloo Alliance') && (
+                                                inLuna && value.location.includes('Luna Alliance') ? `${parseFloat(value.rewards).toLocaleString()} luna` :
+                                                !inLuna && value.location.includes('Luna Alliance') ? `$${formatNumber(parseFloat(value.rewards * priceData['luna']), 2)}` :
                                                 inWhale && value.location === 'Migaloo Alliance' ? `${parseFloat(value.rewards).toLocaleString()} whale` :
                                                 `$${formatNumber(parseFloat(value.rewards * priceData['whale']), 2)}`
                                             )}
