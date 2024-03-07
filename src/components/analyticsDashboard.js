@@ -70,6 +70,70 @@ const Modal = ({ isOpen, onClose, data }) => {
     };
 };
 
+const prepareComparisonChartData = (totalTreasuryData, chartData) => {
+    const chartLabels = totalTreasuryData.map(item => item.date);
+    // Ensure there's at least one value and it's not null for both datasets
+    if (!totalTreasuryData.length || !chartData['wBTC'].length) return { labels: [], datasets: [] };
+
+    // Initialize starting values
+    const startTreasuryValue = totalTreasuryData[0].totalValue;
+    const startWBTCValue = chartData['wBTC'].find(data => data.price !== null)?.price || 0;
+
+    // Avoid division by zero
+    if (startTreasuryValue === 0 || startWBTCValue === 0) return { labels: [], datasets: [] };
+
+    // Calculate percentage change from the start for each value
+    const treasuryValues = totalTreasuryData.map(item => ((item.totalValue - startTreasuryValue) / startTreasuryValue) * 100);
+    const wBTCValues = chartLabels.map(label => {
+        const labelDate = new Date(label).toISOString().slice(0, 10);
+        const matchingWBTCData = chartData['wBTC'].find(data => {
+            const dataDate = new Date(data.timestamp).toISOString().slice(0, 10);
+            return dataDate === labelDate;
+        });
+        if (matchingWBTCData) {
+            return ((matchingWBTCData.price - startWBTCValue) / startWBTCValue) * 100;
+        }
+        return null;
+    });
+    console.log(wBTCValues);
+    return {
+        labels: chartLabels,
+        datasets: [
+            {
+                label: 'Total Treasury Value (% Change)',
+                data: treasuryValues,
+                fill: false,
+                borderColor: 'rgb(255, 206, 86)',
+                backgroundColor: 'rgba(255, 206, 86, 0.5)',
+                yAxisID: 'y',
+            },
+            {
+                label: 'BTC Price (% Change)',
+                data: wBTCValues,
+                fill: false,
+                borderColor: 'rgb(255, 255, 255)',
+                backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                yAxisID: 'y',
+            }
+        ]
+    };
+};
+
+
+const comparisonOptions = {
+    scales: {
+        y: {
+            type: 'linear',
+            display: true,
+            position: 'left',
+            title: {
+              display: true,
+              text: '% Change from Start'
+            }
+        }
+    }
+};
+
   const createChartData = (chartData) => {
     const datasets = Object.keys(chartData).filter(denom => denom.toLowerCase() !== 'ophir').map((denom) => {
         const dataPoints = chartData[denom];
@@ -441,6 +505,10 @@ const AnalyticsDashboard = () => {
                             </div>
                         </div>
                     }
+                    <div className="p-3 bg-black">
+                        <div className="text-3xl font-bold text-white mb-4">Total Treasury vs BTC Price</div>
+                        <Line data={prepareComparisonChartData(totalTreasuryChartData, chartData)} options={comparisonOptions} />
+                    </div>
                     {/* <div className="my-8">
                         <h2 className="text-xl font-bold mb-4 text-center">Combined Asset Values</h2>
                         <Line data={createChartData(chartData)} options={options} />
