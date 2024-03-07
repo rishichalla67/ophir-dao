@@ -1,7 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 const Redeem = () => {
     const [ophirAmount, setOphirAmount] = useState('');
+    const [connectedWalletAddress, setConnectedWalletAddress] = useState('');
+    const [ophirBalance, setOphirBalance] = useState(0); // Add a state for the balance
+
+    useEffect(() => {
+        if (connectedWalletAddress) {
+            checkBalance(connectedWalletAddress).then(balance => {
+                setOphirBalance(balance); // Update the balance state when the promise resolves
+            });
+        }
+    }, [connectedWalletAddress]); // Re-run this effect when connectedWalletAddress changes
+
     const connectWallet = async () => {
         if (window.keplr) {
             try {
@@ -51,6 +62,8 @@ const Redeem = () => {
                 const offlineSigner = window.keplr.getOfflineSigner(chainId);
                 const accounts = await offlineSigner.getAccounts();
                 console.log(accounts);
+                setConnectedWalletAddress(accounts[0].address);
+                
             } catch (error) {
                 console.error("Error connecting to Keplr:", error);
             }
@@ -58,42 +71,61 @@ const Redeem = () => {
             alert("Please install Keplr extension");
         }
     };
+
+    const checkBalance = async (address) => {
+        const baseUrl = "https://migaloo-lcd.erisprotocol.com"; // Replace with the actual REST API base URL for Migaloo
+        const response = await fetch(`${baseUrl}/cosmos/bank/v1beta1/balances/${address}`);
+        const data = await response.json();
+    
+        // Assuming the API returns a list of balance objects, each with denom and amount
+        const ophirBalance = data.balances.find(balance => balance.denom === "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir");
+    
+        if (ophirBalance) {
+            console.log(`Ophir Balance: ${ophirBalance.amount}`);
+            return ophirBalance.amount/1000000;
+        } else {
+            console.log("Ophir Balance: 0");
+            return 0;
+        }
+    };
+    
+
     return (
         <div className="bg-slate-800 text-white min-h-screen flex flex-col items-center justify-center">
-        <button 
+            <button 
                 className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500"
                 onClick={connectWallet}
             >
                 Connect Your Wallet
             </button>
-        <>
-            <div className="text-3xl font-bold mb-4">Ophir Balance: 0</div>
-            <div className="mb-4">
-                <input 
-                id="ophirAmount" 
-                type="number" 
-                className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2" 
-                placeholder="Enter OPHIR amount" 
-                value={ophirAmount}
-                onChange={(e) => setOphirAmount(e.target.value)}
-                />
-                {ophirAmount && (
-                <div className="mt-4">
-                    <p className="text-xl mb-2">Asset Redeemed:</p>
-                    <ul>
-                        <li>wBTC: {(parseInt(ophirAmount) * 0.0001).toFixed(4)}</li>
-                        <li>bWhale: {(parseInt(ophirAmount) * 2).toFixed(0)}</li>
-                        <li>ampWhale: {(parseInt(ophirAmount) * 1.5).toFixed(0)}</li>
-                        <li>kuji: {(parseInt(ophirAmount) * 0.75).toFixed(2)}</li>
-                        <li>mUSDC: {(parseInt(ophirAmount) * 1.1).toFixed(2)}</li>
-                    </ul>
+            <>
+                <div className="text-3xl font-bold mb-4">Ophir Balance: {ophirBalance}</div>
+                <div className="mb-4">
+                    <input 
+                        id="ophirAmount" 
+                        type="number" 
+                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2" 
+                        placeholder="Enter OPHIR amount" 
+                        value={ophirAmount}
+                        onChange={(e) => setOphirAmount(e.target.value)}
+                    />
+                    {ophirAmount && (
+                        <div className="mt-4">
+                            <p className="text-xl mb-2">Asset Redeemed:</p>
+                            <ul>
+                                <li>wBTC: {(parseInt(ophirAmount) * 0.0001).toFixed(4)}</li>
+                                <li>bWhale: {(parseInt(ophirAmount) * 2).toFixed(0)}</li>
+                                <li>ampWhale: {(parseInt(ophirAmount) * 1.5).toFixed(0)}</li>
+                                <li>kuji: {(parseInt(ophirAmount) * 0.75).toFixed(2)}</li>
+                                <li>mUSDC: {(parseInt(ophirAmount) * 1.1).toFixed(2)}</li>
+                            </ul>
+                        </div>
+                    )}
                 </div>
-                )}
-            </div>
-            <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500">
-            Withdraw
-            </button>
-        </>
+                <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500">
+                Withdraw
+                </button>
+            </>
         </div>
     );
 };
