@@ -88,18 +88,50 @@ const Redeem = () => {
             return 0;
         }
     };
+
+    const disconnectWallet = () => {
+        setConnectedWalletAddress(''); // Reset the connected wallet address
+        // Additionally, you might want to reset other relevant states
+        setOphirBalance(0); // Resetting the balance to 0 or initial state
+    };
     
 
     return (
         <div className="bg-slate-800 text-white min-h-screen flex flex-col items-center justify-center">
-            <button 
-                className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500"
-                onClick={connectWallet}
-            >
-                Connect Your Wallet
-            </button>
+            {connectedWalletAddress ? (
+                <></>
+            ) : (
+                <button 
+                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2"
+                    style={{
+                        backgroundColor: '#ffcc00', /* Adjusted to a gold/yellow color similar to the images */
+                        color: 'black',
+                        border: 'none',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', /* Adding some shadow for depth */
+                    }}
+                    onClick={connectWallet}
+                >
+                    <img src="https://play-lh.googleusercontent.com/SKXXUqR4jXkvPJvKSXhJkQjKUU9wA-hI9lgBTrpxEz5GP8NbaOeSaEp1zzQscv8BTA=w240-h480-rw" alt="KEPLR Wallet Icon" style={{ width: '24px', height: '24px' }} /> {/* Icon representing the wallet, adjust path accordingly */}
+                    <img src="https://play-lh.googleusercontent.com/qXNXZaFX6PyEksn3kdaRVuzSXoxiCLObrDhpWjN71IxyncCSS-Ftvdi_Hbr2pucgBSM" alt="LEAP Wallet Icon" style={{ width: '24px', height: '24px' }} /> {/* Icon representing the wallet, adjust path accordingly */}
+                    Connect Your Wallet
+                </button>
+            )}
+            {connectedWalletAddress && (
+                <button 
+                    onClick={disconnectWallet}
+                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2"
+                    style={{
+                        backgroundColor: '#ffcc00',
+                        color: 'black',
+                        border: 'none',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    }}
+                >
+                    Disconnect Wallet
+                </button>
+            )}
             <>
-                <div className="text-3xl font-bold mb-4">Ophir Balance: {ophirBalance}</div>
+                <div className="text-3xl font-bold mb-4">Ophir Balance: {ophirBalance} OPHIR</div>
                 <div className="mb-4">
                     <input 
                         id="ophirAmount" 
