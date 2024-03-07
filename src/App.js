@@ -8,6 +8,7 @@ import LandingPage from "./components/landingPage";
 import './App.css';
 import Nav from './components/nav';
 import AnalyticsDashboard from "./components/analyticsDashboard";
+import Redeem from "./components/redeem";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           {/* <Route path="/" element={<Home />} /> Update Route with element prop */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/analytics" element={<AnalyticsDashboard />} /> 
+          <Route path="10239457123823985" element={<Redeem />} />
         </Routes>
     </Router>
   );
