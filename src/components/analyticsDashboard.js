@@ -498,17 +498,20 @@ const AnalyticsDashboard = () => {
                     })}
                 </div>
                     {ophirStats && ophirTreasury && priceData &&
-                        <div className="pt-12 bg-black text-white min-h-screen">
-                            <div className="p-3 bg-black">
-                                <div className="text-3xl font-bold text-white mb-4">Total Treasury Value Over Time</div>
-                                <Line data={totalTreasuryChartConfig} options={options} />
+                        <>
+                            <div className="pt-2 bg-black text-white">
+                                <div className="p-1 bg-black"> 
+                                    <div className="text-3xl font-bold text-white mb-2">Total Treasury Value Over Time</div>
+                                    <Line data={totalTreasuryChartConfig} options={options} />
+                                </div>
                             </div>
-                        </div>
+                            <div className="p-1 bg-black">
+                                <div className="text-3xl font-bold text-white mb-4">Total Treasury vs BTC Price</div>
+                                <Line data={prepareComparisonChartData(totalTreasuryChartData, chartData)} options={comparisonOptions} />
+                            </div>
+                        </>
                     }
-                    <div className="p-3 bg-black">
-                        <div className="text-3xl font-bold text-white mb-4">Total Treasury vs BTC Price</div>
-                        <Line data={prepareComparisonChartData(totalTreasuryChartData, chartData)} options={comparisonOptions} />
-                    </div>
+                    
                     {/* <div className="my-8">
                         <h2 className="text-xl font-bold mb-4 text-center">Combined Asset Values</h2>
                         <Line data={createChartData(chartData)} options={options} />
