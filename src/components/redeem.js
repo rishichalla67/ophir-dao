@@ -97,12 +97,12 @@ const Redeem = () => {
     
 
     return (
-        <div className="bg-slate-800 text-white min-h-screen flex flex-col items-center justify-center">
+        <div className="bg-black text-white min-h-screen flex flex-col items-center justify-center">
             {connectedWalletAddress ? (
                 <></>
             ) : (
                 <button 
-                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2"
+                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
                     style={{
                         backgroundColor: '#ffcc00', /* Adjusted to a gold/yellow color similar to the images */
                         color: 'black',
@@ -119,7 +119,7 @@ const Redeem = () => {
             {connectedWalletAddress && (
                 <button 
                     onClick={disconnectWallet}
-                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2"
+                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
                     style={{
                         backgroundColor: '#ffcc00',
                         color: 'black',
