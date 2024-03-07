@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Line } from 'react-chartjs-2';
+import 'chart.js/auto';
 import CryptoPieChart from './pieChart';
 
 const Modal = ({ isOpen, onClose, data }) => {
@@ -39,6 +41,70 @@ const Modal = ({ isOpen, onClose, data }) => {
     );
   };
 
+  const prepareTotalTreasuryChartData = (data) => {
+    // Sort data by date
+    if (!data) {
+        // Handle the case where data is null or undefined
+        // For example, you could return an empty object or some default value
+        return {
+            labels: [],
+            datasets: []
+        };
+    }
+    const sortedData = data.sort((a, b) => new Date(a.date) - new Date(b.date));
+    const chartLabels = sortedData.map(item => item.date);
+    const chartDataValues = sortedData.map(item => item.totalValue);
+
+    return {
+        labels: chartLabels,
+        datasets: [
+            {
+                label: 'Total Treasury Value',
+                data: chartDataValues,
+                fill: false,
+                backgroundColor: 'rgb(255, 206, 86)',
+                borderColor: 'rgba(255, 206, 86, 0.2)',
+                tension: 0.1
+            }
+        ]
+    };
+};
+
+  const createChartData = (chartData) => {
+    const datasets = Object.keys(chartData).filter(denom => denom.toLowerCase() !== 'ophir').map((denom) => {
+        const dataPoints = chartData[denom];
+        const chartDataValues = dataPoints.map(dataPoint => dataPoint.value);
+        const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint.timestamp).toLocaleDateString());
+
+        return {
+            label: `${denom.toUpperCase()} Value`,
+            data: chartDataValues,
+            fill: false,
+            borderColor: `#${Math.floor(Math.random()*16777215).toString(16)}`, // Random color for each dataset
+            tension: 0.1,
+            pointRadius: 3, // Smaller point size
+            pointHoverRadius: 5 // Slightly larger when hovered for better visibility
+        };
+    });
+
+    // Assuming all data points have the same timestamps, use the first denom (excluding 'Ophir') to get labels
+    const firstNonOphirDenom = Object.keys(chartData).find(denom => denom.toLowerCase() !== 'ophir');
+    const labels = chartData[firstNonOphirDenom].map(dataPoint => new Date(dataPoint.timestamp).toLocaleDateString());
+
+    return {
+        labels,
+        datasets
+    };
+};
+
+const options = {
+    scales: {
+        y: {
+            beginAtZero: false
+        }
+    }
+};
+
 const formatNumber = (number, digits) => {
     return number.toLocaleString('en-US', {
       minimumFractionDigits: digits,
@@ -54,6 +120,8 @@ const AnalyticsDashboard = () => {
     const [ophirStats, setOphirStats] = useState(null);
     const [ophirTreasury, setOphirTreasury] = useState(null);
     const [priceData, setPriceData] = useState(null);
+    const [chartData, setChartData] = useState(null);
+    const [totalTreasuryChartData, setTotalTreasuryChartData] = useState(null);
     const [inBitcoin, setInBitcoin] = useState(false);
     const [inLuna, setInLuna] = useState(false);
     const [inWhale, setInWhale] = useState(false);
@@ -78,9 +146,13 @@ const AnalyticsDashboard = () => {
             const statsResponse = await axios.get(`${prodUrl}/ophir/stats`);
             const treasuryResponse = await axios.get(`${prodUrl}/ophir/treasury`);
             const prices = await axios.get(`${prodUrl}/ophir/prices`);
+            const chartData = await axios.get(`${prodUrl}/ophir/treasury/chartData`)
+            const totalTreasuryChartData = await axios.get(`${prodUrl}/ophir/treasury/totalValueChartData`)
             setOphirStats(statsResponse.data);
             setOphirTreasury(treasuryResponse.data);
             setPriceData(prices.data);
+            setChartData(chartData.data);
+            setTotalTreasuryChartData(totalTreasuryChartData.data)
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -168,6 +240,9 @@ const AnalyticsDashboard = () => {
     
         return formattedData;
     }
+
+    const totalTreasuryChartConfig = prepareTotalTreasuryChartData(totalTreasuryChartData);
+
 
     if (!ophirStats) {
         return (
@@ -286,7 +361,60 @@ const AnalyticsDashboard = () => {
                             
                         </div>
                     </div>
-                   
+                    
+                </div>
+                <hr className="border-t border-white" />
+                <div className="p-3 bg-black">
+                    <div className="text-3xl font-bold text-white mb-4">Charts</div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {Object.keys(chartData).map((denom, index) => {
+                            const dataPoints = chartData[denom];
+                            const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint.timestamp).toLocaleDateString());
+                            const chartDataValues = dataPoints.map(dataPoint => dataPoint.value);
+
+                            const data = {
+                                labels: chartLabels,
+                                datasets: [
+                                    {
+                                        label: `${denom.toUpperCase()} Value`,
+                                        data: chartDataValues,
+                                        fill: false,
+                                        backgroundColor: 'rgb(255, 206, 86)',
+                                        borderColor: 'rgba(255, 206, 86, 0.2)',
+                                        pointRadius: 0.1, // Smaller point size
+                                        pointHoverRadius: 5 // Slightly larger when hovered for better visibility
+                                    },
+                                ],
+                            };
+
+                            const options = {
+                                scales: {
+                                    y: {
+                                        beginAtZero: false
+                                    }
+                                }
+                            };
+
+                            return (
+                                <div key={index} className="bg-slate-800 text-white rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
+                                    <div className="sm:text-2xl text-sm font-bold mb-1 text-center">{denom.toUpperCase()}</div>
+                                    <Line data={data} options={options} />
+                                </div>
+                            );
+                        })}
+                    </div>
+                    {ophirStats && ophirTreasury && priceData &&
+                        <div className="pt-12 bg-black text-white min-h-screen">
+                            <div className="p-3 bg-black">
+                                <div className="text-3xl font-bold text-white mb-4">Total Treasury Value Over Time</div>
+                                <Line data={totalTreasuryChartConfig} options={options} />
+                            </div>
+                        </div>
+                    }
+                    {/* <div className="my-8">
+                        <h2 className="text-xl font-bold mb-4 text-center">Combined Asset Values</h2>
+                        <Line data={createChartData(chartData)} options={options} />
+                    </div> */}
                 </div>
             </div>
         }
