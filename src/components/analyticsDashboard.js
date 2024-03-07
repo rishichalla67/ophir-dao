@@ -376,7 +376,7 @@ const AnalyticsDashboard = () => {
                                 labels: chartLabels,
                                 datasets: [
                                     {
-                                        label: `${denom.toUpperCase()} Value`,
+                                        label: `${denom.toUpperCase()} $ Value`,
                                         data: chartDataValues,
                                         fill: false,
                                         backgroundColor: 'rgb(255, 206, 86)',
