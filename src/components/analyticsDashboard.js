@@ -122,6 +122,7 @@ const AnalyticsDashboard = () => {
     const [priceData, setPriceData] = useState(null);
     const [chartData, setChartData] = useState(null);
     const [totalTreasuryChartData, setTotalTreasuryChartData] = useState(null);
+    const [chartOption, setChartOption] = useState('value'); // 'amount', 'value', 'price'
     const [inBitcoin, setInBitcoin] = useState(false);
     const [inLuna, setInLuna] = useState(false);
     const [inWhale, setInWhale] = useState(false);
@@ -140,6 +141,10 @@ const AnalyticsDashboard = () => {
         }
         return formatNumber(numericValue / priceData['wBTC'], 4);
     }
+
+    const chartOptionChangeHandler = (event) => {
+        setChartOption(event.target.value);
+    };
 
     const fetchData = async () => {
         try {
@@ -365,44 +370,69 @@ const AnalyticsDashboard = () => {
                 </div>
                 <hr className="border-t border-white" />
                 <div className="p-3 bg-black">
-                    <div className="text-3xl font-bold text-white mb-4">Charts</div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {Object.keys(chartData).map((denom, index) => {
-                            const dataPoints = chartData[denom];
-                            const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint.timestamp).toLocaleDateString());
-                            const chartDataValues = dataPoints.map(dataPoint => dataPoint.value);
+                <div className="text-3xl font-bold text-white mb-4">Charts</div>
+                {/* Selector for chart options */}
+                <div className='pl-2'>
+                    <select onChange={chartOptionChangeHandler} value={chartOption} className="mb-4 bg-slate-800 text-white p-2 rounded">
+                        <option value="value">Asset Value</option>
+                        <option value="amount">Asset Amount</option>
+                        <option value="price">Asset Price</option>
+                    </select>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {Object.keys(chartData).map((denom, index) => {
+                        const dataPoints = chartData[denom];
+                        const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint.timestamp).toLocaleDateString());
+                        let chartDataValues;
+                        let labelSuffix;
 
-                            const data = {
-                                labels: chartLabels,
-                                datasets: [
-                                    {
-                                        label: `${denom.toUpperCase()} $ Value`,
-                                        data: chartDataValues,
-                                        fill: false,
-                                        backgroundColor: 'rgb(255, 206, 86)',
-                                        borderColor: 'rgba(255, 206, 86, 0.2)',
-                                        pointRadius: 0.1, // Smaller point size
-                                        pointHoverRadius: 5 // Slightly larger when hovered for better visibility
-                                    },
-                                ],
-                            };
+                        switch (chartOption) {
+                            case 'amount':
+                                chartDataValues = dataPoints.map(dataPoint => dataPoint.asset);
+                                labelSuffix = 'Amount';
+                                break;
+                            case 'price':
+                                chartDataValues = dataPoints.map(dataPoint => dataPoint.price);
+                                labelSuffix = 'Price';
+                                break;
+                            case 'value':
+                            default:
+                                chartDataValues = dataPoints.map(dataPoint => dataPoint.value);
+                                labelSuffix = '$ Value';
+                                break;
+                        }
 
-                            const options = {
-                                scales: {
-                                    y: {
-                                        beginAtZero: false
-                                    }
+                        const data = {
+                            labels: chartLabels,
+                            datasets: [
+                                {
+                                    label: `${denom.toUpperCase()} ${labelSuffix}`,
+                                    data: chartDataValues,
+                                    fill: false,
+                                    backgroundColor: 'rgb(255, 206, 86)',
+                                    borderColor: 'rgba(255, 206, 86, 0.2)',
+                                    pointRadius: 0.1,
+                                    pointHoverRadius: 5
+                                },
+                            ],
+                        };
+
+                        const options = {
+                            scales: {
+                                y: {
+                                    beginAtZero: false
                                 }
-                            };
+                            }
+                        };
 
-                            return (
-                                <div key={index} className="bg-slate-800 text-white rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
-                                    <div className="sm:text-2xl text-sm font-bold mb-1 text-center">{denom.toUpperCase()}</div>
-                                    <Line data={data} options={options} />
-                                </div>
-                            );
-                        })}
-                    </div>
+                        return (
+                            <div key={index} className="bg-slate-800 text-white rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
+                                <div className="sm:text-2xl text-sm font-bold mb-1 text-center">{denom.toUpperCase()}</div>
+                                <Line data={data} options={options} />
+                            </div>
+                        );
+                    })}
+                </div>
                     {ophirStats && ophirTreasury && priceData &&
                         <div className="pt-12 bg-black text-white min-h-screen">
                             <div className="p-3 bg-black">
