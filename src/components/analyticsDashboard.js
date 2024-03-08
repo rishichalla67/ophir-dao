@@ -10,34 +10,33 @@ const Modal = ({ isOpen, onClose, data }) => {
     let composition = data.composition;
     return (
         <div className="absolute inset-0 mt-[20%] bg-black bg-opacity-50 flex justify-center items-center p-4 md:p-10">
-  <div className="bg-black border border-yellow-400 p-4 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-4xl overflow-auto">
-    <h2 className="text-lg font-bold mb-4">Composition</h2>
-    <div className="overflow-auto max-h-[80vh]">
-      <table className="min-w-full">
-        <thead>
-          <tr>
-            <th className="text-left py-2 px-3">Location</th>
-            <th className="text-right py-2 px-3">Amount</th>
-            <th className="text-right py-2 px-3">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          {Object.entries(composition).map(([walletName, amount], index) => (
-            <tr key={index}>
-              <td className="text-sm font-medium py-2 px-3">{walletName}</td>
-              <td className="text-sm py-2 px-3 text-right">{amount.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-              <td className="text-sm py-2 px-3 text-right">{(amount * data.price).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-    <button onClick={onClose} className="mt-4 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 md:hover:bg-slate-700 hover:text-white w-full">
-      Close
-    </button>
-  </div>
-</div>
-
+            <div className="bg-black border border-yellow-400 p-4 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-4xl overflow-auto">
+                <h2 className="text-lg font-bold mb-4">Composition</h2>
+                <div className="overflow-auto max-h-[80vh]">
+                <table className="min-w-full">
+                    <thead>
+                    <tr>
+                        <th className="text-left py-2 px-3">Location</th>
+                        <th className="text-right py-2 px-3">Amount</th>
+                        <th className="text-right py-2 px-3">Value</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {Object.entries(composition).map(([walletName, amount], index) => (
+                        <tr key={index}>
+                        <td className="text-sm font-medium py-2 px-3">{walletName}</td>
+                        <td className="text-sm py-2 px-3 text-right">{amount.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                        <td className="text-sm py-2 px-3 text-right">{(amount * data.price).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+                </div>
+                <button onClick={onClose} className="mt-4 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 md:hover:bg-slate-700 hover:text-white w-full">
+                Close
+                </button>
+            </div>
+        </div>
     );
   };
 
@@ -193,6 +192,15 @@ const AnalyticsDashboard = () => {
     const [sort, setSort] = useState('descending');
     const [isModalOpen, setModalOpen] = useState(false);
     const [modalData, setModalData] = useState({});
+    const [showProgressBar, setShowProgressBar] = useState(true);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setShowProgressBar(false);
+        }, 12000); // 12 seconds
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const toggleModal = () => setModalOpen(!isModalOpen);
 
@@ -313,14 +321,32 @@ const AnalyticsDashboard = () => {
     const totalTreasuryChartConfig = prepareTotalTreasuryChartData(totalTreasuryChartData);
 
 
-    if (!ophirStats) {
+    if (!ophirStats && showProgressBar) {
         return (
-          <div className="flex flex-col justify-center items-center h-screen">
-              <div className="text-white mb-4">Fetching On-Chain Data...</div>
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
-          </div>
+          <>
+            <style>
+              {`
+                @keyframes fillAnimation {
+                    from { width: 0%; }
+                    to { width: 100%; }
+                }
+
+                .animate-fill {
+                    animation: fillAnimation 12s linear forwards;
+                }
+              `}
+            </style>
+            <div className="flex flex-col justify-center items-center h-screen">
+                <div className="text-white mb-4">Fetching On-Chain Data...</div>
+                <div className="relative w-full max-w-xs">
+                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                      <div className="h-full bg-yellow-500 animate-fill"></div>
+                  </div>
+                </div>
+            </div>
+          </>
         );
-      }
+    }
   return (
     <>
         {ophirStats && ophirTreasury && priceData &&
