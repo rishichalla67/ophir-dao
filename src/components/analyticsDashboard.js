@@ -197,7 +197,7 @@ const AnalyticsDashboard = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowProgressBar(false);
-        }, 12000); // 12 seconds
+        }, 14000); // 12 seconds
 
         return () => clearTimeout(timer);
     }, []);
@@ -351,7 +351,8 @@ const AnalyticsDashboard = () => {
         return (
             <div className="flex flex-col justify-center items-center h-screen">
               <div className="text-white mb-4">Fetching On-Chain Data...</div>
-              <div className="text-white mb-4">Hmm seems this is taking a while, try refreshing the page again</div>
+              <div className="text-white mb-4">Hmm seems this is taking a while, wait 10 seconds</div>
+              <div classname= "text-white mb-4">and if still loading, try refreshing the page again.</div>
               <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
             </div>
         )
@@ -505,13 +506,13 @@ const AnalyticsDashboard = () => {
                             labels: chartLabels,
                             datasets: [
                                 {
-                                    label: `${denom.toUpperCase()} ${labelSuffix}`,
+                                    label: `${labelSuffix}`,
                                     data: chartDataValues,
                                     fill: false,
                                     backgroundColor: 'rgb(255, 206, 86)',
-                                    borderColor: 'rgba(255, 206, 86, 0.2)',
+                                    borderColor: 'rgba(255, 206, 86, 2)',
                                     pointRadius: 0.1,
-                                    pointHoverRadius: 5
+                                    pointHoverRadius: 5,
                                 },
                             ],
                         };
@@ -519,13 +520,27 @@ const AnalyticsDashboard = () => {
                         const options = {
                             scales: {
                                 y: {
-                                    beginAtZero: false
+                                    beginAtZero: false,
+                                    ticks: {
+                                        color: 'white', // Change Y-axis ticks color to white
+                                    },
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)', // Change Y-axis grid lines color to white with some transparency
+                                    }
+                                },
+                                x: {
+                                    ticks: {
+                                        color: 'white', // Change X-axis ticks color to white
+                                    },
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)', // Change X-axis grid lines color to white with some transparency
+                                    }
                                 }
                             }
                         };
 
                         return (
-                            <div key={index} className="bg-slate-800 text-white rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
+                            <div key={index} className="bg-black text-white rounded-lg shadow-md min-w-[100px] flex flex-col items-center justify-center">
                                 <div className="sm:text-2xl text-sm font-bold mb-1 text-center">{denom.toUpperCase()}</div>
                                 <Line data={data} options={options} />
                             </div>
