@@ -347,6 +347,14 @@ const AnalyticsDashboard = () => {
           </>
         );
     }
+    if(!ophirStats && !showProgressBar){
+        return (
+            <div className="flex flex-col justify-center items-center h-screen">
+              <div className="text-white mb-4">Fetching On-Chain Data...</div>
+              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
+            </div>
+        )
+    }
   return (
     <>
         {ophirStats && ophirTreasury && priceData &&
@@ -408,14 +416,14 @@ const AnalyticsDashboard = () => {
                         <table className="max-w-full bg-black mx-auto table-auto sm:w-full">
                             <thead className="bg-yellow-400 text-black">
                                 <tr>
-                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xs sm:text-xs">Asset</th>
-                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xs sm:text-xs">Balance</th>
-                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xs sm:text-xs hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
-                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xs sm:text-xs">Rewards</th>
-                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xs sm:text-xs">Location</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Asset</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Balance</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Rewards</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Location</th>
                                 </tr>
                             </thead>
-                            <tbody className="text-white text-xs sm:text-xs">
+                            <tbody className="text-white text-xxs sm:text-xs">
                                 {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
                                     <tr className={`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
                                         <td className="text-left py-2 px-1 sm:px-1" title={value?.originalKey}>{key}</td>
