@@ -351,6 +351,7 @@ const AnalyticsDashboard = () => {
         return (
             <div className="flex flex-col justify-center items-center h-screen">
               <div className="text-white mb-4">Fetching On-Chain Data...</div>
+              <div className="text-white mb-4">Hmm seems this is taking a while, try refreshing the page again</div>
               <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
             </div>
         )
