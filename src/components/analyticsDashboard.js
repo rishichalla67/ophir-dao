@@ -62,7 +62,7 @@ const Modal = ({ isOpen, onClose, data }) => {
                 data: chartDataValues,
                 fill: false,
                 backgroundColor: 'rgb(255, 206, 86)',
-                borderColor: 'rgba(255, 206, 86, 0.2)',
+                borderColor: 'rgba(255, 206, 86)',
                 tension: 0.1
             }
         ]
@@ -94,7 +94,6 @@ const prepareComparisonChartData = (totalTreasuryData, chartData) => {
         }
         return null;
     });
-    console.log(wBTCValues);
     return {
         labels: chartLabels,
         datasets: [
@@ -128,6 +127,20 @@ const comparisonOptions = {
             title: {
               display: true,
               text: '% Change from Start'
+            },
+            ticks: {
+                color: 'white', // Change Y-axis ticks color to white
+            },
+            grid: {
+                color: 'rgba(255, 255, 255, 0.1)', // Change Y-axis grid lines color to white with some transparency
+            }
+        },
+        x: {
+            ticks: {
+                color: 'white', // Change X-axis ticks color to white
+            },
+            grid: {
+                color: 'rgba(255, 255, 255, 0.1)', // Change X-axis grid lines color to white with some transparency
             }
         }
     }
@@ -163,7 +176,21 @@ const comparisonOptions = {
 const options = {
     scales: {
         y: {
-            beginAtZero: false
+            beginAtZero: false,
+            ticks: {
+                color: 'white', // Change Y-axis ticks color to white
+            },
+            grid: {
+                color: 'rgba(255, 255, 255, 0.1)', // Change Y-axis grid lines color to white with some transparency
+            }
+        },
+        x: {
+            ticks: {
+                color: 'white', // Change X-axis ticks color to white
+            },
+            grid: {
+                color: 'rgba(255, 255, 255, 0.1)', // Change X-axis grid lines color to white with some transparency
+            }
         }
     }
 };
@@ -513,6 +540,7 @@ const AnalyticsDashboard = () => {
                                     borderColor: 'rgba(255, 206, 86, 2)',
                                     pointRadius: 0.1,
                                     pointHoverRadius: 5,
+                                    tension: 0.2
                                 },
                             ],
                         };
