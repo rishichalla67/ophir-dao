@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
-import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { stringToPath } from "@cosmjs/crypto";
 import Alert from '@mui/material/Alert';
@@ -106,20 +105,29 @@ const SeekerRound = () => {
         
     };
 
-    const connectLedger = async() => {
+    const connectLedger = async () => {
         try {
-            const ledgerSigner = new LedgerSigner(await TransportWebUSB.create(), {
-                hdPaths: [stringToPath("44'/118'/0'/0/0")], // Example HD path, adjust according to your needs
-                prefix: "cosmos", // Adjust the prefix according to your chain's requirements
+            const transport = await TransportWebUSB.create();
+            const ledgerSigner = new LedgerSigner(transport, {
+                hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
+                prefix: "migaloo-1",
             });
-            const wallet = await DirectSecp256k1HdWallet.fromLedger(ledgerSigner, { hdPaths: [stringToPath("44'/118'/0'/0/0")], prefix: "cosmos" });
-            const [firstAccount] = await wallet.getAccounts();
-            setConnectedWalletAddress(firstAccount.address);
+    
+            // Example: Using ledgerSigner with SigningStargateClient
+            const client = await SigningStargateClient.connectWithSigner(
+                "https://rpc.cosmos.directory/migaloo", // Replace with your chain's RPC endpoint
+                ledgerSigner
+            );
+    
+            // Now you can use `client` to sign and send transactions
+            // For example, to get the accounts:
+            const accounts = await ledgerSigner.getAccounts();
+            setConnectedWalletAddress(accounts[0].address.replace('-', ''));
+            console.log(accounts)
         } catch (error) {
             console.error("Error connecting to Ledger:", error);
-            showAlert("Error connecting to Ledger:", "error");
         }
-    }
+    };
 
     const checkBalance = async (address) => {
         const baseUrl = "https://migaloo-lcd.erisprotocol.com"; // Replace with the actual REST API base URL for Migaloo
@@ -127,11 +135,12 @@ const SeekerRound = () => {
         const data = await response.json();
     
         // Assuming the API returns a list of balance objects, each with denom and amount
-        const usdcBalance = data.balances.find(balance => balance.denom === USDC_DENOM);
+        const usdcBalance = data.balances?.find(balance => balance.denom === USDC_DENOM);
     
         if (usdcBalance) {
             return usdcBalance.amount/1000000;
         } else {
+            showAlert("No USDC balance found.", "error");
             return 0;
         }
     };
