@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
+import { LedgerSigner } from "@cosmjs/ledger-amino";
+import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
+import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
+import { stringToPath } from "@cosmjs/crypto";
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 
@@ -94,11 +98,28 @@ const SeekerRound = () => {
                 
             } catch (error) {
                 console.error("Error connecting to Keplr:", error);
+                showAlert("Error connecting to Keplr:", "error");
             }
         } else {
-            alert("Please install Keplr extension");
+            showAlert("Please install Keplr extension", "info");
         }
+        
     };
+
+    const connectLedger = async() => {
+        try {
+            const ledgerSigner = new LedgerSigner(await TransportWebUSB.create(), {
+                hdPaths: [stringToPath("44'/118'/0'/0/0")], // Example HD path, adjust according to your needs
+                prefix: "cosmos", // Adjust the prefix according to your chain's requirements
+            });
+            const wallet = await DirectSecp256k1HdWallet.fromLedger(ledgerSigner, { hdPaths: [stringToPath("44'/118'/0'/0/0")], prefix: "cosmos" });
+            const [firstAccount] = await wallet.getAccounts();
+            setConnectedWalletAddress(firstAccount.address);
+        } catch (error) {
+            console.error("Error connecting to Ledger:", error);
+            showAlert("Error connecting to Ledger:", "error");
+        }
+    }
 
     const checkBalance = async (address) => {
         const baseUrl = "https://migaloo-lcd.erisprotocol.com"; // Replace with the actual REST API base URL for Migaloo
@@ -252,7 +273,7 @@ const SeekerRound = () => {
                     {alertInfo.message}
                 </Alert>
             </Snackbar>
-            <div className="absolute top-14 right-0 m-4 ml-1">
+            <div className="absolute top-14 right-0 m-4 mr-1">
                 {connectedWalletAddress ? (
                     <button 
                         onClick={disconnectWallet}
@@ -261,7 +282,8 @@ const SeekerRound = () => {
                         Disconnect Wallet
                     </button>
                 ) : (
-                    <button 
+                    <div>
+                        <button 
                         className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
                         style={{
                             backgroundColor: '#ffcc00', /* Adjusted to a gold/yellow color similar to the images */
@@ -272,8 +294,22 @@ const SeekerRound = () => {
                         onClick={connectWallet}
                     >
                         {/* Icons and text */}
-                        Connect
+                        Connect LEAP
                     </button>
+                    <button 
+                        className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
+                        style={{
+                            backgroundColor: '#ffcc00', /* Adjusted to a gold/yellow color similar to the images */
+                            color: 'black',
+                            border: 'none',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', /* Adding some shadow for depth */
+                        }}
+                        onClick={connectLedger}
+                    >
+                        {/* Icons and text */}
+                        Connect Ledger
+                    </button>
+                    </div>
                 )}
             </div>
             <>

@@ -6,6 +6,7 @@ module.exports = function override(config, env) {
     ...(config.resolve.fallback || {}),
     "crypto": require.resolve("crypto-browserify"),
     "stream": require.resolve("stream-browserify"),
+    "buffer": require.resolve("buffer/"),
   };
 
   // Define process.env for the browser environment
@@ -13,8 +14,15 @@ module.exports = function override(config, env) {
     new webpack.DefinePlugin({
       'process.env': JSON.stringify(process.env),
       'process.browser': true,
+      'global.Buffer': require.resolve('buffer'),
     })
   ]);
+
+  config.plugins.push(
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'], // Add this line
+    })
+  );
 
   return config;
 };
