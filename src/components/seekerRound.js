@@ -282,6 +282,7 @@ const SeekerRound = () => {
         setUsdcAmount(''); // Resetting the balance to 0 or initial state
         setUsdcBalance(''); // Resetting the balance to 0 or initial state
         setTwitterHandle(''); // Resetting the balance to 0 or initial state
+        setIsLedgerConnected(false);
     };
     
 
