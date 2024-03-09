@@ -347,7 +347,7 @@ const SeekerRound = () => {
                             pattern="^@([A-Za-z0-9_]){1,15}$"
                             title="Twitter handle must start with @ followed by up to 15 letters, numbers, or underscores."
                             className="text-lg bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center w-full max-w-xs" 
-                            placeholder="Enter your Twitter handle" 
+                            placeholder="Enter your Twitter handle (optional)" 
                             value={twitterHandle}
                             onChange={(e) => setTwitterHandle(e.target.value)}
                         />
