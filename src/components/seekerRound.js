@@ -228,6 +228,7 @@ const SeekerRound = () => {
         setConnectedWalletAddress(''); // Reset the connected wallet address
         // Additionally, you might want to reset other relevant states
         setUsdcAmount(0); // Resetting the balance to 0 or initial state
+        setUsdcBalance(0);
     };
     
 
@@ -266,7 +267,7 @@ const SeekerRound = () => {
             </button>
             )}
             <>
-                <div className="text-xl md:text-3xl font-bold mb-4">USDC Balance: {usdcBalance} USDC</div>
+                <div className="text-xl md:text-3xl font-bold mb-4">Balance: {usdcBalance} USDC</div>
                 <div className="mb-4 flex items-center">
                     <input 
                         id="usdcAmount" 
@@ -283,6 +284,11 @@ const SeekerRound = () => {
                         Max
                     </button>
                 </div>
+                {usdcAmount && (
+                    <div className="mb-2 text-white">
+                        You will get {Number(usdcAmount / 0.0025).toLocaleString()} OPHIR for {Number(usdcAmount).toLocaleString()} USDC
+                    </div>
+                )}
                 <div className="flex flex-col items-center justify-center">
                         <button 
                             className={`py-2 px-4 ${isLoading ? 'bg-gray-400' : 'bg-yellow-400 hover:bg-yellow-500'} text-black font-bold rounded`}
