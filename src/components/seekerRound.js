@@ -128,11 +128,11 @@ const SeekerRound = () => {
             setIsLoading(false);
             return;
         }
-        if (!twitterHandle) {
-            showAlert("Please enter your Twitter handle.", "error");
-            setIsLoading(false);
-            return;
-        }
+        // if (!twitterHandle) {
+        //     showAlert("Please enter your Twitter handle.", "error");
+        //     setIsLoading(false);
+        //     return;
+        // }
         if (usdcBalance < amountNum) {
             showAlert("Your USDC balance is less than the amount entered.", "error");
             setIsLoading(false);
@@ -244,75 +244,106 @@ const SeekerRound = () => {
     
 
     return (
-        <div className="bg-black text-white min-h-screen flex flex-col items-center justify-center">
+        <div className="bg-black text-white min-h-dvh flex flex-col items-center justify-center" style={{ paddingTop: '65px' }}>
+            <h1 className="text-3xl mt-14 font-bold underline mb-5">Seeker Round</h1>
             <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>
                     {alertInfo.message}
                 </Alert>
             </Snackbar>
-            {connectedWalletAddress ? (
-                <></>
-            ) : (
-                <button 
-                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
-                    style={{
-                        backgroundColor: '#ffcc00', /* Adjusted to a gold/yellow color similar to the images */
-                        color: 'black',
-                        border: 'none',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', /* Adding some shadow for depth */
-                    }}
-                    onClick={connectWallet}
-                >
-                    <img src="https://play-lh.googleusercontent.com/SKXXUqR4jXkvPJvKSXhJkQjKUU9wA-hI9lgBTrpxEz5GP8NbaOeSaEp1zzQscv8BTA=w240-h480-rw" alt="KEPLR Wallet Icon" style={{ width: '24px', height: '24px' }} /> {/* Icon representing the wallet, adjust path accordingly */}
-                    <img src="https://play-lh.googleusercontent.com/qXNXZaFX6PyEksn3kdaRVuzSXoxiCLObrDhpWjN71IxyncCSS-Ftvdi_Hbr2pucgBSM" alt="LEAP Wallet Icon" style={{ width: '24px', height: '24px' }} /> {/* Icon representing the wallet, adjust path accordingly */}
-                    Connect Your Wallet
-                </button>
-            )}
-            {connectedWalletAddress && (
-                <button 
-                onClick={disconnectWallet}
-                className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3 bg-black text-yellow-400 border-none shadow-lg hover:bg-yellow-400 hover:text-black transition-colors duration-300"
-            >
-                Disconnect Wallet
-            </button>
-            )}
-            <>
-                <div className="text-xl md:text-3xl font-bold mb-4 hover:cursor-pointer" onClick={() => setUsdcAmount(usdcBalance)}>Balance: {usdcBalance}{usdcBalance !== '' ? ' USDC' : ''}</div>
-                <div className="mb-3 flex items-center justify-center">
-                    <input 
-                        id="twitterHandle" 
-                        type="text" 
-                        pattern="^@([A-Za-z0-9_]){1,15}$"
-                        title="Twitter handle must start with @ followed by up to 15 letters, numbers, or underscores."
-                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
-                        placeholder="X (Twitter) handle" 
-                        value={twitterHandle}
-                        onChange={(e) => setTwitterHandle(e.target.value)}
-                    />
-                </div>
-                <div className="mb-3 flex items-center justify-center">
-                    <input 
-                        id="usdcAmount" 
-                        type="number" 
-                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
-                        placeholder="Enter USDC amount" 
-                        value={usdcAmount}
-                        onChange={(e) => setUsdcAmount(e.target.value)}
-                    />
-                    {/* <button 
-                        className="ml-2 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 px-4 py-2"
-                        onClick={() => setUsdcAmount(usdcBalance)}
+            <div className="absolute top-14 right-0 m-4 ml-1">
+                {connectedWalletAddress ? (
+                    <button 
+                        onClick={disconnectWallet}
+                        className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3 bg-black text-yellow-400 border-none shadow-lg hover:bg-yellow-400 hover:text-black transition-colors duration-300"
                     >
-                        Max
-                    </button> */}
-                </div>
-                {usdcAmount && (
-                    <div className="mb-2 text-white text-sm md:text-base">
-                        You will get {Number(usdcAmount / 0.0025).toLocaleString()} OPHIR on {new Date(new Date().setMonth(new Date().getMonth() + 6)).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
-                    </div>
+                        Disconnect Wallet
+                    </button>
+                ) : (
+                    <button 
+                        className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
+                        style={{
+                            backgroundColor: '#ffcc00', /* Adjusted to a gold/yellow color similar to the images */
+                            color: 'black',
+                            border: 'none',
+                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', /* Adding some shadow for depth */
+                        }}
+                        onClick={connectWallet}
+                    >
+                        {/* Icons and text */}
+                        Connect
+                    </button>
                 )}
-                <div className="flex flex-col items-center justify-center">
+            </div>
+            <>
+                <div className="bg-slate-800 w-9/10 mx-auto p-4 rounded-lg">
+                    <div className="mt-1 text-white-600 hover:text-yellow-400 visited:text-purple-600 underline cursor-pointer" onClick={() => window.open("https://medium.com/@sebastian18018/introducing-ophir-daos-seeker-round-0f3a1d470d2e", "_blank")}>
+                        Introduction and details of the seeker round →
+                    </div>
+                    {/* <div className="text-xl mt-10 md:text-3xl font-bold mb-4 hover:cursor-pointer" onClick={() => setUsdcAmount(usdcBalance)}>Balance: {usdcBalance}{usdcBalance !== '' ? ' USDC' : ''}</div> */}
+                    <div className="mb-3 pt-4 flex items-center justify-center">
+                        <input 
+                            id="twitterHandle" 
+                            type="text" 
+                            pattern="^@([A-Za-z0-9_]){1,15}$"
+                            title="Twitter handle must start with @ followed by up to 15 letters, numbers, or underscores."
+                            className="text-lg bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center w-full max-w-xs" 
+                            placeholder="Enter your Twitter handle" 
+                            value={twitterHandle}
+                            onChange={(e) => setTwitterHandle(e.target.value)}
+                        />
+                    </div>
+                    <div className="flex items-center justify-center">
+                        <div className="relative flex items-center text-lg bg-slate-800 text-white border border-yellow-400 rounded w-full max-w-xs">
+                            <input 
+                                id="usdcAmount" 
+                                type="number" 
+                                className="bg-slate-800 text-white rounded-l p-2 text-center flex-grow outline-none" 
+                                placeholder="Enter amount" 
+                                value={usdcAmount}
+                                onChange={(e) => setUsdcAmount(e.target.value)}
+                            />
+                            <span className="px-3 border-l border-yellow-400">
+                                USDC
+                            </span>
+                        </div>
+                    </div>
+                    <div className="mb-3 flex items-center justify-center">
+                        <div className="relative py-2 flex items-center text-lg bg-slate-800 text-white border border-yellow-400 rounded w-full max-w-xs">
+                            <div class="flex justify-between w-full">
+                                <span className="text-sm pt-1 ml-3 cursor-pointer flex-grow" onClick={() => setUsdcAmount(usdcBalance)}>
+                                    Balance: {parseFloat(usdcBalance).toFixed(2)}
+                                </span>
+                                <div>
+                                    <button 
+                                        className="text-sm text-black px-3 py-1 bg-gradient-to-r from-yellow-100 to-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50 rounded-l"
+                                        onClick={() => setUsdcAmount(1000)}
+                                    >
+                                        Min
+                                    </button>
+                                    <button 
+                                        className="text-sm text-black px-3 py-1 bg-gradient-to-r from-yellow-400 to-yellow-600  focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50"
+                                        onClick={() => setUsdcAmount(usdcAmount ? parseInt(usdcAmount) + 500 : (usdcBalance >= 500 ? 500 : usdcBalance))}
+                                    >
+                                        +500
+                                    </button>
+                                    <button 
+                                        className="text-sm text-black px-3 py-1 mr-1 bg-gradient-to-r from-yellow-600 to-yellow-700  focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50 rounded-r"
+                                        onClick={() => setUsdcAmount(100000)}
+                                    >
+                                        Max
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {usdcAmount && (
+                        <div className=" mt-3 text-white text-sm md:text-sm">
+                            {Number(usdcAmount / 0.0025).toLocaleString()} OPHIR ready to claim at {new Date(new Date().setMonth(new Date().getMonth() + 6)).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
+                        </div>
+                    )}
+                    <div className="flex pt-4 flex-col items-center justify-center">
                         <button 
                             className={`py-2 px-4 ${isLoading ? 'bg-gray-400' : 'bg-yellow-400 hover:bg-yellow-500'} text-black font-bold rounded`}
                             onClick={sendSeekerFunds}
@@ -328,59 +359,59 @@ const SeekerRound = () => {
                                 "Send USDC to OPHIR DAO Vault"
                             )}
                         </button>
-                    <div className="text-xs mt-2 text-center">
-                        <a href="https://daodao.zone/dao/migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu/treasury" target="_blank" rel="noopener noreferrer">Destination Address: {`${OPHIR_DAO_VAULT_ADDRESS.substring(0, 10)}...${OPHIR_DAO_VAULT_ADDRESS.substring(OPHIR_DAO_VAULT_ADDRESS.length - 4)}`}</a>
-                        <button 
-                            onClick={() => navigator.clipboard.writeText(OPHIR_DAO_VAULT_ADDRESS)}
-                            className="ml-2 bg-transparent text-yellow-400 hover:text-yellow-500 font-bold rounded"
-                        >
-                            <img src="https://png.pngtree.com/png-vector/20190223/ourlarge/pngtree-vector-copy-icon-png-image_695355.jpg" alt="Copy" style={{ width: '16px', height: '16px', verticalAlign: 'middle' }} className="" />
-                        </button>
+                        <div className="text-xs mt-2 text-center">
+                            <a href="https://daodao.zone/dao/migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu/treasury" target="_blank" rel="noopener noreferrer">Destination Address: {`${OPHIR_DAO_VAULT_ADDRESS.substring(0, 10)}...${OPHIR_DAO_VAULT_ADDRESS.substring(OPHIR_DAO_VAULT_ADDRESS.length - 4)}`}</a>
+                            <button 
+                                onClick={() => navigator.clipboard.writeText(OPHIR_DAO_VAULT_ADDRESS)}
+                                className="ml-2 bg-transparent text-yellow-400 hover:text-yellow-500 font-bold rounded"
+                            >
+                                <img src="https://png.pngtree.com/png-vector/20190223/ourlarge/pngtree-vector-copy-icon-png-image_695355.jpg" alt="Copy" style={{ width: '16px', height: '16px', verticalAlign: 'middle' }} className="" />
+                            </button>
+                        </div>
+                        <p className="text-xs mt-2 text-center">Please be cautious as this is a live contract.</p>
                     </div>
-                    <p className="text-xs mt-2 text-center">Please be cautious as this is a live contract.</p>
                 </div>
             </>
-            {vestingData && (
-                <div className="mt-4">
+            <div className="max-w-lg mt-4 mx-auto p-1 text-center">
+                
+                {vestingData && (
+                    <>
                     <div className="text-2xl mb-2">Vesting Details</div>
-                    <table className="table-auto border-collapse border border-slate-500">
-                    <thead>
-                    <tr>
-                            <th className="border border-slate-600 text-center px-2 py-1">Address</th>
-                            <th className="border border-slate-600 text-center px-2 py-1">Amount Vesting</th>
-                            <th className="border border-slate-600 text-center px-2 py-1">Vesting Start</th>
-                            <th className="border border-slate-600 text-center px-2 py-1">Vesting End</th>
-                            {new Date() > new Date(vestingData.vestingEnd * 1000) && (
-                                <th className="border border-slate-600 text-center px-2 py-1">Claim</th>
-                            )}
-                        </tr>
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td className="border border-slate-700 text-center px-2 py-1">{vestingData.address}</td>
-                            <td className="border border-slate-700 text-center px-2 py-1">{vestingData.amountVesting}</td>
-                            <td className="border border-slate-700 text-center px-2 py-1">{new Date(vestingData.vestingStart * 1000).toLocaleString()}</td>
-                            <td className="border border-slate-700 text-center px-2 py-1">{new Date(vestingData.vestingEnd * 1000).toLocaleString()}</td>
-                            {new Date() > new Date(vestingData.vestingEnd * 1000) && (
-                                <td className="border border-slate-700 text-center px-2 py-1">
-                                    <button className="bg-yellow-400 hover:bg-yellow-600 text-black font-bold py-1 px-2 rounded" onClick={() => claimSeekerOphir()}>
-                                        {isLoadingClaim ? (
-                                            <div className="flex items-center justify-center">
-                                                <div className="flex justify-center items-center">
-                                                    <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            "Claim OPHIR"
-                                        )}
-                                    </button>
-                                </td>
-                            )}
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            )}
+                    <div className="border border-gray-200 rounded-lg overflow-hidden ">
+                        <div className="p-4 border-b border-gray-200">
+                            <div className="font-bold text-sm text-white">Address:</div>
+                            <div className="text-white md:hidden">{`${vestingData.address.substring(0, 10)}...${vestingData.address.substring(vestingData.address.length - 5)}`}</div>
+                            <div className="hidden md:block text-white">{`${vestingData.address}`}</div>
+                        </div>
+                        <div className="p-4 border-b border-gray-200">
+                            <div className="font-bold text-sm text-white">Amount Vesting:</div>
+                            <div className="text-white">{vestingData.amountVesting}</div>
+                        </div>
+                        <div className="p-4 border-b border-gray-200">
+                            <div className="font-bold text-sm text-white">Vesting Start:</div>
+                            <div className="text-white">{new Date(vestingData.vestingStart * 1000).toLocaleString()}</div>
+                        </div>
+                        <div className="p-4 border-b border-gray-200">
+                            <div className="font-bold text-sm text-white">Vesting End:</div>
+                            <div className="text-white">{new Date(vestingData.vestingEnd * 1000).toLocaleString()}</div>
+                        </div>
+                        {new Date() > new Date(vestingData.vestingEnd * 1000) && (
+                            <div className="p-4">
+                                <button className="bg-yellow-400 hover:bg-yellow-600 text-black font-bold py-1 px-2 rounded" onClick={() => claimSeekerOphir()}>
+                                    {isLoadingClaim ? (
+                                        <div className="flex items-center justify-center">
+                                            <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-white"></div>
+                                        </div>
+                                    ) : (
+                                        "Claim OPHIR"
+                                    )}
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    </>
+                )}
+            </div>
         </div>
     );
 };
