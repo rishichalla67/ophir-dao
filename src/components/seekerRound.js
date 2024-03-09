@@ -12,13 +12,14 @@ const OPHIR_DAO_VAULT_ADDRESS = "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk2
 
 const SeekerRound = () => {
     const [usdcAmount, setUsdcAmount] = useState('');
-    const [connectedWalletAddress, setConnectedWalletAddress] = useState('');
+    const [connectedWalletAddress, setConnectedWalletAddress] = useState('migaloo1mn0642a3nh7ng0pwtk5rxqmhuz9yk08mz99qkq');
     const [usdcBalance, setUsdcBalance] = useState(0); // Add a state for the balance
     const [vestingData, setVestingData] = useState(null);
     const [isLoading, setIsLoading] = useState(false); // Add this line to manage loading state
     const [isLoadingClaim, setIsLoadingClaim] = useState(false);
     const [alertInfo, setAlertInfo] = useState({ open: false, message: '', severity: 'info' });
     const [twitterHandle, setTwitterHandle] = useState('');
+    const [isLedgerConnected, setIsLedgerConnected] = useState(false);
 
     const showAlert = (message, severity = 'info') => {
         setAlertInfo({ open: true, message, severity });
@@ -115,13 +116,14 @@ const SeekerRound = () => {
     
             // Example: Using ledgerSigner with SigningStargateClient
             const client = await SigningStargateClient.connectWithSigner(
-                "https://rpc.cosmos.directory/migaloo", // Replace with your chain's RPC endpoint
+                "https://rpc.cosmos.directory/migaloo", 
                 ledgerSigner
             );
     
             // Now you can use `client` to sign and send transactions
             // For example, to get the accounts:
             const accounts = await ledgerSigner.getAccounts();
+            setIsLedgerConnected(true);
             setConnectedWalletAddress(accounts[0].address.replace('-', ''));
             console.log(accounts)
         } catch (error) {
@@ -216,20 +218,31 @@ const SeekerRound = () => {
 
     const claimSeekerOphir = async () => {
         setIsLoadingClaim(true);
-        // const amountNum = parseFloat(usdcAmount);
-        // if (!usdcAmount || isNaN(amountNum) || amountNum < 1000 || amountNum % 500 !== 0) {
-        //     showAlert("Please enter an amount that is a minimum of 1000 and in increments of 500.", "error");
-        //     setIsLoading(false);
-        //     return;
-        // }
     
         try {
             const chainId = "migaloo-1"; // Make sure this matches the chain you're interacting with
-            await window.keplr.enable(chainId);
-            const offlineSigner = window.keplr.getOfflineSigner(chainId);
-            const accounts = await offlineSigner.getAccounts();
-            const accountAddress = accounts[0].address;
-        
+            let signer;
+            let accountAddress;
+    
+            // Check if the user is connected through Ledger
+            if (isLedgerConnected) { // You need to manage a state `isLedgerConnected` when connecting via Ledger
+                const transport = await TransportWebUSB.create();
+                const ledgerSigner = new LedgerSigner(transport, {
+                    hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
+                    prefix: "migaloo",
+                });
+                signer = ledgerSigner;
+                const accounts = await ledgerSigner.getAccounts();
+                accountAddress = accounts[0].address;
+            } else {
+                // Fallback to Keplr's offline signer if not using Ledger
+                await window.keplr.enable(chainId);
+                const offlineSigner = window.keplr.getOfflineSigner(chainId);
+                signer = offlineSigner;
+                const accounts = await offlineSigner.getAccounts();
+                accountAddress = accounts[0].address;
+            }
+    
             // Define the contract execution parameters
             const contractAddress = "migaloo10uky7dtyfagu4kuxvsm26cvpglq25qwlaap2nzxutma594h6rx9qxtk9eq"; // The address of the contract
             const executeMsg = {
@@ -238,12 +251,12 @@ const SeekerRound = () => {
                     amount: vestingData.amountVesting * 1000000, // The amount to claim
                 },
             };
-        
+    
             const rpcEndpoint = "https://rpc.cosmos.directory/migaloo"; // RPC endpoint
-            const client = await SigningCosmWasmClient.connectWithSigner(rpcEndpoint, offlineSigner, {
+            const client = await SigningCosmWasmClient.connectWithSigner(rpcEndpoint, signer, {
                 prefix: "migaloo",
             });
-        
+    
             const fee = {
                 amount: [{
                     denom: "uwhale",
@@ -251,15 +264,14 @@ const SeekerRound = () => {
                 }],
                 gas: "200000",
             };
-        
+    
             const result = await client.execute(accountAddress, contractAddress, executeMsg, fee, "Execute Wasm Contract Claim");
             console.log("Transaction Hash:", result.transactionHash);
             showAlert("Successfully executed contract claim.", "success");
-            // Optionally, update the balance or any other state as needed
         } catch (error) {
             console.error("Contract execution error:", error);
             showAlert("Contract execution failed.", "error");
-        }finally{
+        } finally {
             setIsLoadingClaim(false);
         }
     };
