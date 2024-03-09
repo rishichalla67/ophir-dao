@@ -124,6 +124,11 @@ const SeekerRound = () => {
             setIsLoading(false);
             return;
         }
+        if (usdcBalance < amountNum) {
+            showAlert("Your USDC balance is less than the amount entered.", "error");
+            setIsLoading(false);
+            return;
+        }
     
         try {
             const chainId = "migaloo-1"; // Make sure this matches the chain you're interacting with
