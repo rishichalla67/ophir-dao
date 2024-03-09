@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { SigningStargateClient } from "@cosmjs/stargate";
+
+
 
 const Redeem = () => {
     const [ophirAmount, setOphirAmount] = useState('');
@@ -89,6 +92,51 @@ const Redeem = () => {
         }
     };
 
+    const withdrawCoins = async () => {
+        if (!ophirAmount) {
+            alert("Please enter an amount to withdraw.");
+            return;
+        }
+
+        try {
+            const chainId = "migaloo-1"; // Make sure this matches the chain you're interacting with
+            await window.keplr.enable(chainId);
+            const offlineSigner = window.keplr.getOfflineSigner(chainId);
+            const accounts = await offlineSigner.getAccounts();
+            const accountAddress = accounts[0].address;
+
+            const amount = {
+                denom: "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir",
+                amount: String(parseInt(ophirAmount) * 1000000),
+            };
+
+            const msgSend = {
+                typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+                value: {
+                    fromAddress: accountAddress,
+                    toAddress: "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc", // Treasury Address
+                    amount: [amount],
+                },
+            };
+
+            const fee = {
+                amount: [{
+                    denom: "uwhale",
+                    amount: "5000",
+                }],
+                gas: "200000",
+            };
+
+            const client = await SigningStargateClient.connectWithSigner("https://rpc.cosmos.directory/migaloo", offlineSigner);
+            const txHash = await client.signAndBroadcast(accountAddress, [msgSend], fee, "Withdraw OPHIR");
+            console.log("Transaction Hash:", txHash);
+            alert("Withdrawal successful!");
+        } catch (error) {
+            console.error("Withdrawal error:", error);
+            alert("Withdrawal failed. See console for details.");
+        }
+    };
+    
     const disconnectWallet = () => {
         setConnectedWalletAddress(''); // Reset the connected wallet address
         // Additionally, you might want to reset other relevant states
@@ -154,13 +202,18 @@ const Redeem = () => {
                         </div>
                     )}
                 </div>
-                <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500">
-                Withdraw
-                </button>
+                <div className="flex flex-col items-center justify-center">
+                    <button 
+                        className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500"
+                        onClick={withdrawCoins} // Use the withdrawCoins function when this button is clicked
+                    >
+                        Withdraw
+                    </button>
+                    <p className="text-xs mt-2 text-center">Please be cautious as this is a live contract.</p>
+                </div>
             </>
         </div>
     );
 };
 
 export default Redeem;
-
