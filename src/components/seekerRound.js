@@ -227,6 +227,14 @@ const SeekerRound = () => {
                                 "Send USDC to OPHIR MS Dao"
                             )}
                         </button>
+                    <div className="text-xs mt-2 text-center">
+                        Destination Address: {`${OPHIR_MS_DAO_TREASURY_ADDRESS.substring(0, 10)}...${OPHIR_MS_DAO_TREASURY_ADDRESS.substring(OPHIR_MS_DAO_TREASURY_ADDRESS.length - 4)}`}
+                        <button 
+                            onClick={() => navigator.clipboard.writeText(OPHIR_MS_DAO_TREASURY_ADDRESS)}
+                            className="ml-2 bg-transparent text-yellow-400 hover:text-yellow-500 font-bold rounded"
+                        >
+<img src="https://png.pngtree.com/png-vector/20190223/ourlarge/pngtree-vector-copy-icon-png-image_695355.jpg" alt="Copy" style={{ width: '16px', height: '16px', verticalAlign: 'middle' }} className="" />                        </button>
+                    </div>
                     <p className="text-xs mt-2 text-center">Please be cautious as this is a live contract.</p>
                 </div>
             </>
