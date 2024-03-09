@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SigningStargateClient } from "@cosmjs/stargate";
 
 const USDC_DENOM = "ibc/BC5C0BAFD19A5E4133FDA0F3E04AE1FBEE75A4A226554B2CBB021089FF2E1F8A";
-const OPHIR_MS_DAO_TREASURY_ADDRESS = "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu";
+const OPHIR_DAO_VAULT_ADDRESS = "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu";
 
 const SeekerRound = () => {
     const [usdcAmount, setUsdcAmount] = useState('');
@@ -133,7 +133,7 @@ const SeekerRound = () => {
                 typeUrl: "/cosmos.bank.v1beta1.MsgSend",
                 value: {
                     fromAddress: accountAddress,
-                    toAddress: OPHIR_MS_DAO_TREASURY_ADDRESS, // OPHIR MS Dao Treasury Address
+                    toAddress: OPHIR_DAO_VAULT_ADDRESS, // OPHIR MS Dao Treasury Address
                     amount: [amount],
                 },
             };
@@ -224,16 +224,17 @@ const SeekerRound = () => {
                                     </div>
                                 </div>
                             ) : (
-                                "Send USDC to OPHIR MS Dao"
+                                "Send USDC to OPHIR DAO Vault"
                             )}
                         </button>
                     <div className="text-xs mt-2 text-center">
-                        Destination Address: {`${OPHIR_MS_DAO_TREASURY_ADDRESS.substring(0, 10)}...${OPHIR_MS_DAO_TREASURY_ADDRESS.substring(OPHIR_MS_DAO_TREASURY_ADDRESS.length - 4)}`}
+                        <a href="https://daodao.zone/dao/migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu/treasury" target="_blank" rel="noopener noreferrer">Destination Address: {`${OPHIR_DAO_VAULT_ADDRESS.substring(0, 10)}...${OPHIR_DAO_VAULT_ADDRESS.substring(OPHIR_DAO_VAULT_ADDRESS.length - 4)}`}</a>
                         <button 
-                            onClick={() => navigator.clipboard.writeText(OPHIR_MS_DAO_TREASURY_ADDRESS)}
+                            onClick={() => navigator.clipboard.writeText(OPHIR_DAO_VAULT_ADDRESS)}
                             className="ml-2 bg-transparent text-yellow-400 hover:text-yellow-500 font-bold rounded"
                         >
-<img src="https://png.pngtree.com/png-vector/20190223/ourlarge/pngtree-vector-copy-icon-png-image_695355.jpg" alt="Copy" style={{ width: '16px', height: '16px', verticalAlign: 'middle' }} className="" />                        </button>
+                            <img src="https://png.pngtree.com/png-vector/20190223/ourlarge/pngtree-vector-copy-icon-png-image_695355.jpg" alt="Copy" style={{ width: '16px', height: '16px', verticalAlign: 'middle' }} className="" />
+                        </button>
                     </div>
                     <p className="text-xs mt-2 text-center">Please be cautious as this is a live contract.</p>
                 </div>
