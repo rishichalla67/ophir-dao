@@ -237,8 +237,9 @@ const SeekerRound = () => {
     const disconnectWallet = () => {
         setConnectedWalletAddress(''); // Reset the connected wallet address
         // Additionally, you might want to reset other relevant states
-        setUsdcAmount(0); // Resetting the balance to 0 or initial state
-        setUsdcBalance(0);
+        setUsdcAmount(''); // Resetting the balance to 0 or initial state
+        setUsdcBalance(''); // Resetting the balance to 0 or initial state
+        setTwitterHandle(''); // Resetting the balance to 0 or initial state
     };
     
 
@@ -277,34 +278,34 @@ const SeekerRound = () => {
             </button>
             )}
             <>
-                <div className="text-xl md:text-3xl font-bold mb-4">Balance: {usdcBalance} USDC</div>
-                <div className="mb-3 flex items-center">
+                <div className="text-xl md:text-3xl font-bold mb-4 hover:cursor-pointer" onClick={() => setUsdcAmount(usdcBalance)}>Balance: {usdcBalance}{usdcBalance !== '' ? ' USDC' : ''}</div>
+                <div className="mb-3 flex items-center justify-center">
                     <input 
                         id="twitterHandle" 
                         type="text" 
                         pattern="^@([A-Za-z0-9_]){1,15}$"
                         title="Twitter handle must start with @ followed by up to 15 letters, numbers, or underscores."
-                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2" 
+                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
                         placeholder="X (Twitter) handle" 
                         value={twitterHandle}
                         onChange={(e) => setTwitterHandle(e.target.value)}
                     />
                 </div>
-                <div className="mb-3 flex items-center">
+                <div className="mb-3 flex items-center justify-center">
                     <input 
                         id="usdcAmount" 
                         type="number" 
-                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2" 
+                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
                         placeholder="Enter USDC amount" 
                         value={usdcAmount}
                         onChange={(e) => setUsdcAmount(e.target.value)}
                     />
-                    <button 
+                    {/* <button 
                         className="ml-2 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 px-4 py-2"
                         onClick={() => setUsdcAmount(usdcBalance)}
                     >
                         Max
-                    </button>
+                    </button> */}
                 </div>
                 {usdcAmount && (
                     <div className="mb-2 text-white text-sm md:text-base">
