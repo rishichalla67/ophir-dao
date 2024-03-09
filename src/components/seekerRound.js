@@ -255,11 +255,11 @@ const SeekerRound = () => {
             <div className="absolute top-14 right-0 m-4 ml-1">
                 {connectedWalletAddress ? (
                     <button 
-                    onClick={disconnectWallet}
-                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3 bg-black text-yellow-400 border-none shadow-lg transition-colors duration-300 md:hover:bg-yellow-400 md:hover:text-black"
-                >
-                    Disconnect Wallet
-                </button>
+                        onClick={disconnectWallet}
+                        className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3 bg-black text-yellow-400 border-none shadow-lg transition-colors duration-300 md:hover:bg-yellow-400 md:hover:text-black"
+                    >
+                        Disconnect Wallet
+                    </button>
                 ) : (
                     <button 
                         className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
@@ -324,7 +324,11 @@ const SeekerRound = () => {
                                     </button>
                                     <button 
                                         className="text-sm text-black px-3 py-1 bg-gradient-to-r from-yellow-400 to-yellow-600  focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50"
-                                        onClick={() => setUsdcAmount(usdcAmount ? parseInt(usdcAmount) + 500 : (usdcBalance >= 500 ? 500 : usdcBalance))}
+                                        onClick={() => {
+                                            if (parseInt(usdcAmount) < 100000) {
+                                                setUsdcAmount(usdcAmount ? Math.min(parseInt(usdcAmount) + 500, 100000) : (usdcBalance >= 500 ? 500 : usdcBalance))
+                                            }
+                                        }}
                                     >
                                         +500
                                     </button>
@@ -339,7 +343,7 @@ const SeekerRound = () => {
                         </div>
                     </div>
                     {usdcAmount && (
-                        <div className=" mt-3 text-white text-sm md:text-sm">
+                        <div className=" mt-3 text-white text-xs md:text-sm text-center">
                             {Number(usdcAmount / 0.0025).toLocaleString()} OPHIR ready to claim at {new Date(new Date().setMonth(new Date().getMonth() + 6)).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
                         </div>
                     )}
