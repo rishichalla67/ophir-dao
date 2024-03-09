@@ -49,47 +49,47 @@ const SeekerRound = () => {
     const connectWallet = async () => {
         if (window.keplr) {
             try {
-                await window.keplr.experimentalSuggestChain({
-                    chainId: "migaloo-1",
-                    chainName: "Migaloo",
-                    rpc: "https://rpc.cosmos.directory/migaloo",
-                    rest: "https://rest.cosmos.directory/migaloo",
-                    bip44: {
-                        coinType: 118,
-                    },
-                    bech32Config: {
-                        bech32PrefixAccAddr: "migaloo",
-                        bech32PrefixAccPub: "migaloopub",
-                        bech32PrefixValAddr: "migaloovaloper",
-                        bech32PrefixValPub: "migaloovaloperpub",
-                        bech32PrefixConsAddr: "migaloovalcons",
-                        bech32PrefixConsPub: "migaloovalconspub",
-                    },
-                    currencies: [{
-                        coinDenom: "WHALE",
-                        coinMinimalDenom: "uwhale",
-                        coinDecimals: 6,
-                        coinGeckoId: "white-whale",
-                    }],
-                    feeCurrencies: [{
-                        coinDenom: "WHALE",
-                        coinMinimalDenom: "uwhale",
-                        coinDecimals: 6,
-                        coinGeckoId: "white-whale",
-                    }],
-                    stakeCurrency: {
-                        coinDenom: "WHALE",
-                        coinMinimalDenom: "uatom",
-                        coinDecimals: 6,
-                        coinGeckoId: "white-whale",
-                    },
-                    gasPriceStep: {
-                        low: 0.75,
-                        average: 0.85,
-                        high: 1.5
-                    },
-                    features: ['stargate', 'ibc-transfer'],
-                });
+                // await window.keplr.experimentalSuggestChain({
+                //     chainId: "migaloo-1",
+                //     chainName: "Migaloo",
+                //     rpc: "https://rpc.cosmos.directory/migaloo",
+                //     rest: "https://rest.cosmos.directory/migaloo",
+                //     bip44: {
+                //         coinType: 118,
+                //     },
+                //     bech32Config: {
+                //         bech32PrefixAccAddr: "migaloo",
+                //         bech32PrefixAccPub: "migaloopub",
+                //         bech32PrefixValAddr: "migaloovaloper",
+                //         bech32PrefixValPub: "migaloovaloperpub",
+                //         bech32PrefixConsAddr: "migaloovalcons",
+                //         bech32PrefixConsPub: "migaloovalconspub",
+                //     },
+                //     currencies: [{
+                //         coinDenom: "WHALE",
+                //         coinMinimalDenom: "uwhale",
+                //         coinDecimals: 6,
+                //         coinGeckoId: "white-whale",
+                //     }],
+                //     feeCurrencies: [{
+                //         coinDenom: "WHALE",
+                //         coinMinimalDenom: "uwhale",
+                //         coinDecimals: 6,
+                //         coinGeckoId: "white-whale",
+                //     }],
+                //     stakeCurrency: {
+                //         coinDenom: "WHALE",
+                //         coinMinimalDenom: "uwhale",
+                //         coinDecimals: 6,
+                //         coinGeckoId: "white-whale",
+                //     },
+                //     gasPriceStep: {
+                //         low: 0.75,
+                //         average: 0.85,
+                //         high: 1.5
+                //     },
+                //     features: ['stargate', 'ibc-transfer'],
+                // });
                 const chainId = "migaloo-1"; // Make sure to use the correct chain ID for Migaloo
                 await window.keplr.enable(chainId);
                 const offlineSigner = window.keplr.getOfflineSigner(chainId);
@@ -97,11 +97,11 @@ const SeekerRound = () => {
                 setConnectedWalletAddress(accounts[0].address);
                 
             } catch (error) {
-                console.error("Error connecting to Keplr:", error);
-                showAlert("Error connecting to Keplr:", "error");
+                console.error("Error connecting to LEAP:", error);
+                showAlert(`Error connecting to LEAP: ${error.message}`, "error");
             }
         } else {
-            showAlert("Please install Keplr extension", "info");
+            showAlert("Please install LEAP extension", "info");
         }
         
     };

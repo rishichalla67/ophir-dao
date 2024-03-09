@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMem } from 'react';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -6,39 +6,41 @@ import CryptoPieChart from './pieChart';
 
 const Modal = ({ isOpen, onClose, data }) => {
     if (!isOpen) return null;
-    console.log(data)
-    let composition = data.composition;
+
+    const { composition, price } = data;
+
     return (
-        <div className="absolute inset-0 mt-[20%] bg-black bg-opacity-50 flex justify-center items-center p-4 md:p-10">
+        <div className="absolute inset-0 mt-[20%] flex justify-center items-center p-4 md:p-10">
             <div className="bg-black border border-yellow-400 p-4 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-4xl overflow-auto">
                 <h2 className="text-lg font-bold mb-4">Composition</h2>
                 <div className="overflow-auto max-h-[80vh]">
-                <table className="min-w-full">
-                    <thead>
-                    <tr>
-                        <th className="text-left py-2 px-3">Location</th>
-                        <th className="text-right py-2 px-3">Amount</th>
-                        <th className="text-right py-2 px-3">Value</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    {Object.entries(composition).map(([walletName, amount], index) => (
-                        <tr key={index}>
-                        <td className="text-sm font-medium py-2 px-3">{walletName}</td>
-                        <td className="text-sm py-2 px-3 text-right">{amount.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
-                        <td className="text-sm py-2 px-3 text-right">{(amount * data.price).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
-                        </tr>
-                    ))}
-                    </tbody>
-                </table>
+                    <table className="min-w-full">
+                        <thead>
+                            <tr>
+                                <th className="text-left py-2 px-3">Location</th>
+                                <th className="text-right py-2 px-3">Amount</th>
+                                <th className="text-right py-2 px-3">Value</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {Object.entries(composition).map(([walletName, amount], index) => (
+                                <tr key={index}>
+                                    <td className="text-sm font-medium py-2 px-3">{walletName}</td>
+                                    <td className="text-sm py-2 px-3 text-right">{amount.toLocaleString('en-US', { maximumFractionDigits: 2 })}</td>
+                                    <td className="text-sm py-2 px-3 text-right">{(amount * price).toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
                 <button onClick={onClose} className="mt-4 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 md:hover:bg-slate-700 hover:text-white w-full">
-                Close
+                    Close
                 </button>
             </div>
         </div>
     );
-  };
+};
+
 
   const prepareTotalTreasuryChartData = (data) => {
     // Sort data by date
@@ -509,7 +511,7 @@ const AnalyticsDashboard = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     {Object.keys(chartData).map((denom, index) => {
                         const dataPoints = chartData[denom];
-                        const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint.timestamp).toLocaleDateString());
+                        const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint?.timestamp).toLocaleDateString());
                         let chartDataValues;
                         let labelSuffix;
 
