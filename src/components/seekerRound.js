@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SigningStargateClient } from "@cosmjs/stargate";
 
-const USDC_DENOM = "ibc/498A0751C798A0D9A389AA3691123DADA57DAA4FE165D5C75894505B876BA6E4";
+const USDC_DENOM = "ibc/87011191A408E791269307E8EC1D506737C6B48AE539C1CBCB40E70A7F35185B";
 const OPHIR_MS_DAO_TREASURY_ADDRESS = "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu";
 
 const SeekerRound = () => {
@@ -107,7 +107,7 @@ const SeekerRound = () => {
     };
 
     const sendSeekerFunds = async () => {
-        const amountNum = parseInt(usdcAmount);
+        const amountNum = parseFloat(usdcAmount);
         if (!usdcAmount || isNaN(amountNum) || amountNum < 1000 || amountNum % 500 !== 0) {
             alert("Please enter an amount that is a minimum of 1000 and in increments of 500.");
             return;
@@ -181,20 +181,14 @@ const SeekerRound = () => {
             )}
             {connectedWalletAddress && (
                 <button 
-                    onClick={disconnectWallet}
-                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
-                    style={{
-                        backgroundColor: '#ffcc00',
-                        color: 'black',
-                        border: 'none',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                    }}
-                >
-                    Disconnect Wallet
-                </button>
+                onClick={disconnectWallet}
+                className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3 bg-black text-yellow-400 border-none shadow-lg hover:bg-yellow-400 hover:text-black transition-colors duration-300"
+            >
+                Disconnect Wallet
+            </button>
             )}
             <>
-                <div className="text-3xl font-bold mb-4">USDC Balance: {usdcBalance} USDC</div>
+                <div className="text-xl md:text-3xl font-bold mb-4">USDC Balance: {usdcBalance} USDC</div>
                 <div className="mb-4 flex items-center">
                     <input 
                         id="usdcAmount" 
@@ -225,21 +219,31 @@ const SeekerRound = () => {
                 <div className="mt-4">
                     <div className="text-2xl mb-2">Vesting Details</div>
                     <table className="table-auto border-collapse border border-slate-500">
-                        <thead>
-                            <tr>
-                                <th className="border border-slate-600">Address</th>
-                                <th className="border border-slate-600">Amount Vesting</th>
-                                <th className="border border-slate-600">Vesting Start</th>
-                                <th className="border border-slate-600">Vesting End</th>
-                            </tr>
+                    <thead>
+                    <tr>
+                            <th className="border border-slate-600 text-center px-2 py-1">Address</th>
+                            <th className="border border-slate-600 text-center px-2 py-1">Amount Vesting</th>
+                            <th className="border border-slate-600 text-center px-2 py-1">Vesting Start</th>
+                            <th className="border border-slate-600 text-center px-2 py-1">Vesting End</th>
+                            {new Date() > new Date(vestingData.vestingEnd * 1000) && (
+                                <th className="border border-slate-600 text-center px-2 py-1">Claim</th>
+                            )}
+                        </tr>
                         </thead>
                         <tbody>
-                            <tr>
-                                <td className="border border-slate-700">{vestingData.address}</td>
-                                <td className="border border-slate-700">{vestingData.amountVesting}</td>
-                                <td className="border border-slate-700">{new Date(vestingData.vestingStart * 1000).toLocaleString()}</td>
-                                <td className="border border-slate-700">{new Date(vestingData.vestingEnd * 1000).toLocaleString()}</td>
-                            </tr>
+                        <tr>
+                            <td className="border border-slate-700 text-center px-2 py-1">{vestingData.address}</td>
+                            <td className="border border-slate-700 text-center px-2 py-1">{vestingData.amountVesting}</td>
+                            <td className="border border-slate-700 text-center px-2 py-1">{new Date(vestingData.vestingStart * 1000).toLocaleString()}</td>
+                            <td className="border border-slate-700 text-center px-2 py-1">{new Date(vestingData.vestingEnd * 1000).toLocaleString()}</td>
+                            {new Date() > new Date(vestingData.vestingEnd * 1000) && (
+                                <td className="border border-slate-700 text-center px-2 py-1">
+                                    <button className="bg-yellow-400 hover:bg-yellow-600 text-black font-bold py-1 px-2 rounded">
+                                        Claim
+                                    </button>
+                                </td>
+                            )}
+                        </tr>
                         </tbody>
                     </table>
                 </div>
