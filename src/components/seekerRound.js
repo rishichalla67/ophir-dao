@@ -245,7 +245,7 @@ const SeekerRound = () => {
 
     return (
         <div className="bg-black text-white min-h-dvh flex flex-col items-center justify-center" style={{ paddingTop: '65px' }}>
-            <h1 className="text-3xl mt-14 font-bold underline mb-5">Seeker Round</h1>
+            <h1 className="text-3xl mt-14 font-bold text-yellow-400 mb-5">Seeker Round</h1>
             <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>
@@ -345,7 +345,7 @@ const SeekerRound = () => {
                     )}
                     <div className="flex pt-4 flex-col items-center justify-center">
                         <button 
-                            className={`py-2 px-4 ${isLoading ? 'bg-gray-400' : 'bg-yellow-400 hover:bg-yellow-500'} text-black font-bold rounded`}
+                            className={`py-2 px-4 ${isLoading ? 'bg-gray-400' : 'bg-gradient-to-r from-yellow-600 to-yellow-400 hover:bg-amber-200'} text-black font-bold rounded`}
                             onClick={sendSeekerFunds}
                             disabled={isLoading} // Disable the button when isLoading is true
                         >
