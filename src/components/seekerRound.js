@@ -343,8 +343,8 @@ const SeekerRound = () => {
                         </div>
                     </div>
                     {usdcAmount && (
-                        <div className=" mt-3 text-white text-xs md:text-sm text-center">
-                            {Number(usdcAmount / 0.0025).toLocaleString()} OPHIR ready to claim at {new Date(new Date().setMonth(new Date().getMonth() + 6)).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
+                        <div className="mt-3 text-white text-xs md:text-sm text-center">
+                            {Number(usdcAmount / 0.0025).toLocaleString()} OPHIR ready to claim at {new Date(new Date().setMonth(new Date().getMonth() + 6)).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })}
                         </div>
                     )}
                     <div className="flex pt-4 flex-col items-center justify-center">
