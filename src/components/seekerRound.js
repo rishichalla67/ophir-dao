@@ -152,7 +152,7 @@ const SeekerRound = () => {
             alert("Withdrawal successful!");
         } catch (error) {
             console.error("Withdrawal error:", error);
-            alert("Withdrawal failed. See console for details.");
+            alert("Seeker Funds to OPHIR DAO Vault failed.");
         }finally{
             setIsLoading(false);
         }
