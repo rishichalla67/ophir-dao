@@ -12,7 +12,7 @@ const OPHIR_DAO_VAULT_ADDRESS = "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk2
 
 const SeekerRound = () => {
     const [usdcAmount, setUsdcAmount] = useState('');
-    const [connectedWalletAddress, setConnectedWalletAddress] = useState('migaloo1mn0642a3nh7ng0pwtk5rxqmhuz9yk08mz99qkq');
+    const [connectedWalletAddress, setConnectedWalletAddress] = useState('');
     const [usdcBalance, setUsdcBalance] = useState(0); // Add a state for the balance
     const [vestingData, setVestingData] = useState(null);
     const [isLoading, setIsLoading] = useState(false); // Add this line to manage loading state
