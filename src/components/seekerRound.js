@@ -255,11 +255,11 @@ const SeekerRound = () => {
             <div className="absolute top-14 right-0 m-4 ml-1">
                 {connectedWalletAddress ? (
                     <button 
-                        onClick={disconnectWallet}
-                        className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3 bg-black text-yellow-400 border-none shadow-lg hover:bg-yellow-400 hover:text-black transition-colors duration-300"
-                    >
-                        Disconnect Wallet
-                    </button>
+                    onClick={disconnectWallet}
+                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3 bg-black text-yellow-400 border-none shadow-lg transition-colors duration-300 md:hover:bg-yellow-400 md:hover:text-black"
+                >
+                    Disconnect Wallet
+                </button>
                 ) : (
                     <button 
                         className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
