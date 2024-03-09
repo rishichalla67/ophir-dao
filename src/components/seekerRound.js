@@ -1,0 +1,251 @@
+import React, { useState, useEffect } from 'react';
+import { SigningStargateClient } from "@cosmjs/stargate";
+
+const USDC_DENOM = "ibc/498A0751C798A0D9A389AA3691123DADA57DAA4FE165D5C75894505B876BA6E4";
+const OPHIR_MS_DAO_TREASURY_ADDRESS = "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu";
+
+const SeekerRound = () => {
+    const [usdcAmount, setUsdcAmount] = useState('');
+    const [connectedWalletAddress, setConnectedWalletAddress] = useState('');
+    const [usdcBalance, setUsdcBalance] = useState(0); // Add a state for the balance
+    const [vestingData, setVestingData] = useState(null);
+
+    useEffect(() => {
+        if (connectedWalletAddress) {
+            checkBalance(connectedWalletAddress).then(balance => {
+                setUsdcBalance(balance); // Update the balance state when the promise resolves
+            });
+            checkVesting(connectedWalletAddress);
+        }
+    }, [connectedWalletAddress]); // Re-run this effect when connectedWalletAddress changes
+
+    async function checkVesting(address) {
+        const baseUrl = "https://parallax-analytics.onrender.com/ophir/seeker-vesting?contractAddress=";
+        const response = await fetch(`${baseUrl}${address}`);
+        const data = await response.json();
+        // Check if the response contains the specific message indicating no vesting details
+        if (data.message !== "Vesting details not found for the given contract address") {
+            setVestingData(data); // Store the vesting data in state if it exists
+        } else {
+            setVestingData(null); // Reset or ignore the vesting data if not found
+        }
+    }
+
+    const connectWallet = async () => {
+        if (window.keplr) {
+            try {
+                await window.keplr.experimentalSuggestChain({
+                    chainId: "migaloo-1",
+                    chainName: "Migaloo",
+                    rpc: "https://rpc.cosmos.directory/migaloo",
+                    rest: "https://rest.cosmos.directory/migaloo",
+                    bip44: {
+                        coinType: 118,
+                    },
+                    bech32Config: {
+                        bech32PrefixAccAddr: "migaloo",
+                        bech32PrefixAccPub: "migaloopub",
+                        bech32PrefixValAddr: "migaloovaloper",
+                        bech32PrefixValPub: "migaloovaloperpub",
+                        bech32PrefixConsAddr: "migaloovalcons",
+                        bech32PrefixConsPub: "migaloovalconspub",
+                    },
+                    currencies: [{
+                        coinDenom: "WHALE",
+                        coinMinimalDenom: "uwhale",
+                        coinDecimals: 6,
+                        coinGeckoId: "white-whale",
+                    }],
+                    feeCurrencies: [{
+                        coinDenom: "WHALE",
+                        coinMinimalDenom: "uwhale",
+                        coinDecimals: 6,
+                        coinGeckoId: "white-whale",
+                    }],
+                    stakeCurrency: {
+                        coinDenom: "WHALE",
+                        coinMinimalDenom: "uatom",
+                        coinDecimals: 6,
+                        coinGeckoId: "white-whale",
+                    },
+                    gasPriceStep: {
+                        low: 0.75,
+                        average: 0.85,
+                        high: 1.5
+                    },
+                    features: ['stargate', 'ibc-transfer'],
+                });
+                const chainId = "migaloo-1"; // Make sure to use the correct chain ID for Migaloo
+                await window.keplr.enable(chainId);
+                const offlineSigner = window.keplr.getOfflineSigner(chainId);
+                const accounts = await offlineSigner.getAccounts();
+                setConnectedWalletAddress(accounts[0].address);
+                
+            } catch (error) {
+                console.error("Error connecting to Keplr:", error);
+            }
+        } else {
+            alert("Please install Keplr extension");
+        }
+    };
+
+    const checkBalance = async (address) => {
+        const baseUrl = "https://migaloo-lcd.erisprotocol.com"; // Replace with the actual REST API base URL for Migaloo
+        const response = await fetch(`${baseUrl}/cosmos/bank/v1beta1/balances/${address}`);
+        const data = await response.json();
+    
+        // Assuming the API returns a list of balance objects, each with denom and amount
+        const usdcBalance = data.balances.find(balance => balance.denom === USDC_DENOM);
+    
+        if (usdcBalance) {
+            console.log(`USDC Balance: ${usdcBalance.amount}`);
+            return usdcBalance.amount/1000000;
+        } else {
+            console.log("USDC Balance: 0");
+            return 0;
+        }
+    };
+
+    const sendSeekerFunds = async () => {
+        const amountNum = parseInt(usdcAmount);
+        if (!usdcAmount || isNaN(amountNum) || amountNum < 1000 || amountNum % 500 !== 0) {
+            alert("Please enter an amount that is a minimum of 1000 and in increments of 500.");
+            return;
+        }
+    
+        try {
+            const chainId = "migaloo-1"; // Make sure this matches the chain you're interacting with
+            await window.keplr.enable(chainId);
+            const offlineSigner = window.keplr.getOfflineSigner(chainId);
+            const accounts = await offlineSigner.getAccounts();
+            const accountAddress = accounts[0].address;
+    
+            const amount = {
+                denom: USDC_DENOM,
+                amount: String(amountNum * 1000000),
+            };
+    
+            const msgSend = {
+                typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+                value: {
+                    fromAddress: accountAddress,
+                    toAddress: OPHIR_MS_DAO_TREASURY_ADDRESS, // OPHIR MS Dao Treasury Address
+                    amount: [amount],
+                },
+            };
+    
+            const fee = {
+                amount: [{
+                    denom: "uwhale",
+                    amount: "5000",
+                }],
+                gas: "200000",
+            };
+    
+            const client = await SigningStargateClient.connectWithSigner("https://rpc.cosmos.directory/migaloo", offlineSigner);
+            const txHash = await client.signAndBroadcast(accountAddress, [msgSend], fee, "Send USDC to OPHIR Dao for $OPHIR");
+            console.log("Transaction Hash:", txHash);
+            alert("Withdrawal successful!");
+        } catch (error) {
+            console.error("Withdrawal error:", error);
+            alert("Withdrawal failed. See console for details.");
+        }
+    };
+    
+    const disconnectWallet = () => {
+        setConnectedWalletAddress(''); // Reset the connected wallet address
+        // Additionally, you might want to reset other relevant states
+        setUsdcAmount(0); // Resetting the balance to 0 or initial state
+    };
+    
+
+    return (
+        <div className="bg-black text-white min-h-screen flex flex-col items-center justify-center">
+            {connectedWalletAddress ? (
+                <></>
+            ) : (
+                <button 
+                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
+                    style={{
+                        backgroundColor: '#ffcc00', /* Adjusted to a gold/yellow color similar to the images */
+                        color: 'black',
+                        border: 'none',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', /* Adding some shadow for depth */
+                    }}
+                    onClick={connectWallet}
+                >
+                    <img src="https://play-lh.googleusercontent.com/SKXXUqR4jXkvPJvKSXhJkQjKUU9wA-hI9lgBTrpxEz5GP8NbaOeSaEp1zzQscv8BTA=w240-h480-rw" alt="KEPLR Wallet Icon" style={{ width: '24px', height: '24px' }} /> {/* Icon representing the wallet, adjust path accordingly */}
+                    <img src="https://play-lh.googleusercontent.com/qXNXZaFX6PyEksn3kdaRVuzSXoxiCLObrDhpWjN71IxyncCSS-Ftvdi_Hbr2pucgBSM" alt="LEAP Wallet Icon" style={{ width: '24px', height: '24px' }} /> {/* Icon representing the wallet, adjust path accordingly */}
+                    Connect Your Wallet
+                </button>
+            )}
+            {connectedWalletAddress && (
+                <button 
+                    onClick={disconnectWallet}
+                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
+                    style={{
+                        backgroundColor: '#ffcc00',
+                        color: 'black',
+                        border: 'none',
+                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+                    }}
+                >
+                    Disconnect Wallet
+                </button>
+            )}
+            <>
+                <div className="text-3xl font-bold mb-4">USDC Balance: {usdcBalance} USDC</div>
+                <div className="mb-4 flex items-center">
+                    <input 
+                        id="usdcAmount" 
+                        type="number" 
+                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2" 
+                        placeholder="Enter USDC amount" 
+                        value={usdcAmount}
+                        onChange={(e) => setUsdcAmount(e.target.value)}
+                    />
+                    <button 
+                        className="ml-2 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 px-4 py-2"
+                        onClick={() => setUsdcAmount(usdcBalance)}
+                    >
+                        Max
+                    </button>
+                </div>
+                <div className="flex flex-col items-center justify-center">
+                    <button 
+                        className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500"
+                        onClick={sendSeekerFunds} // Use the withdrawCoins function when this button is clicked
+                    >
+                        Send USDC to OPHIR MS Dao
+                    </button>
+                    <p className="text-xs mt-2 text-center">Please be cautious as this is a live contract.</p>
+                </div>
+            </>
+            {vestingData && (
+                <div className="mt-4">
+                    <div className="text-2xl mb-2">Vesting Details</div>
+                    <table className="table-auto border-collapse border border-slate-500">
+                        <thead>
+                            <tr>
+                                <th className="border border-slate-600">Address</th>
+                                <th className="border border-slate-600">Amount Vesting</th>
+                                <th className="border border-slate-600">Vesting Start</th>
+                                <th className="border border-slate-600">Vesting End</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td className="border border-slate-700">{vestingData.address}</td>
+                                <td className="border border-slate-700">{vestingData.amountVesting}</td>
+                                <td className="border border-slate-700">{new Date(vestingData.vestingStart * 1000).toLocaleString()}</td>
+                                <td className="border border-slate-700">{new Date(vestingData.vestingEnd * 1000).toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default SeekerRound;

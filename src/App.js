@@ -9,6 +9,7 @@ import './App.css';
 import Nav from './components/nav';
 import AnalyticsDashboard from "./components/analyticsDashboard";
 import Redeem from "./components/redeem";
+import SeekerRound from "./components/seekerRound";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/analytics" element={<AnalyticsDashboard />} /> 
           <Route path="10239457123823985" element={<Redeem />} />
+          <Route path="seekers" element={<SeekerRound />} />
         </Routes>
     </Router>
   );
