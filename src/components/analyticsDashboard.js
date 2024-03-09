@@ -533,7 +533,7 @@ const AnalyticsDashboard = () => {
                             labels: chartLabels,
                             datasets: [
                                 {
-                                    label: `${labelSuffix}`,
+                                    // label: `${labelSuffix}`,
                                     data: chartDataValues,
                                     fill: false,
                                     backgroundColor: 'rgb(255, 206, 86)',

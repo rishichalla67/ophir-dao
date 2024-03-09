@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SigningStargateClient } from "@cosmjs/stargate";
 
-const USDC_DENOM = "ibc/87011191A408E791269307E8EC1D506737C6B48AE539C1CBCB40E70A7F35185B";
+const USDC_DENOM = "ibc/BC5C0BAFD19A5E4133FDA0F3E04AE1FBEE75A4A226554B2CBB021089FF2E1F8A";
 const OPHIR_MS_DAO_TREASURY_ADDRESS = "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu";
 
 const SeekerRound = () => {
@@ -9,6 +9,8 @@ const SeekerRound = () => {
     const [connectedWalletAddress, setConnectedWalletAddress] = useState('');
     const [usdcBalance, setUsdcBalance] = useState(0); // Add a state for the balance
     const [vestingData, setVestingData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false); // Add this line to manage loading state
+
 
     useEffect(() => {
         if (connectedWalletAddress) {
@@ -107,9 +109,11 @@ const SeekerRound = () => {
     };
 
     const sendSeekerFunds = async () => {
+        setIsLoading(true);
         const amountNum = parseFloat(usdcAmount);
         if (!usdcAmount || isNaN(amountNum) || amountNum < 1000 || amountNum % 500 !== 0) {
             alert("Please enter an amount that is a minimum of 1000 and in increments of 500.");
+            setIsLoading(false);
             return;
         }
     
@@ -149,6 +153,8 @@ const SeekerRound = () => {
         } catch (error) {
             console.error("Withdrawal error:", error);
             alert("Withdrawal failed. See console for details.");
+        }finally{
+            setIsLoading(false);
         }
     };
     
@@ -206,12 +212,21 @@ const SeekerRound = () => {
                     </button>
                 </div>
                 <div className="flex flex-col items-center justify-center">
-                    <button 
-                        className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500"
-                        onClick={sendSeekerFunds} // Use the withdrawCoins function when this button is clicked
-                    >
-                        Send USDC to OPHIR MS Dao
-                    </button>
+                        <button 
+                            className={`py-2 px-4 ${isLoading ? 'bg-gray-400' : 'bg-yellow-400 hover:bg-yellow-500'} text-black font-bold rounded`}
+                            onClick={sendSeekerFunds}
+                            disabled={isLoading} // Disable the button when isLoading is true
+                        >
+                            {isLoading ? (
+                                <div className="flex items-center justify-center">
+                                    <div className="flex justify-center items-center">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-yellow-400"></div>
+                                    </div>
+                                </div>
+                            ) : (
+                                "Send USDC to OPHIR MS Dao"
+                            )}
+                        </button>
                     <p className="text-xs mt-2 text-center">Please be cautious as this is a live contract.</p>
                 </div>
             </>
