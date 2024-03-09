@@ -15,6 +15,7 @@ const SeekerRound = () => {
     const [isLoading, setIsLoading] = useState(false); // Add this line to manage loading state
     const [isLoadingClaim, setIsLoadingClaim] = useState(false);
     const [alertInfo, setAlertInfo] = useState({ open: false, message: '', severity: 'info' });
+    const [twitterHandle, setTwitterHandle] = useState('');
 
     const showAlert = (message, severity = 'info') => {
         setAlertInfo({ open: true, message, severity });
@@ -108,10 +109,8 @@ const SeekerRound = () => {
         const usdcBalance = data.balances.find(balance => balance.denom === USDC_DENOM);
     
         if (usdcBalance) {
-            console.log(`USDC Balance: ${usdcBalance.amount}`);
             return usdcBalance.amount/1000000;
         } else {
-            console.log("USDC Balance: 0");
             return 0;
         }
     };
@@ -121,6 +120,16 @@ const SeekerRound = () => {
         const amountNum = parseFloat(usdcAmount);
         if (!usdcAmount || isNaN(amountNum) || amountNum < 1000 || amountNum % 500 !== 0) {
             showAlert("Please enter an amount that is a minimum of 1000 and in increments of 500.", "error");
+            setIsLoading(false);
+            return;
+        }
+        if (amountNum > 100000) {
+            showAlert("The amount cannot be greater than 100,000 USDC.", "error");
+            setIsLoading(false);
+            return;
+        }
+        if (!twitterHandle) {
+            showAlert("Please enter your Twitter handle.", "error");
             setIsLoading(false);
             return;
         }
@@ -158,9 +167,10 @@ const SeekerRound = () => {
                 }],
                 gas: "200000",
             };
+            const memo = `Twitter: ${twitterHandle}`;
     
             const client = await SigningStargateClient.connectWithSigner("https://rpc.cosmos.directory/migaloo", offlineSigner);
-            const txHash = await client.signAndBroadcast(accountAddress, [msgSend], fee, "Send USDC to OPHIR Dao for $OPHIR");
+            const txHash = await client.signAndBroadcast(accountAddress, [msgSend], fee, memo);
             console.log("Transaction Hash:", txHash);
             showAlert("Successfully sent USDC to OPHIR DAO Vault.", "success");
             checkBalance(connectedWalletAddress).then(balance => {
@@ -268,7 +278,19 @@ const SeekerRound = () => {
             )}
             <>
                 <div className="text-xl md:text-3xl font-bold mb-4">Balance: {usdcBalance} USDC</div>
-                <div className="mb-4 flex items-center">
+                <div className="mb-3 flex items-center">
+                    <input 
+                        id="twitterHandle" 
+                        type="text" 
+                        pattern="^@([A-Za-z0-9_]){1,15}$"
+                        title="Twitter handle must start with @ followed by up to 15 letters, numbers, or underscores."
+                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2" 
+                        placeholder="X (Twitter) handle" 
+                        value={twitterHandle}
+                        onChange={(e) => setTwitterHandle(e.target.value)}
+                    />
+                </div>
+                <div className="mb-3 flex items-center">
                     <input 
                         id="usdcAmount" 
                         type="number" 
@@ -285,8 +307,8 @@ const SeekerRound = () => {
                     </button>
                 </div>
                 {usdcAmount && (
-                    <div className="mb-2 text-white">
-                        You will get {Number(usdcAmount / 0.0025).toLocaleString()} OPHIR for {Number(usdcAmount).toLocaleString()} USDC
+                    <div className="mb-2 text-white text-sm md:text-base">
+                        You will get {Number(usdcAmount / 0.0025).toLocaleString()} OPHIR on {new Date(new Date().setMonth(new Date().getMonth() + 6)).toLocaleString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}
                     </div>
                 )}
                 <div className="flex flex-col items-center justify-center">
