@@ -7,6 +7,7 @@ const Redeem = () => {
     const [ophirAmount, setOphirAmount] = useState('');
     const [connectedWalletAddress, setConnectedWalletAddress] = useState('');
     const [ophirBalance, setOphirBalance] = useState(0); // Add a state for the balance
+    const [redemptionValues, setRedemptionValues] = useState({});
 
     useEffect(() => {
         if (connectedWalletAddress) {
@@ -15,6 +16,19 @@ const Redeem = () => {
             });
         }
     }, [connectedWalletAddress]); // Re-run this effect when connectedWalletAddress changes
+
+    useEffect(() => {
+        const debounceTimer = setTimeout(() => {
+            if (ophirAmount) {
+                fetch(`https://parallax-analytics.onrender.com/ophir/calculateRedemptionValue?amount=${ophirAmount}`)
+                    .then(response => response.json())
+                    .then(data => setRedemptionValues(data))
+                    .catch(error => console.error('Error fetching redemption values:', error));
+            }
+        }, 500); // 500ms debounce time
+    
+        return () => clearTimeout(debounceTimer); // Clear the timeout if the component unmounts or the value changes
+    }, [ophirAmount]);
 
     const connectWallet = async () => {
         if (window.keplr) {
@@ -191,15 +205,16 @@ const Redeem = () => {
                     />
                     {ophirAmount && (
                         <div className="mt-4">
-                            <p className="text-xl mb-2">Asset Redeemed:</p>
-                            <ul>
-                                <li>wBTC: {(parseInt(ophirAmount) * 0.0001).toFixed(4)}</li>
-                                <li>bWhale: {(parseInt(ophirAmount) * 2).toFixed(0)}</li>
-                                <li>ampWhale: {(parseInt(ophirAmount) * 1.5).toFixed(0)}</li>
-                                <li>kuji: {(parseInt(ophirAmount) * 0.75).toFixed(2)}</li>
-                                <li>mUSDC: {(parseInt(ophirAmount) * 1.1).toFixed(2)}</li>
-                            </ul>
-                        </div>
+                        <p className="text-xl mb-2">Assets to be redeemed:</p>
+                        <ul>
+                            {Object.entries(redemptionValues)
+                                .filter(([key]) => !["redemptionPricePerOPHIR", "totalRedemptionValue", "calculatedAt"].includes(key))
+                                .map(([asset, value]) => (
+                                    <li key={asset}>{`${asset}: ${value.toFixed(4)}`}</li>
+                                ))
+                            }
+                        </ul>
+                    </div>
                     )}
                 </div>
                 <div className="flex flex-col items-center justify-center">
