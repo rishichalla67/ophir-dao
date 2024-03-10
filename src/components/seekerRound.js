@@ -49,64 +49,23 @@ const SeekerRound = () => {
     const connectWallet = async () => {
         if (window.keplr) {
             try {
-                // await window.keplr.experimentalSuggestChain({
-                //     chainId: "migaloo-1",
-                //     chainName: "Migaloo",
-                //     rpc: "https://rpc.cosmos.directory/migaloo",
-                //     rest: "https://rest.cosmos.directory/migaloo",
-                //     bip44: {
-                //         coinType: 118,
-                //     },
-                //     bech32Config: {
-                //         bech32PrefixAccAddr: "migaloo",
-                //         bech32PrefixAccPub: "migaloopub",
-                //         bech32PrefixValAddr: "migaloovaloper",
-                //         bech32PrefixValPub: "migaloovaloperpub",
-                //         bech32PrefixConsAddr: "migaloovalcons",
-                //         bech32PrefixConsPub: "migaloovalconspub",
-                //     },
-                //     currencies: [{
-                //         coinDenom: "WHALE",
-                //         coinMinimalDenom: "uwhale",
-                //         coinDecimals: 6,
-                //         coinGeckoId: "white-whale",
-                //     }],
-                //     feeCurrencies: [{
-                //         coinDenom: "WHALE",
-                //         coinMinimalDenom: "uwhale",
-                //         coinDecimals: 6,
-                //         coinGeckoId: "white-whale",
-                //     }],
-                //     stakeCurrency: {
-                //         coinDenom: "WHALE",
-                //         coinMinimalDenom: "uwhale",
-                //         coinDecimals: 6,
-                //         coinGeckoId: "white-whale",
-                //     },
-                //     gasPriceStep: {
-                //         low: 0.75,
-                //         average: 0.85,
-                //         high: 1.5
-                //     },
-                //     features: ['stargate', 'ibc-transfer'],
-                // });
                 const chainId = "migaloo-1"; // Make sure to use the correct chain ID for Migaloo
                 await window.keplr.enable(chainId);
                 const offlineSigner = window.keplr.getOfflineSigner(chainId);
                 const accounts = await offlineSigner.getAccounts();
                 setConnectedWalletAddress(accounts[0].address);
-                
+                setIsLedgerConnected(false); // Indicate that the connection is not through Ledger
+                return; // Exit the function after successful connection
             } catch (error) {
                 console.error("Error connecting to LEAP:", error);
                 showAlert(`Error connecting to LEAP: ${error.message}`, "error");
+                // Don't return here, try connecting with Ledger next
             }
         } else {
-            showAlert("Please install LEAP extension", "info");
+            showAlert("Keplr extension not found, attempting to connect with Ledger...", "info");
         }
-        
-    };
-
-    const connectLedger = async () => {
+    
+        // Attempt to connect with Ledger if Keplr connection is not successful or not available
         try {
             const transport = await TransportWebUSB.create();
             const ledgerSigner = new LedgerSigner(transport, {
@@ -123,13 +82,39 @@ const SeekerRound = () => {
             // Now you can use `client` to sign and send transactions
             // For example, to get the accounts:
             const accounts = await ledgerSigner.getAccounts();
-            setIsLedgerConnected(true);
+            setIsLedgerConnected(true); // Indicate that the connection is through Ledger
             setConnectedWalletAddress(accounts[0].address.replace('-', ''));
-            console.log(accounts)
+            console.log(accounts);
         } catch (error) {
             console.error("Error connecting to Ledger:", error);
+            showAlert("Error connecting to Ledger. Please ensure your device is connected and Ledger Live is closed.", "error");
         }
     };
+
+    // const connectLedger = async () => {
+    //     try {
+    //         const transport = await TransportWebUSB.create();
+    //         const ledgerSigner = new LedgerSigner(transport, {
+    //             hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
+    //             prefix: "migaloo-1",
+    //         });
+    
+    //         // Example: Using ledgerSigner with SigningStargateClient
+    //         const client = await SigningStargateClient.connectWithSigner(
+    //             "https://rpc.cosmos.directory/migaloo", 
+    //             ledgerSigner
+    //         );
+    
+    //         // Now you can use `client` to sign and send transactions
+    //         // For example, to get the accounts:
+    //         const accounts = await ledgerSigner.getAccounts();
+    //         setIsLedgerConnected(true);
+    //         setConnectedWalletAddress(accounts[0].address.replace('-', ''));
+    //         console.log(accounts)
+    //     } catch (error) {
+    //         console.error("Error connecting to Ledger:", error);
+    //     }
+    // };
 
     const checkBalance = async (address) => {
         const baseUrl = "https://migaloo-lcd.erisprotocol.com"; // Replace with the actual REST API base URL for Migaloo
@@ -287,7 +272,7 @@ const SeekerRound = () => {
     
 
     return (
-        <div className="bg-black text-white min-h-dvh flex flex-col items-center justify-center" style={{ paddingTop: '65px' }}>
+        <div className="bg-black text-white min-h-dvh w-full flex flex-col items-center justify-center" style={{ paddingTop: '65px' }}>
             <h1 className="text-3xl mt-14 font-bold text-yellow-400 mb-5">Seeker Round</h1>
             <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
@@ -295,7 +280,7 @@ const SeekerRound = () => {
                     {alertInfo.message}
                 </Alert>
             </Snackbar>
-            <div className="absolute top-14 right-0 m-4 mr-1">
+            <div className="absolute top-14 right-0 m-4 mr-2 sm:mr-4">
                 {connectedWalletAddress ? (
                     <button 
                         onClick={disconnectWallet}
@@ -316,27 +301,16 @@ const SeekerRound = () => {
                         onClick={connectWallet}
                     >
                         {/* Icons and text */}
-                        Connect LEAP
+                        Connect
                     </button>
-                    <button 
-                        className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
-                        style={{
-                            backgroundColor: '#ffcc00', /* Adjusted to a gold/yellow color similar to the images */
-                            color: 'black',
-                            border: 'none',
-                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', /* Adding some shadow for depth */
-                        }}
-                        onClick={connectLedger}
-                    >
-                        {/* Icons and text */}
-                        Connect Ledger
-                    </button>
+                    
                     </div>
                 )}
             </div>
             <>
-                <div className="bg-slate-800 w-9/10 mx-auto p-4 rounded-lg">
-                    <div className="mt-1 text-white-600 hover:text-yellow-400 visited:text-purple-600 underline cursor-pointer" onClick={() => window.open("https://medium.com/@sebastian18018/introducing-ophir-daos-seeker-round-0f3a1d470d2e", "_blank")}>
+                <div className="bg-black mx-auto p-4 rounded-lg">
+                    <div className="mt-1 text-xs sm:text-base text-center text-white-600 hover:text-yellow-400 visited:text-purple-600 underline cursor-pointer" onClick={() => window.open("https://medium.com/@sebastian18018/introducing-ophir-daos-seeker-round-0f3a1d470d2e", "_blank")}>
+                        
                         Introduction and details of the seeker round →
                     </div>
                     {/* <div className="text-xl mt-10 md:text-3xl font-bold mb-4 hover:cursor-pointer" onClick={() => setUsdcAmount(usdcBalance)}>Balance: {usdcBalance}{usdcBalance !== '' ? ' USDC' : ''}</div> */}
@@ -346,14 +320,14 @@ const SeekerRound = () => {
                             type="text" 
                             pattern="^@([A-Za-z0-9_]){1,15}$"
                             title="Twitter handle must start with @ followed by up to 15 letters, numbers, or underscores."
-                            className="text-lg bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center w-full max-w-xs" 
+                            className="text-lg bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center w-full" 
                             placeholder="Enter your Twitter handle (optional)" 
                             value={twitterHandle}
                             onChange={(e) => setTwitterHandle(e.target.value)}
                         />
                     </div>
                     <div className="flex items-center justify-center">
-                        <div className="relative flex items-center text-lg bg-slate-800 text-white border border-yellow-400 rounded w-full max-w-xs">
+                        <div className="relative flex items-center text-lg bg-slate-800 text-white border border-yellow-400 rounded w-full">
                             <input 
                                 id="usdcAmount" 
                                 type="number" 
@@ -368,7 +342,7 @@ const SeekerRound = () => {
                         </div>
                     </div>
                     <div className="mb-3 flex items-center justify-center">
-                        <div className="relative py-2 flex items-center text-lg bg-slate-800 text-white border border-yellow-400 rounded w-full max-w-xs">
+                        <div className="relative py-2 flex items-center text-lg bg-slate-800 text-white border border-yellow-400 rounded w-full ">
                             <div class="flex justify-between w-full">
                                 <span className="text-sm pt-1 ml-3 cursor-pointer flex-grow" onClick={() => setUsdcAmount(usdcBalance)}>
                                     Balance: {parseFloat(usdcBalance).toFixed(2)}

@@ -68,15 +68,15 @@ const Nav = () => {
               </svg>
             </div>
             <div className={`bg-black rounded-md mt-2 ${isBuyMenuOpen ? 'block' : 'hidden'}`}>
-              {/* <a href="/seekers" className="block text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center" rel="noopener noreferrer">
+              <a href="/seekers" className="text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center" rel="noopener noreferrer">
                 <img
                   src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png"
                   alt="White Whale"
                   className="w-6 h-6 mr-2"
                 />
                 Seeker's Round
-              </a> */}
-              <a href="https://app.whitewhale.money/migaloo/swap?from=WHALE&to=OPHIR" className="block text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center" target="_blank" rel="noopener noreferrer">
+              </a>
+              <a href="https://app.whitewhale.money/migaloo/swap?from=WHALE&to=OPHIR" className="text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center" target="_blank" rel="noopener noreferrer">
                 <img
                   src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/white-whale.png"
                   alt="White Whale"
