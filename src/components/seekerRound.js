@@ -272,8 +272,8 @@ const SeekerRound = () => {
     
 
     return (
-        <div className="bg-black text-white min-h-dvh w-full flex flex-col items-center justify-center" style={{ paddingTop: '65px' }}>
-            <h1 className="text-3xl mt-14 font-bold text-yellow-400 mb-5">Seeker Round</h1>
+        <div className="bg-black text-white min-h-dvh w-full flex flex-col items-center justify-content" style={{ paddingTop: '20dvh' }}>
+            <h1 className={`text-3xl ${vestingData ? 'mt-14' : ''} font-bold text-yellow-400`}>Seeker Round</h1>
             <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>

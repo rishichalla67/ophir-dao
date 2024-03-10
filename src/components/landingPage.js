@@ -1,6 +1,40 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 const LandingPage = () => {
+
+  const [totalTreasuryValue, setTotalTreasuryValue] = useState('');
+  const [placeholderValue, setPlaceholderValue] = useState('00000000'); // Assuming an 8-digit placeholder
+
+  useEffect(() => {
+    // Function to generate a random digit
+    const generateRandomDigit = () => Math.floor(Math.random() * 10);
+
+    // Function to update the placeholder with random digits
+    const updatePlaceholder = () => {
+      const newPlaceholder = Array.from({ length: 8 }) // Assuming an 8-digit number
+        .map(() => generateRandomDigit())
+        .join('');
+      setPlaceholderValue(newPlaceholder);
+    };
+
+    // Start cycling through random digits
+    const intervalId = setInterval(updatePlaceholder, 1); // Update every 100ms
+
+    fetch('https://parallax-analytics.onrender.com/ophir/totalTreasuryValue')
+      .then(response => response.json())
+      .then(data => {
+        setTotalTreasuryValue(data.totalTreasuryValue);
+        clearInterval(intervalId); // Stop cycling when data is loaded
+      })
+      .catch(error => {
+        console.error('Error fetching total treasury value:', error);
+        clearInterval(intervalId); // Ensure to clear interval on error as well
+      });
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(intervalId);
+  }, []);
+
   return (
     <div className="min-h-screen bg-black flex flex-col items-center justify-center text-white">
       <main className="flex flex-col items-center justify-center flex-1 px-4 sm:px-6 lg:px-8">
@@ -15,6 +49,11 @@ const LandingPage = () => {
         <a href="/seekers" rel="noopener noreferrer" className="mt-2 bg-yellow-400 text-black font-bold py-2 px-4 rounded hover:bg-yellow-500">
           $OPHIR Seeker's Round
         </a>
+        <div onClick={() => window.location.href='/analytics'} style={{cursor: 'pointer'}}>
+        <p className="text-yellow-400 text-lg mt-4 font-roboto">
+          Total Treasury Value: {totalTreasuryValue ? `$${totalTreasuryValue}` : `$${placeholderValue}`}
+        </p>
+        </div>
       </main>
     </div>
   );

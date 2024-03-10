@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMem } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -226,7 +226,7 @@ const AnalyticsDashboard = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setShowProgressBar(false);
-        }, 14000); // 12 seconds
+        }, 15000); // 15 seconds
 
         return () => clearTimeout(timer);
     }, []);
@@ -361,7 +361,7 @@ const AnalyticsDashboard = () => {
                 }
 
                 .animate-fill {
-                    animation: fillAnimation 12s linear forwards;
+                    animation: fillAnimation 15s linear forwards;
                 }
               `}
             </style>
@@ -376,16 +376,16 @@ const AnalyticsDashboard = () => {
           </>
         );
     }
-    if(!ophirStats && !showProgressBar){
-        return (
-            <div className="flex flex-col justify-center items-center h-screen">
-              <div className="text-white mb-4">Fetching On-Chain Data...</div>
-              <div className="text-white mb-4">Hmm seems this is taking a while, wait 10 seconds</div>
-              <div classname= "text-white mb-4">and if still loading, try refreshing the page again.</div>
-              <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
-            </div>
-        )
-    }
+    // if(!ophirStats && !showProgressBar){
+    //     return (
+    //         <div className="flex flex-col justify-center items-center h-screen">
+    //           <div className="text-white mb-4">Fetching On-Chain Data...</div>
+    //           <div className="text-white mb-4">Hmm seems this is taking a while, wait 10 seconds</div>
+    //           <div classname= "text-white mb-4">and if still loading, try refreshing the page again.</div>
+    //           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
+    //         </div>
+    //     )
+    // }
   return (
     <>
         {ophirStats && ophirTreasury && priceData &&
