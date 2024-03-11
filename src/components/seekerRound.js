@@ -285,7 +285,7 @@ const SeekerRound = () => {
                 {connectedWalletAddress ? (
                     <button 
                         onClick={disconnectWallet}
-                        className="py-2 px-4 font-medium rounded flex items-center justify-center gap-2 bg-black text-yellow-400 border-none shadow-lg transition-colors duration-300 md:hover:bg-yellow-400 md:hover:text-black connect-button"
+                        className="py-2 px-4 m-2 font-medium rounded flex items-center justify-center gap-2 bg-black text-yellow-400 border-none shadow-lg transition-colors duration-300 md:hover:bg-yellow-400 md:hover:text-black connect-button"
                     >
                         Disconnect Wallet
                     </button>
