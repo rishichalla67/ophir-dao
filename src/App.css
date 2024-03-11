@@ -1,3 +1,24 @@
+
+:root{
+  --main-gold: rgba(255, 184, 0, 1);
+  --semi-transparent-gold: rgba(255, 184, 0, 0.7);
+  --darker-gold: rgb(163, 117, 0);
+  --faded-gold: rgba(148, 141, 104, 1);
+  --text-gold: rgba(205, 199, 167, 1);
+  --drop-shadow-gold: rgba(255, 199, 0, 0.25);
+  --main-white: whitesmoke;
+  --faded-white: rgba(193, 193, 193, 1);
+  --main-grey: rgba(43, 43, 43, 1);
+  --lighter-grey: rgba(55, 55, 55, 1);
+  --main-black: rgba(27, 27, 27, 1);
+}
+
+*{
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
 .App {
   text-align: center;
 }
@@ -35,4 +56,105 @@
   to {
     transform: rotate(360deg);
   }
+}
+
+/*header css*/
+
+.nav-color{
+  background-color: var(--main-black);
+}
+
+.mobile-nav-round{
+  border-radius: 0 0 10px 10px;
+}
+
+/*background*/
+
+.global-bg{
+  background: radial-gradient(circle at top, rgba(46,46,46,1) 10%, rgba(30,30,30,1) 90%);
+}
+
+/*connect button*/
+
+.connect-button{
+  background: linear-gradient(90deg, rgba(250,255,30,0.15) 0%, rgba(136,138,17,0.15) 100%);
+  border: 1px solid var(--main-gold);
+}
+
+/*h1*/
+
+.h1-color{
+  color: rgb(255, 242, 205);
+}
+
+/*seeker div*/
+
+.seeker-box{
+  background-color: var(--main-black);
+  box-shadow: 0 4px 60px -15px var(--drop-shadow-gold);
+}
+
+.input-div{
+  background-color: var(--main-grey);
+  border-color: var(--faded-gold);
+  border-radius: 10px;
+}
+
+.usdc-bg-border{
+  background-color: var(--lighter-grey);
+  border-radius: 10px;
+  margin: 0 10px 0 0;
+}
+
+.balance-div{
+  background-color: var(--main-black);
+  border-bottom: 1px solid var(--main-grey);
+}
+
+.balance-color{
+  color: var(--faded-white) ;
+}
+
+.min-button{
+  background: linear-gradient(var(--main-black), var(--main-black)) padding-box,
+              linear-gradient(to right, rgba(255, 239, 199, 0.5) 0%, rgba(255, 218, 124, 0.5) 100%) border-box;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  margin-right: 5px;
+  color: var(--text-gold);
+}
+
+.add-button{
+  background: linear-gradient(var(--main-black), var(--main-black)) padding-box,
+              linear-gradient(to right, rgba(255, 218, 124, 0.5) 0%, rgba(255, 201, 67, 0.5) 100%) border-box;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  margin-right: 5px;
+  color: var(--text-gold);
+}
+
+.max-button{
+  background: linear-gradient(var(--main-black), var(--main-black)) padding-box,
+              linear-gradient(90deg, rgba(255, 201, 67, 0.5) 0%, rgba(255, 182, 0, 0.5) 100%) border-box;
+  border-radius: 5px;
+  border: 1px solid transparent;
+  color: var(--text-gold);
+}
+
+.send-button{
+  background: linear-gradient(135deg, rgba(255,184,0,0.5) 0%, rgba(255,217,119,0.5) 100%);
+  border-radius: 10px;
+  min-width: 80%;
+  box-shadow: 0 5px 0 0 rgba(255, 235, 183, 0.5);
+  transition: all 200ms ease-in-out;
+}
+
+.send-button-loading{
+  background: linear-gradient(135deg, rgba(255,184,0,0.8) 0%, rgba(255,217,119,0.8) 100%);
+}
+
+.send-button:hover{
+  transform: translateY(2px);
+  box-shadow: 0 3px 0 0 rgba(255, 249, 235, 0.5);
+  transition: all 200ms ease-in-out;
 }
