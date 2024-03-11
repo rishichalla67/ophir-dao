@@ -39,11 +39,11 @@ const SeekerRound = () => {
         const baseUrl = "https://parallax-analytics.onrender.com/ophir/seeker-vesting?contractAddress=";
         const response = await fetch(`${baseUrl}${address}`);
         const data = await response.json();
-        // Check if the response contains the specific message indicating no vesting details
-        if (data.message !== "Vesting details not found for the given contract address") {
+        // Check if the response contains the specific message indicating no vesting details or amountVesting is 0
+        if (data.message !== "Vesting details not found for the given contract address" && data.amountVesting !== 0) {
             setVestingData(data); // Store the vesting data in state if it exists
         } else {
-            setVestingData(null); // Reset or ignore the vesting data if not found
+            setVestingData(null); // Reset or ignore the vesting data if not found or amountVesting is 0
         }
     }
 
@@ -190,13 +190,13 @@ const SeekerRound = () => {
             const client = await SigningStargateClient.connectWithSigner("https://rpc.cosmos.directory/migaloo", offlineSigner);
             const txHash = await client.signAndBroadcast(accountAddress, [msgSend], fee, memo);
             console.log("Transaction Hash:", txHash);
-            showAlert("Successfully sent USDC to OPHIR DAO Vault.", "success");
+            showAlert(`Successfully sent USDC to OPHIR DAO Vault. Transaction: https://inbloc.org/migaloo/transactions/${txHash}`, "success");
             checkBalance(connectedWalletAddress).then(balance => {
                 setUsdcBalance(balance); // Update the balance state when the promise resolves
             });
         } catch (error) {
             console.error("Withdrawal error:", error);
-            showAlert("Seeker Funds to OPHIR DAO Vault failed.", "error");
+            showAlert(`Seeker Funds to OPHIR DAO Vault failed. ${error}`, "error");
         }finally{
             setIsLoading(false);
         }
@@ -234,7 +234,7 @@ const SeekerRound = () => {
             const executeMsg = {
                 claim: {
                     recipient: connectedWalletAddress, // The recipient address
-                    amount: vestingData.amountVesting * 1000000, // The amount to claim
+                    amount: (vestingData.amountVesting * 1000000).toString(), // The amount to claim, converted to string
                 },
             };
     
@@ -253,10 +253,10 @@ const SeekerRound = () => {
     
             const result = await client.execute(accountAddress, contractAddress, executeMsg, fee, "Execute Wasm Contract Claim");
             console.log("Transaction Hash:", result.transactionHash);
-            showAlert("Successfully executed contract claim.", "success");
+            showAlert(`Successfully executed contract claim. Transaction: https://inbloc.org/migaloo/transactions/${result.transactionHash}`, "success");
         } catch (error) {
             console.error("Contract execution error:", error);
-            showAlert("Contract execution failed.", "error");
+            showAlert(`Contract execution failed. ${error} `, "error");
         } finally {
             setIsLoadingClaim(false);
         }

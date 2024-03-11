@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -223,13 +223,13 @@ const AnalyticsDashboard = () => {
     const [modalData, setModalData] = useState({});
     const [showProgressBar, setShowProgressBar] = useState(true);
 
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setShowProgressBar(false);
-        }, 15000); // 15 seconds
+    // useEffect(() => {
+    //     const timer = setTimeout(() => {
+    //         setShowProgressBar(false);
+    //     }, 15000); // 15 seconds
 
-        return () => clearTimeout(timer);
-    }, []);
+    //     return () => clearTimeout(timer);
+    // }, []);
 
     const toggleModal = () => setModalOpen(!isModalOpen);
 
@@ -246,6 +246,8 @@ const AnalyticsDashboard = () => {
     const chartOptionChangeHandler = (event) => {
         setChartOption(event.target.value);
     };
+
+    
 
     const fetchData = async () => {
         try {
@@ -353,7 +355,7 @@ const AnalyticsDashboard = () => {
     if (!ophirStats && showProgressBar) {
         return (
           <>
-            <style>
+            {/* <style>
               {`
                 @keyframes fillAnimation {
                     from { width: 0%; }
@@ -372,6 +374,10 @@ const AnalyticsDashboard = () => {
                       <div className="h-full bg-yellow-500 animate-fill"></div>
                   </div>
                 </div>
+            </div> */}
+            <div className="flex flex-col justify-center items-center h-screen">
+                <div className="text-white mb-4">Fetching On-Chain Data...</div>
+                <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
             </div>
           </>
         );

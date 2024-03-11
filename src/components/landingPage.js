@@ -18,7 +18,7 @@ const LandingPage = () => {
     };
 
     // Start cycling through random digits
-    const intervalId = setInterval(updatePlaceholder, 1); // Update every 100ms
+    const intervalId = setInterval(updatePlaceholder, 3); // Update every 100ms
 
     fetch('https://parallax-analytics.onrender.com/ophir/totalTreasuryValue')
       .then(response => response.json())
@@ -49,10 +49,10 @@ const LandingPage = () => {
         <a href="/seekers" rel="noopener noreferrer" className="mt-2 bg-yellow-400 text-black font-bold py-2 px-4 rounded hover:bg-yellow-500">
           $OPHIR Seeker's Round
         </a>
-        <div onClick={() => window.location.href='/analytics'} style={{cursor: 'pointer'}}>
-        <p className="text-yellow-400 text-lg mt-4 font-roboto">
-          Total Treasury Value: {totalTreasuryValue ? `$${totalTreasuryValue}` : `$${placeholderValue}`}
-        </p>
+        <div onClick={() => window.location.href='/analytics'} style={{cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%'}}>
+          <p className="text-yellow-400 text-lg pt-4 font-roboto" style={{textAlign: 'center', margin: 0}}>
+            Total Treasury Value: {totalTreasuryValue ? `$${totalTreasuryValue}` : `$${placeholderValue}`}
+          </p>
         </div>
       </main>
     </div>
