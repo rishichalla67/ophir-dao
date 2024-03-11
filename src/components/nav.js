@@ -77,6 +77,14 @@ const Nav = () => {
                 />
                 Seeker's Round
               </a>
+              <a href="https://fuzion.app/bonds/411" className="text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center" target="_blank" rel="noopener noreferrer">
+                <img
+                  src="https://fuzion.app/images/favicon.png"
+                  alt="Fuzion Bonds"
+                  className="w-6 h-6 mr-2"
+                />
+                Fuzion Bond
+              </a>
               <a href="https://app.whitewhale.money/migaloo/swap?from=WHALE&to=OPHIR" className="text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center" target="_blank" rel="noopener noreferrer">
                 <img
                   src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/white-whale.png"
