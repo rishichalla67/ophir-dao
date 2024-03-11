@@ -6,6 +6,7 @@ import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { stringToPath } from "@cosmjs/crypto";
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
+import "../App.css"
 
 const USDC_DENOM = "ibc/BC5C0BAFD19A5E4133FDA0F3E04AE1FBEE75A4A226554B2CBB021089FF2E1F8A";
 const OPHIR_DAO_VAULT_ADDRESS = "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu";
@@ -272,8 +273,8 @@ const SeekerRound = () => {
     
 
     return (
-        <div className="bg-black text-white min-h-dvh w-full flex flex-col items-center justify-content" style={{ paddingTop: '20dvh' }}>
-            <h1 className={`text-3xl ${vestingData ? 'mt-14' : ''} font-bold text-yellow-400`}>Seeker Round</h1>
+        <div className="global-bg text-white min-h-dvh w-full flex flex-col items-center justify-content" style={{ paddingTop: '20dvh' }}>
+            <h1 className={`text-3xl ${vestingData ? 'mt-14' : ''} mb-3 font-bold h1-color`}>Seeker Round</h1>
             <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>
@@ -284,78 +285,76 @@ const SeekerRound = () => {
                 {connectedWalletAddress ? (
                     <button 
                         onClick={disconnectWallet}
-                        className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3 bg-black text-yellow-400 border-none shadow-lg transition-colors duration-300 md:hover:bg-yellow-400 md:hover:text-black"
+                        className="py-2 px-4 m-2 font-medium rounded flex items-center justify-center gap-2 bg-black text-yellow-400 border-none shadow-lg transition-colors duration-300 md:hover:bg-yellow-400 md:hover:text-black connect-button"
                     >
                         Disconnect Wallet
                     </button>
                 ) : (
                     <div>
                         <button 
-                        className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
+                        className="py-2 px-4 m-2 font-medium rounded flex items-center justify-center gap-2 connect-button"
                         style={{
-                            backgroundColor: '#ffcc00', /* Adjusted to a gold/yellow color similar to the images */
-                            color: 'black',
-                            border: 'none',
+                            color: 'white',
                             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', /* Adding some shadow for depth */
                         }}
                         onClick={connectWallet}
                     >
                         {/* Icons and text */}
-                        Connect
+                        Connect Wallet
                     </button>
                     
                     </div>
                 )}
             </div>
             <>
-                <div className="bg-black mx-auto p-4 rounded-lg">
-                    <div className="mt-1 text-xs sm:text-base text-center text-white-600 hover:text-yellow-400 visited:text-purple-600 underline cursor-pointer" onClick={() => window.open("https://medium.com/@sebastian18018/introducing-ophir-daos-seeker-round-0f3a1d470d2e", "_blank")}>
+                <div className="seeker-box mx-auto p-4 rounded-lg">
+                    <div className="mb-3 mt-2 text-xs sm:text-base text-center text-white-600 hover:text-yellow-400 visited:text-purple-600 underline cursor-pointer" onClick={() => window.open("https://medium.com/@sebastian18018/introducing-ophir-daos-seeker-round-0f3a1d470d2e", "_blank")}>
                         
                         Introduction and details of the seeker round →
                     </div>
                     {/* <div className="text-xl mt-10 md:text-3xl font-bold mb-4 hover:cursor-pointer" onClick={() => setUsdcAmount(usdcBalance)}>Balance: {usdcBalance}{usdcBalance !== '' ? ' USDC' : ''}</div> */}
-                    <div className="mb-3 pt-4 flex items-center justify-center">
+                    <div className="mb-6 pt-4 flex items-center justify-center">
                         <input 
                             id="twitterHandle" 
                             type="text" 
                             pattern="^@([A-Za-z0-9_]){1,15}$"
                             title="Twitter handle must start with @ followed by up to 15 letters, numbers, or underscores."
-                            className="text-lg bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center w-full" 
-                            placeholder="Enter your Twitter handle (optional)" 
+                            className="text-lg input-div text-white border p-2 text-left w-full" 
+                            placeholder="Twitter handle (optional)" 
                             value={twitterHandle}
                             onChange={(e) => setTwitterHandle(e.target.value)}
                         />
                     </div>
                     <div className="flex items-center justify-center">
-                        <div className="relative flex items-center text-lg bg-slate-800 text-white border border-yellow-400 rounded w-full">
+                        <div className="relative flex items-center text-lg input-div text-white border w-full">
                             <input 
                                 id="usdcAmount" 
                                 type="number" 
-                                className="bg-slate-800 text-white rounded-l p-2 text-center flex-grow outline-none" 
+                                className="input-div text-white rounded-l p-2 text-left flex-grow outline-none" 
                                 placeholder="Enter amount" 
                                 value={usdcAmount}
                                 onChange={(e) => setUsdcAmount(e.target.value)}
                             />
-                            <span className="px-3 border-l border-yellow-400">
+                            <span className="px-3 usdc-bg-border">
                                 USDC
                             </span>
                         </div>
                     </div>
                     <div className="mb-3 flex items-center justify-center">
-                        <div className="relative py-2 flex items-center text-lg bg-slate-800 text-white border border-yellow-400 rounded w-full ">
+                        <div className="relative mt-1 pb-3 py-2 flex items-center text-lg balance-div text-white w-full ">
                             <div class="flex justify-between w-full">
-                                <span className="text-sm pt-1 ml-3 cursor-pointer flex-grow" onClick={() => setUsdcAmount(usdcBalance)}>
+                                <span className="text-sm pt-1 ml-3 cursor-pointer flex-grow balance-color" onClick={() => setUsdcAmount(usdcBalance)}>
                                     Balance: {parseFloat(usdcBalance).toFixed(2)}
                                 </span>
                                 <div>
                                     <button 
-                                        className="text-sm text-black px-3 py-1 bg-gradient-to-r from-yellow-100 to-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50 rounded-l"
+                                        className="text-sm px-3 py-1 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50 min-button"
                                         onClick={() => setUsdcAmount(1000)}
                                     >
                                         Min
                                     </button>
                                     <button 
-                                        className="text-sm text-black px-3 py-1 bg-gradient-to-r from-yellow-400 to-yellow-600  focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50"
+                                        className="text-sm px-3 py-1 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50 add-button"
                                         onClick={() => {
                                             if (parseInt(usdcAmount) < 100000) {
                                                 setUsdcAmount(usdcAmount ? Math.min(parseInt(usdcAmount) + 500, 100000) : (usdcBalance >= 500 ? 500 : usdcBalance))
@@ -365,7 +364,7 @@ const SeekerRound = () => {
                                         +500
                                     </button>
                                     <button 
-                                        className="text-sm text-black px-3 py-1 mr-1 bg-gradient-to-r from-yellow-600 to-yellow-700  focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50 rounded-r"
+                                        className="text-sm px-3 py-1 mr-1 focus:outline-none focus:ring-2 focus:ring-yellow-600 focus:ring-opacity-50 max-button"
                                         onClick={() => setUsdcAmount(100000)}
                                     >
                                         Max
@@ -381,7 +380,7 @@ const SeekerRound = () => {
                     )}
                     <div className="flex pt-4 flex-col items-center justify-center">
                         <button 
-                            className={`py-2 px-4 ${isLoading ? 'bg-gray-400' : 'bg-gradient-to-r from-yellow-600 to-yellow-400 hover:bg-amber-200'} text-black font-bold rounded`}
+                            className={`py-2 px-4 ${isLoading ? 'bg-gray-400' : 'hover:send-button-loading'} send-button font-medium`}
                             onClick={sendSeekerFunds}
                             disabled={isLoading} // Disable the button when isLoading is true
                         >
@@ -392,10 +391,10 @@ const SeekerRound = () => {
                                     </div>
                                 </div>
                             ) : (
-                                "Send USDC to OPHIR DAO Vault"
+                                "Send USDC to OPHIR DAO"
                             )}
                         </button>
-                        <div className="text-xs mt-2 text-center">
+                        <div className="text-xs mt-4 text-center">
                             <a href="https://daodao.zone/dao/migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu/treasury" target="_blank" rel="noopener noreferrer">Destination Address: {`${OPHIR_DAO_VAULT_ADDRESS.substring(0, 10)}...${OPHIR_DAO_VAULT_ADDRESS.substring(OPHIR_DAO_VAULT_ADDRESS.length - 4)}`}</a>
                             <button 
                                 onClick={() => navigator.clipboard.writeText(OPHIR_DAO_VAULT_ADDRESS)}

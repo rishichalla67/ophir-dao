@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
+import "../App.css"
 
 const Nav = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isBuyMenuOpen, setIsBuyMenuOpen] = useState(false);
 
   return (
-    <header className="bg-black text-white w-full fixed top-0 left-0 z-50">
-      <div className="flex justify-between items-center p-4">
+    <header className="nav-color text-white w-full fixed top-0 left-0 z-50">
+      <div className="nav-color flex justify-between items-center p-4">
       <a href="/">
         <img
             src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png"
@@ -35,7 +36,7 @@ const Nav = () => {
       </div>
 
       {/* Mobile menu */}
-      <div className={`absolute top-full right-0 bg-black rounded-lg overflow-hidden ${isMenuOpen ? 'block' : 'hidden'} shadow-md`}>
+      <div className={`absolute top-full right-0 nav-color mobile-nav-round overflow-hidden ${isMenuOpen ? 'block' : 'hidden'} shadow-md`}>
         <nav className="flex flex-col p-5">
           <a href="/" className="text-white text-lg py-2 hover:text-yellow-400 rounded">
             Home
@@ -67,7 +68,7 @@ const Nav = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isBuyMenuOpen ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'}></path>
               </svg>
             </div>
-            <div className={`bg-black rounded-md mt-2 ${isBuyMenuOpen ? 'block' : 'hidden'}`}>
+            <div className={`nav-color rounded-md mt-2 ${isBuyMenuOpen ? 'block' : 'hidden'}`}>
               <a href="/seekers" className="text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center" rel="noopener noreferrer">
                 <img
                   src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png"
