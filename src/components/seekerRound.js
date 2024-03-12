@@ -330,7 +330,7 @@ const SeekerRound = () => {
                             <input 
                                 id="usdcAmount" 
                                 type="number" 
-                                className="input-usdc text-white p-2 text-left flex-grow outline-none" 
+                                className="input-div input-usdc text-white p-2 text-left flex-grow outline-none" 
                                 placeholder="Enter amount" 
                                 value={usdcAmount}
                                 onChange={(e) => setUsdcAmount(e.target.value)}
