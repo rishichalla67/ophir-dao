@@ -299,6 +299,7 @@ const SeekerRound = () => {
                     </div>
                 </div>
             )}
+            {/* Snackbar for alerts */}
             <h1 className={`text-3xl ${vestingData ? 'mt-14' : ''} mb-3 font-bold h1-color`}>Seeker Round</h1>
             <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
