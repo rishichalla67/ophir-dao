@@ -260,7 +260,7 @@ const Redeem = () => {
                     >
                         Withdraw
                     </button>
-                    <p className="text-xs mt-2 text-center">Please be cautious as this is a live contract.</p>
+                    <p className="text-xs mt-2 text-center pb-4">Please be cautious as this is a live contract.</p>
                 </div>
             </>
         </div>
