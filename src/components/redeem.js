@@ -8,6 +8,15 @@ const Redeem = () => {
     const [connectedWalletAddress, setConnectedWalletAddress] = useState('');
     const [ophirBalance, setOphirBalance] = useState(0); // Add a state for the balance
     const [redemptionValues, setRedemptionValues] = useState({});
+    const [ophirPrices, setOphirPrices] = useState({});
+
+    useEffect(() => {
+        fetch('https://parallax-analytics.onrender.com/ophir/prices')
+            .then(response => response.json())
+            .then(data => setOphirPrices(data))
+            .catch(error => console.error('Error fetching Ophir prices:', error));
+    }, []);
+
 
     useEffect(() => {
         if (connectedWalletAddress) {
@@ -159,7 +168,7 @@ const Redeem = () => {
     
 
     return (
-        <div className="bg-black text-white min-h-screen flex flex-col items-center justify-center">
+        <div className="bg-black mt-4 text-white min-h-screen flex flex-col items-center" style={{ paddingTop: '10dvh' }}>
             {connectedWalletAddress ? (
                 <></>
             ) : (
@@ -193,30 +202,57 @@ const Redeem = () => {
                 </button>
             )}
             <>
-                <div className="text-3xl font-bold mb-4">Ophir Balance: {ophirBalance} OPHIR</div>
-                <div className="mb-4">
-                    <input 
-                        id="ophirAmount" 
-                        type="number" 
-                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2" 
-                        placeholder="Enter OPHIR amount" 
-                        value={ophirAmount}
-                        onChange={(e) => setOphirAmount(e.target.value)}
-                    />
-                    {ophirAmount && (
-                        <div className="mt-4">
-                        <p className="text-xl mb-2">Assets to be redeemed:</p>
-                        <ul>
-                            {Object.entries(redemptionValues)
-                                .filter(([key]) => !["redemptionPricePerOPHIR", "totalRedemptionValue", "calculatedAt"].includes(key))
-                                .map(([asset, value]) => (
-                                    <li key={asset}>{`${asset}: ${value.toFixed(4)}`}</li>
-                                ))
-                            }
-                        </ul>
+                <div className="w-full max-w-4xl flex flex-col items-center">
+                    <div className="text-xl sm:text-3xl font-bold mb-2">Ophir Balance: {ophirBalance}</div>
+                    <div className="text-md sm:text-xl mb-2">
+                                        Redemption Price: ${redemptionValues.redemptionPricePerOPHIR ? redemptionValues.redemptionPricePerOPHIR.toFixed(7) : '0.00'}
+                                    </div>
+                        <div className="mb-4 items-center flex flex-col">
+                            <input 
+                                id="ophirAmount" 
+                                type="number" 
+                                className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
+                                placeholder="Enter OPHIR amount" 
+                                value={ophirAmount}
+                                onChange={(e) => setOphirAmount(e.target.value)}
+                            />
+                            {ophirAmount && (
+                                <div className="mt-4 overflow-x-auto">
+                                    <p className="text-xl mb-2 items-center flex flex-col">Assets to be redeemed:</p>
+                                    <table className="table-auto w-full">
+                                        <thead>
+                                            <tr className="text-left">
+                                                <th className="px-4 py-2">Asset</th>
+                                                <th className="px-4 py-2">Amount</th>
+                                                <th className="px-4 py-2">Value</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        {Object.entries(redemptionValues)
+                                            .filter(([key]) => !["redemptionPricePerOPHIR", "totalRedemptionValue", "calculatedAt"].includes(key))
+                                            .map(([asset, amount]) => {
+                                                const price = ophirPrices[asset] || 0; // Get the price of the asset, default to 0 if not found
+                                                const value = amount * price; // Calculate the value by multiplying the amount by the price
+                                                return { asset, amount, value }; // Return an object with asset, amount, and value
+                                            })
+                                            .sort((a, b) => b.value - a.value) // Sort by value in descending order
+                                            .map(({ asset, amount, value }) => (
+                                                <tr key={asset} className="bg-black">
+                                                    <td className="border px-4 py-2 text-sm sm:text-base">{asset}</td>
+                                                    <td className="border px-4 py-2 text-sm sm:text-base">{amount.toFixed(6)}</td>
+                                                    <td className="border px-4 py-2 text-sm sm:text-base">${value.toFixed(2)}</td> {/* Display the value with 2 decimal places */}
+                                                </tr>
+                                            ))
+                                        }
+                                        </tbody>
+                                    </table>
+                                    <div className="text-center mt-4 text-sm sm:text-base">
+                                        Total Value of Redeemed Assets: ${redemptionValues.totalRedemptionValue ? redemptionValues.totalRedemptionValue.toFixed(2) : '0.00'}
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </div>
-                    )}
-                </div>
                 <div className="flex flex-col items-center justify-center">
                     <button 
                         className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500"
@@ -224,7 +260,7 @@ const Redeem = () => {
                     >
                         Withdraw
                     </button>
-                    <p className="text-xs mt-2 text-center">Please be cautious as this is a live contract.</p>
+                    <p className="text-xs mt-2 text-center pb-4">Please be cautious as this is a live contract.</p>
                 </div>
             </>
         </div>
