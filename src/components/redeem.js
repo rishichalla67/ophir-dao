@@ -203,19 +203,22 @@ const Redeem = () => {
             )}
             <>
                 <div className="w-full max-w-4xl flex flex-col items-center">
-                    <div className="text-xl sm:text-3xl font-bold mb-4">Ophir Balance: {ophirBalance}</div>
-                        <div className="mb-4">
+                    <div className="text-xl sm:text-3xl font-bold mb-2">Ophir Balance: {ophirBalance}</div>
+                    <div className="text-md sm:text-xl mb-2">
+                                        Redemption Price: ${redemptionValues.redemptionPricePerOPHIR ? redemptionValues.redemptionPricePerOPHIR.toFixed(7) : '0.00'}
+                                    </div>
+                        <div className="mb-4 items-center flex flex-col">
                             <input 
                                 id="ophirAmount" 
                                 type="number" 
-                                className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2" 
+                                className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
                                 placeholder="Enter OPHIR amount" 
                                 value={ophirAmount}
                                 onChange={(e) => setOphirAmount(e.target.value)}
                             />
                             {ophirAmount && (
                                 <div className="mt-4 overflow-x-auto">
-                                    <p className="text-xl mb-2">Assets to be redeemed:</p>
+                                    <p className="text-xl mb-2 items-center flex flex-col">Assets to be redeemed:</p>
                                     <table className="table-auto w-full">
                                         <thead>
                                             <tr className="text-left">
