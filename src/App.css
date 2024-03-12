@@ -92,12 +92,21 @@
 .seeker-box{
   background-color: var(--main-black);
   box-shadow: 0 4px 60px -15px var(--drop-shadow-gold);
+  max-width: 100%;
 }
 
 .input-div{
   background-color: var(--main-grey);
   border-color: var(--faded-gold);
   border-radius: 10px;
+  max-width: 90%;
+}
+
+.input-usdc{
+  background-color: var(--main-grey);
+  border-color: var(--faded-gold);
+  border-radius: 10px;
+  max-width: 70%;
 }
 
 .usdc-bg-border{
