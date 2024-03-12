@@ -6,8 +6,8 @@ const Nav = () => {
   const [isBuyMenuOpen, setIsBuyMenuOpen] = useState(false);
 
   return (
-    <header className="nav-color text-white w-full fixed top-0 left-0 z-50">
-      <div className="nav-color flex justify-between items-center p-4">
+    <header className="bg-black text-white w-full fixed top-0 left-0 z-50">
+      <div className="bg-black flex justify-between items-center p-4">
       <a href="/">
         <img
             src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png"
