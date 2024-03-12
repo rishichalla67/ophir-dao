@@ -397,7 +397,7 @@ const AnalyticsDashboard = () => {
         {ophirStats && ophirTreasury && priceData &&
             <div className="pt-12 bg-black text-white min-h-screen">
                 <div className="p-3 bg-black">
-                    <div className="text-3xl font-bold text-white mb-4">Ophir Statistics</div>
+                    <div className="mt-4 text-3xl font-bold text-white mb-4">Ophir Statistics</div>
                     
                     <div className="
                     grid 
