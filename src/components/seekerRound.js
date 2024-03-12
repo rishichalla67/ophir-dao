@@ -6,6 +6,7 @@ import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { stringToPath } from "@cosmjs/crypto";
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
+
 import "../App.css"
 
 const USDC_DENOM = "ibc/BC5C0BAFD19A5E4133FDA0F3E04AE1FBEE75A4A226554B2CBB021089FF2E1F8A";
@@ -21,6 +22,7 @@ const SeekerRound = () => {
     const [alertInfo, setAlertInfo] = useState({ open: false, message: '', severity: 'info' });
     const [twitterHandle, setTwitterHandle] = useState('');
     const [isLedgerConnected, setIsLedgerConnected] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const showAlert = (message, severity = 'info') => {
         setAlertInfo({ open: true, message, severity });
@@ -48,7 +50,7 @@ const SeekerRound = () => {
     }
 
     const connectWallet = async () => {
-        if (window.keplr) {
+        if (window.keplr || window.leap) {
             try {
                 const chainId = "migaloo-1"; // Make sure to use the correct chain ID for Migaloo
                 await window.keplr.enable(chainId);
@@ -56,17 +58,20 @@ const SeekerRound = () => {
                 const accounts = await offlineSigner.getAccounts();
                 setConnectedWalletAddress(accounts[0].address);
                 setIsLedgerConnected(false); // Indicate that the connection is not through Ledger
+                setIsModalOpen(false); // Close the modal after successful connection
                 return; // Exit the function after successful connection
             } catch (error) {
-                console.error("Error connecting to LEAP:", error);
-                showAlert(`Error connecting to LEAP: ${error.message}`, "error");
+                console.error("Error connecting to LEAP or Keplr:", error);
+                showAlert(`Error connecting to LEAP or Keplr: ${error.message}`, "error");
+                setIsModalOpen(false); // Close the modal after successful connection
                 // Don't return here, try connecting with Ledger next
             }
         } else {
-            showAlert("Keplr extension not found, attempting to connect with Ledger...", "info");
+            showAlert("Keplr or LEAP extension not found...", "error");
         }
-    
-        // Attempt to connect with Ledger if Keplr connection is not successful or not available
+    };
+
+    const connectLedger = async () => {
         try {
             const transport = await TransportWebUSB.create();
             const ledgerSigner = new LedgerSigner(transport, {
@@ -83,39 +88,18 @@ const SeekerRound = () => {
             // Now you can use `client` to sign and send transactions
             // For example, to get the accounts:
             const accounts = await ledgerSigner.getAccounts();
-            setIsLedgerConnected(true); // Indicate that the connection is through Ledger
+            setIsLedgerConnected(true);
             setConnectedWalletAddress(accounts[0].address.replace('-', ''));
             console.log(accounts);
+            setIsModalOpen(false); // Close the modal after successful connection
+            showAlert("Ledger connected successfully.", "success");
         } catch (error) {
             console.error("Error connecting to Ledger:", error);
-            showAlert("Error connecting to Ledger. Please ensure your device is connected and Ledger Live is closed.", "error");
+            showAlert(`Error connecting to Ledger: ${error.message}`, "error");
         }
-    };
+        
 
-    // const connectLedger = async () => {
-    //     try {
-    //         const transport = await TransportWebUSB.create();
-    //         const ledgerSigner = new LedgerSigner(transport, {
-    //             hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
-    //             prefix: "migaloo-1",
-    //         });
-    
-    //         // Example: Using ledgerSigner with SigningStargateClient
-    //         const client = await SigningStargateClient.connectWithSigner(
-    //             "https://rpc.cosmos.directory/migaloo", 
-    //             ledgerSigner
-    //         );
-    
-    //         // Now you can use `client` to sign and send transactions
-    //         // For example, to get the accounts:
-    //         const accounts = await ledgerSigner.getAccounts();
-    //         setIsLedgerConnected(true);
-    //         setConnectedWalletAddress(accounts[0].address.replace('-', ''));
-    //         console.log(accounts)
-    //     } catch (error) {
-    //         console.error("Error connecting to Ledger:", error);
-    //     }
-    // };
+    };
 
     const checkBalance = async (address) => {
         const baseUrl = "https://migaloo-lcd.erisprotocol.com"; // Replace with the actual REST API base URL for Migaloo
@@ -261,19 +245,60 @@ const SeekerRound = () => {
             setIsLoadingClaim(false);
         }
     };
-    
-    const disconnectWallet = () => {
-        setConnectedWalletAddress(''); // Reset the connected wallet address
-        // Additionally, you might want to reset other relevant states
-        setUsdcAmount(''); // Resetting the balance to 0 or initial state
-        setUsdcBalance(''); // Resetting the balance to 0 or initial state
-        setTwitterHandle(''); // Resetting the balance to 0 or initial state
+
+    const resetWalletState = () => {
+        setConnectedWalletAddress('');
+        setUsdcAmount('');
+        setUsdcBalance('');
+        setTwitterHandle('');
         setIsLedgerConnected(false);
+    };
+    
+    const disconnectWallet = async () => {
+        if (window.leap) {
+            await window.leap.disconnect("migaloo-1")
+            .then(() => {
+                resetWalletState();
+            });
+        } else if (window.keplr) {
+            // Assuming Keplr has a similar disconnect method
+            await window.keplr.disconnect("migaloo-1")
+            .then(() => {
+                resetWalletState();
+            });
+        }
     };
     
 
     return (
         <div className="global-bg text-white min-h-dvh w-full flex flex-col items-center justify-content" style={{ paddingTop: '20dvh' }}>
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+                    <div className="bg-black p-5 rounded-lg shadow-lg border border-yellow-400">
+                        <div className="grid grid-cols-2 gap-4">
+                            <button onClick={() => connectWallet()} className="flex flex-col items-center justify-center p-2 hover:bg-slate-600 rounded">
+                                <img src="https://play-lh.googleusercontent.com/qXNXZaFX6PyEksn3kdaRVuzSXoxiCLObrDhpWjN71IxyncCSS-Ftvdi_Hbr2pucgBSM=w240-h480-rw" alt="Leap/Leap Extension" className="w-12 h-12"/>
+                                <span>LEAP Extension</span>
+                            </button>
+                            <button onClick={() => connectLedger()} className="flex flex-col items-center justify-center p-2 hover:bg-slate-600 rounded">
+                                <img src="https://www.ledger.com/wp-content/uploads/2023/08/Ledger-logo-696.png" alt="Ledger" className="w-12 h-12"/>
+                                <span>Ledger</span>
+                            </button>
+                            {/* <button onClick={() => connectLeapMobile()} className="flex flex-col items-center justify-center p-2 hover:bg-slate-600 rounded">
+                                <img src="https://play-lh.googleusercontent.com/qXNXZaFX6PyEksn3kdaRVuzSXoxiCLObrDhpWjN71IxyncCSS-Ftvdi_Hbr2pucgBSM=w240-h480-rw" alt="Ledger" className="w-12 h-12"/>
+                                <span>Leap Mobile</span>
+                            </button> */}
+                            {/* Add more buttons for other wallets as needed */}
+                        </div>
+                        <div className="flex justify-center w-full">
+                            <button onClick={() => setIsModalOpen(false)} className="py-2 px-4 mt-4 font-medium rounded flex items-center justify-center gap-2 bg-black text-yellow-400 border-none shadow-lg transition-colors duration-300 md:hover:bg-yellow-400 md:hover:text-black connect-button">Close</button>
+                        </div>
+                    <div className="flex justify-center w-full mt-4 sm:hidden">
+                    <a href="https://leapcosmoswallet.page.link/BfpmrsQLhrqJqtQx6" target="_blank" rel="noopener noreferrer" className="" style={{ textDecoration: 'underline', color: 'yellow', cursor: 'pointer' }}>Open this page in LEAP</a>
+                    </div>
+                    </div>
+                </div>
+            )}
             <h1 className={`text-3xl ${vestingData ? 'mt-14' : ''} mb-3 font-bold h1-color`}>Seeker Round</h1>
             <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
@@ -297,7 +322,7 @@ const SeekerRound = () => {
                             color: 'white',
                             boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', /* Adding some shadow for depth */
                         }}
-                        onClick={connectWallet}
+                        onClick={() => setIsModalOpen(true)}
                     >
                         {/* Icons and text */}
                         Connect Wallet
