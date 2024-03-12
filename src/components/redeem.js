@@ -203,7 +203,7 @@ const Redeem = () => {
             )}
             <>
                 <div className="w-full max-w-4xl flex flex-col items-center">
-                    <div className="text-3xl font-bold mb-4">Ophir Balance: {ophirBalance} OPHIR</div>
+                    <div className="text-xl sm:text-3xl font-bold mb-4">Ophir Balance: {ophirBalance}</div>
                         <div className="mb-4">
                             <input 
                                 id="ophirAmount" 
