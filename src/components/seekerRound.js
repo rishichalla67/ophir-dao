@@ -121,21 +121,21 @@ const SeekerRound = () => {
     const sendSeekerFunds = async () => {
         setIsLoading(true);
         const amountNum = parseFloat(usdcAmount);
-        // if (!usdcAmount || isNaN(amountNum) || amountNum < 1000 || amountNum % 500 !== 0) {
-        //     showAlert("Please enter an amount that is a minimum of 1000 and in increments of 500.", "error");
-        //     setIsLoading(false);
-        //     return;
-        // }
-        // if (amountNum > 100000) {
-        //     showAlert("The amount cannot be greater than 100,000 USDC.", "error");
-        //     setIsLoading(false);
-        //     return;
-        // }
-        // if (usdcBalance < amountNum) {
-        //     showAlert("Your USDC balance is less than the amount entered.", "error");
-        //     setIsLoading(false);
-        //     return;
-        // }
+        if (!usdcAmount || isNaN(amountNum) || amountNum < 1000 || amountNum % 500 !== 0) {
+            showAlert("Please enter an amount that is a minimum of 1000 and in increments of 500.", "error");
+            setIsLoading(false);
+            return;
+        }
+        if (amountNum > 100000) {
+            showAlert("The amount cannot be greater than 100,000 USDC.", "error");
+            setIsLoading(false);
+            return;
+        }
+        if (usdcBalance < amountNum) {
+            showAlert("Your USDC balance is less than the amount entered.", "error");
+            setIsLoading(false);
+            return;
+        }
     
         try {
             const chainId = "migaloo-1"; // Make sure this matches the chain you're interacting with
