@@ -6,6 +6,7 @@ import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { stringToPath } from "@cosmjs/crypto";
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
+import SnackbarContent from '@mui/material/SnackbarContent';
 
 import "../App.css"
 
@@ -24,8 +25,8 @@ const SeekerRound = () => {
     const [isLedgerConnected, setIsLedgerConnected] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const showAlert = (message, severity = 'info') => {
-        setAlertInfo({ open: true, message, severity });
+    const showAlert = (message, severity = 'info', htmlContent = null) => {
+        setAlertInfo({ open: true, message, severity, htmlContent });
     };
 
     useEffect(() => {
@@ -120,26 +121,21 @@ const SeekerRound = () => {
     const sendSeekerFunds = async () => {
         setIsLoading(true);
         const amountNum = parseFloat(usdcAmount);
-        if (!usdcAmount || isNaN(amountNum) || amountNum < 1000 || amountNum % 500 !== 0) {
-            showAlert("Please enter an amount that is a minimum of 1000 and in increments of 500.", "error");
-            setIsLoading(false);
-            return;
-        }
-        if (amountNum > 100000) {
-            showAlert("The amount cannot be greater than 100,000 USDC.", "error");
-            setIsLoading(false);
-            return;
-        }
-        // if (!twitterHandle) {
-        //     showAlert("Please enter your Twitter handle.", "error");
+        // if (!usdcAmount || isNaN(amountNum) || amountNum < 1000 || amountNum % 500 !== 0) {
+        //     showAlert("Please enter an amount that is a minimum of 1000 and in increments of 500.", "error");
         //     setIsLoading(false);
         //     return;
         // }
-        if (usdcBalance < amountNum) {
-            showAlert("Your USDC balance is less than the amount entered.", "error");
-            setIsLoading(false);
-            return;
-        }
+        // if (amountNum > 100000) {
+        //     showAlert("The amount cannot be greater than 100,000 USDC.", "error");
+        //     setIsLoading(false);
+        //     return;
+        // }
+        // if (usdcBalance < amountNum) {
+        //     showAlert("Your USDC balance is less than the amount entered.", "error");
+        //     setIsLoading(false);
+        //     return;
+        // }
     
         try {
             const chainId = "migaloo-1"; // Make sure this matches the chain you're interacting with
@@ -174,9 +170,13 @@ const SeekerRound = () => {
             const client = await SigningStargateClient.connectWithSigner("https://rpc.cosmos.directory/migaloo", offlineSigner);
             const txHash = await client.signAndBroadcast(accountAddress, [msgSend], fee, memo);
             console.log("Transaction Hash:", txHash);
-            showAlert(`Successfully sent USDC to OPHIR DAO Vault. Transaction: https://inbloc.org/migaloo/transactions/${txHash}`, "success");
+            showAlert(
+                "Successfully sent USDC to OPHIR DAO Vault.", 
+                "success", 
+                `Successfully sent USDC to OPHIR DAO Vault. Transaction: <a href="https://inbloc.org/migaloo/transactions/${txHash.transactionHash}" target="_blank" rel="noopener noreferrer" style="color: black;">https://inbloc.org/migaloo/transactions/${txHash.transactionHash}</a>`
+            );
             checkBalance(connectedWalletAddress).then(balance => {
-                setUsdcBalance(balance); // Update the balance state when the promise resolves
+            setUsdcBalance(balance); // Update the balance state when the promise resolves
             });
         } catch (error) {
             console.error("Withdrawal error:", error);
@@ -301,11 +301,24 @@ const SeekerRound = () => {
             )}
             {/* Snackbar for alerts */}
             <h1 className={`text-3xl ${vestingData ? 'mt-14' : ''} mb-3 font-bold h1-color`}>Seeker Round</h1>
-            <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+            {/* <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>
                     {alertInfo.message}
                 </Alert>
+            </Snackbar> */}
+            <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+                {alertInfo.htmlContent ? (
+                    <SnackbarContent
+                        style={{color: 'black', backgroundColor: alertInfo.severity === 'error' ? '#ffcccc' : '#ccffcc' }} // Adjusted colors to be less harsh
+                        message={<span dangerouslySetInnerHTML={{ __html: alertInfo.htmlContent }} />}
+                    />
+                ) : (
+                    <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>
+                        {alertInfo.message}
+                    </Alert>
+                )}
             </Snackbar>
             <div className="absolute top-14 right-0 m-4 mr-2 sm:mr-4">
                 {connectedWalletAddress ? (
