@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { SigningStargateClient } from "@cosmjs/stargate";
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
+import { coins } from "@cosmjs/amino";
+import { GasPrice, SigningStargateClient } from "@cosmjs/stargate";
 import { LedgerSigner } from "@cosmjs/ledger-amino";
 import TransportWebUSB from "@ledgerhq/hw-transport-webusb";
 import { stringToPath } from "@cosmjs/crypto";
@@ -54,6 +55,52 @@ const SeekerRound = () => {
         if (window.keplr || window.leap) {
             try {
                 const chainId = "migaloo-1"; // Make sure to use the correct chain ID for Migaloo
+    
+                // Add chain information to Keplr
+                if (window.keplr.experimentalSuggestChain) {
+                    await window.keplr.experimentalSuggestChain({
+                        // Chain details
+                        chainId: chainId,
+                        chainName: "Migaloo",
+                        rpc: "https://rpc.migaloo.co", // Example RPC endpoint, replace with actual
+                        rest: "https://rest.migaloo.co", // Example REST endpoint, replace with actual
+                        bip44: {
+                            coinType: 118, // Example coinType, replace with actual
+                        },
+                        bech32Config: {
+                            bech32PrefixAccAddr: "migaloo",
+                            bech32PrefixAccPub: "migaloopub",
+                            bech32PrefixValAddr: "migaloovaloper",
+                            bech32PrefixValPub: "migaloovaloperpub",
+                            bech32PrefixConsAddr: "migaloovalcons",
+                            bech32PrefixConsPub: "migaloovalconspub",
+                        },
+                        currencies: [{
+                            // Example currency, replace with actual
+                            coinDenom: "whale",
+                            coinMinimalDenom: "uwhale",
+                            coinDecimals: 6,
+                        }],
+                        feeCurrencies: [{
+                            // Example fee currency, replace with actual
+                            coinDenom: "whale",
+                            coinMinimalDenom: "uwhale",
+                            coinDecimals: 6,
+                        }],
+                        stakeCurrency: {
+                            // Example stake currency, replace with actual
+                            coinDenom: "whale",
+                            coinMinimalDenom: "uwhale",
+                            coinDecimals: 6,
+                        },
+                        gasPriceStep: {
+                            low: 0.2,
+                            average: 0.45,
+                            high: 0.75,
+                        },
+                    });
+                }
+    
                 await window.keplr.enable(chainId);
                 const offlineSigner = window.keplr.getOfflineSigner(chainId);
                 const accounts = await offlineSigner.getAccounts();
@@ -77,9 +124,12 @@ const SeekerRound = () => {
             const transport = await TransportWebUSB.create();
             const ledgerSigner = new LedgerSigner(transport, {
                 hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
-                prefix: "migaloo-1",
+                prefix: "migaloo",
             });
     
+    
+            // Example: Using ledgerSigner with SigningStargateClient
+
             // Example: Using ledgerSigner with SigningStargateClient
             const client = await SigningStargateClient.connectWithSigner(
                 "https://rpc.cosmos.directory/migaloo", 
@@ -121,23 +171,70 @@ const SeekerRound = () => {
     const sendSeekerFunds = async () => {
         setIsLoading(true);
         const amountNum = parseFloat(usdcAmount);
-        if (!usdcAmount || isNaN(amountNum) || amountNum < 1000 || amountNum % 500 !== 0) {
-            showAlert("Please enter an amount that is a minimum of 1000 and in increments of 500.", "error");
-            setIsLoading(false);
-            return;
-        }
-        if (amountNum > 100000) {
-            showAlert("The amount cannot be greater than 100,000 USDC.", "error");
-            setIsLoading(false);
-            return;
-        }
-        if (usdcBalance < amountNum) {
-            showAlert("Your USDC balance is less than the amount entered.", "error");
-            setIsLoading(false);
-            return;
-        }
-    
+        // if (!usdcAmount || isNaN(amountNum) || amountNum < 1000 || amountNum % 500 !== 0) {
+        //     showAlert("Please enter an amount that is a minimum of 1000 and in increments of 500.", "error");
+        //     setIsLoading(false);
+        //     return;
+        // }
+        // if (amountNum > 100000) {
+        //     showAlert("The amount cannot be greater than 100,000 USDC.", "error");
+        //     setIsLoading(false);
+        //     return;
+        // }
+        // if (usdcBalance < amountNum) {
+        //     showAlert("Your USDC balance is less than the amount entered.", "error");
+        //     setIsLoading(false);
+        //     return;
+        // }
+        const memo = `Twitter: ${twitterHandle}`;
         try {
+            if(isLedgerConnected){
+                try {
+                    const transport = await TransportWebUSB.create();
+                    const ledgerSigner = new LedgerSigner(transport, {
+                        hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
+                        prefix: "migaloo", // Adjust the prefix to match your chain's address prefix
+                    });
+
+                    const client = await SigningStargateClient.connectWithSigner(
+                        "https://rpc.cosmos.directory/migaloo", // Replace with your chain's RPC endpoint
+                        ledgerSigner,
+                        { gasPrice: GasPrice.fromString("0.75uwhale") } // Adjust the gas price and denom
+                    );
+
+                    const amount = coins(String(amountNum * 1000000), USDC_DENOM); // Adjust the amount and denom
+                    const recipient = OPHIR_DAO_VAULT_ADDRESS; // Replace with the recipient's address
+                    const senderAddress = connectedWalletAddress;
+
+                    showAlert("Check your hardware wallet to validate and approve the transaction", "info");
+                    const result = await client.sendTokens(senderAddress, recipient, amount, "auto", memo);
+                    
+                    console.log(result);
+                    showAlert(
+                        "Successfully sent USDC to OPHIR DAO Vault.", 
+                        "success", 
+                        `Successfully sent USDC to OPHIR DAO Vault. Transaction: <a href="https://inbloc.org/migaloo/transactions/${result.transactionHash}" target="_blank" rel="noopener noreferrer" style="color: black;">https://inbloc.org/migaloo/transactions/${result.transactionHash}</a>`
+                    );
+                    checkBalance(connectedWalletAddress).then(balance => {
+                        setUsdcBalance(balance);
+                    });
+                } catch (error) {
+                    console.error("Transaction error:", error);
+                    if (error.code === -32603) {
+                        showAlert(
+                            "Transaction was successful despite the error.", 
+                            "success", 
+                            `Transaction was successful. Transaction: <a href="https://inbloc.org/migaloo/transactions/${error.transactionHash}" target="_blank" rel="noopener noreferrer" style="color: black;">https://inbloc.org/migaloo/transactions/${error.transactionHash}</a>`
+                        );
+                    } else {
+                        showAlert(`Sending funds to OPHIR DAO Vault failed. ${error}`, "error");
+                    }
+                } finally {
+                    setIsLoading(false)
+                }
+                return
+            }
+
             const chainId = "migaloo-1"; // Make sure this matches the chain you're interacting with
             await window.keplr.enable(chainId);
             const offlineSigner = window.keplr.getOfflineSigner(chainId);
@@ -165,7 +262,6 @@ const SeekerRound = () => {
                 }],
                 gas: "200000",
             };
-            const memo = `Twitter: ${twitterHandle}`;
     
             const client = await SigningStargateClient.connectWithSigner("https://rpc.cosmos.directory/migaloo", offlineSigner);
             const txHash = await client.signAndBroadcast(accountAddress, [msgSend], fee, memo);
