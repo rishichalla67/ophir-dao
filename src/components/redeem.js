@@ -235,6 +235,7 @@ const Redeem = () => {
                                                 const value = amount * price; // Calculate the value by multiplying the amount by the price
                                                 return { asset, amount, value }; // Return an object with asset, amount, and value
                                             })
+                                            .filter(({ value }) => value > 0.01) // Filter out any values that are 0.01
                                             .sort((a, b) => b.value - a.value) // Sort by value in descending order
                                             .map(({ asset, amount, value }) => (
                                                 <tr key={asset} className="bg-black">
@@ -253,7 +254,7 @@ const Redeem = () => {
                             )}
                         </div>
                     </div>
-                <div className="flex flex-col items-center justify-center">
+                {/* <div className="flex flex-col items-center justify-center">
                     <button 
                         className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500"
                         onClick={withdrawCoins} // Use the withdrawCoins function when this button is clicked
@@ -261,7 +262,7 @@ const Redeem = () => {
                         Withdraw
                     </button>
                     <p className="text-xs mt-2 text-center pb-4">Please be cautious as this is a live contract.</p>
-                </div>
+                </div> */}
             </>
         </div>
     );
