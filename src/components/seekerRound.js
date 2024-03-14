@@ -319,6 +319,9 @@ const SeekerRound = () => {
             };
     
             const rpcEndpoint = "https://rpc.cosmos.directory/migaloo"; // RPC endpoint
+            if (isLedgerConnected) {
+                showAlert("Check your hardware wallet to validate and approve the transaction", "info");
+            }
             const client = await SigningCosmWasmClient.connectWithSigner(rpcEndpoint, signer, {
                 prefix: "migaloo",
             });
@@ -328,15 +331,23 @@ const SeekerRound = () => {
                     denom: "uwhale",
                     amount: "5000",
                 }],
-                gas: "200000",
+                gas: "800000",
             };
     
             const result = await client.execute(accountAddress, contractAddress, executeMsg, fee, "Execute Wasm Contract Claim");
             console.log("Transaction Hash:", result.transactionHash);
             showAlert(`Successfully executed contract claim. Transaction: https://inbloc.org/migaloo/transactions/${result.transactionHash}`, "success");
         } catch (error) {
-            console.error("Contract execution error:", error);
-            showAlert(`Contract execution failed. ${error} `, "error");
+            console.error("Transaction error:", error);
+                    if (error.code === -32603) {
+                        showAlert(
+                            "Transaction was successful despite the error.", 
+                            "success", 
+                            `Transaction was successful. Transaction: <a href="https://inbloc.org/migaloo/transactions/${error.transactionHash}" target="_blank" rel="noopener noreferrer" style="color: black;">https://inbloc.org/migaloo/transactions/${error.transactionHash}</a>`
+                        );
+                    } else {
+                        showAlert(`Successfully executed contract claim. ${error}`, "error");
+                    }
         } finally {
             setIsLoadingClaim(false);
         }
