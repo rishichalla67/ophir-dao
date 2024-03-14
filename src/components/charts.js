@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -132,6 +132,9 @@ const options = {
     }
 };
 
+const LazyLine = lazy(() => import('react-chartjs-2').then(module => ({ default: module.Line })));
+
+
 const Charts = () => {
 
     const [chartData, setChartData] = useState(null);
@@ -141,6 +144,7 @@ const Charts = () => {
         setChartOption(event.target.value);
     };
     const totalTreasuryChartConfig = prepareTotalTreasuryChartData(totalTreasuryChartData);
+    const isMobile = window.innerWidth <= 768;
 
     const prodUrl = 'https://parallax-analytics.onrender.com';
     const localUrl = 'http://localhost:225';
@@ -178,102 +182,109 @@ const Charts = () => {
 
     return(
         <>
-        {chartData && totalTreasuryChartData && (
-            <>
-                <div className="p-3 bg-black">
-                    <div className="text-3xl font-bold text-white mb-4">Charts</div>
-                    {/* Selector for chart options */}
-                    <div className='pl-2'>
-                        <select onChange={chartOptionChangeHandler} value={chartOption} className="mb-4 bg-slate-800 text-white p-2 rounded">
-                            <option value="value">Asset Value</option>
-                            <option value="amount">Asset Amount</option>
-                            <option value="price">Asset Price</option>
-                        </select>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        {Object.keys(chartData).map((denom, index) => {
-                            const dataPoints = chartData[denom];
-                            const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint?.timestamp).toLocaleDateString());
-                            let chartDataValues;
-                            let labelSuffix;
+        <Suspense fallback={<div className="text-white">Loading Charts...</div>}>
+            {chartData && totalTreasuryChartData && (
+                <>
+                    <div className="p-3 bg-black">
+                        <div className="text-3xl font-bold text-white mb-4">Charts</div>
+                        {/* Selector for chart options */}
+                        <div className='pl-2'>
+                            <select onChange={chartOptionChangeHandler} value={chartOption} className="mb-4 bg-slate-800 text-white p-2 rounded">
+                                <option value="value">Asset Value</option>
+                                <option value="amount">Asset Amount</option>
+                                <option value="price">Asset Price</option>
+                            </select>
+                        </div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            {Object.keys(chartData).map((denom, index) => {
+                                const dataPoints = chartData[denom];
+                                const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint?.timestamp).toLocaleDateString());
+                                let chartDataValues;
+                                let labelSuffix;
 
-                            switch (chartOption) {
-                                case 'amount':
-                                    chartDataValues = dataPoints.map(dataPoint => dataPoint.asset);
-                                    labelSuffix = 'Amount';
-                                    break;
-                                case 'price':
-                                    chartDataValues = dataPoints.map(dataPoint => dataPoint.price);
-                                    labelSuffix = 'Price';
-                                    break;
-                                case 'value':
-                                default:
-                                    chartDataValues = dataPoints.map(dataPoint => dataPoint.value);
-                                    labelSuffix = '$ Value';
-                                    break;
-                            }
+                                switch (chartOption) {
+                                    case 'amount':
+                                        chartDataValues = dataPoints.map(dataPoint => dataPoint.asset);
+                                        labelSuffix = 'Amount';
+                                        break;
+                                    case 'price':
+                                        chartDataValues = dataPoints.map(dataPoint => dataPoint.price);
+                                        labelSuffix = 'Price';
+                                        break;
+                                    case 'value':
+                                    default:
+                                        chartDataValues = dataPoints.map(dataPoint => dataPoint.value);
+                                        labelSuffix = '$ Value';
+                                        break;
+                                }
 
-                            const data = {
-                                labels: chartLabels,
-                                datasets: [
-                                    {
-                                        label: `${labelSuffix}`,
-                                        data: chartDataValues,
-                                        fill: false,
-                                        backgroundColor: 'rgb(255, 206, 86)',
-                                        borderColor: 'rgba(255, 206, 86, 2)',
-                                        pointRadius: 0.1,
-                                        pointHoverRadius: 5,
-                                        tension: 0.2
-                                    },
-                                ],
-                            };
-
-                            const options = {
-                                scales: {
-                                    y: {
-                                        beginAtZero: false,
-                                        ticks: {
-                                            color: 'white', // Change Y-axis ticks color to white
+                                const data = {
+                                    labels: chartLabels,
+                                    datasets: [
+                                        {
+                                            label: `${labelSuffix}`,
+                                            data: chartDataValues,
+                                            fill: false,
+                                            backgroundColor: 'rgb(255, 206, 86)',
+                                            borderColor: 'rgba(255, 206, 86, 2)',
+                                            pointRadius: 0.1,
+                                            pointHoverRadius: 5,
+                                            tension: 0.2
                                         },
-                                        grid: {
-                                            color: 'rgba(255, 255, 255, 0.1)', // Change Y-axis grid lines color to white with some transparency
-                                        }
-                                    },
-                                    x: {
-                                        ticks: {
-                                            color: 'white', // Change X-axis ticks color to white
+                                    ],
+                                };
+
+                                const options = {
+                                    scales: {
+                                        y: {
+                                            beginAtZero: false,
+                                            ticks: {
+                                                color: 'white', // Change Y-axis ticks color to white
+                                            },
+                                            grid: {
+                                                color: 'rgba(255, 255, 255, 0.1)', // Change Y-axis grid lines color to white with some transparency
+                                            }
                                         },
-                                        grid: {
-                                            color: 'rgba(255, 255, 255, 0.1)', // Change X-axis grid lines color to white with some transparency
+                                        x: {
+                                            ticks: {
+                                                color: 'white', // Change X-axis ticks color to white
+                                            },
+                                            grid: {
+                                                color: 'rgba(255, 255, 255, 0.1)', // Change X-axis grid lines color to white with some transparency
+                                            }
                                         }
                                     }
-                                }
-                            };
+                                };
 
-                            return (
-                                <div key={index} className="bg-black text-white rounded-lg shadow-md min-w-[100px] flex flex-col items-center justify-center">
-                                    <div className="sm:text-2xl text-sm font-bold mb-1 text-center">{denom.toUpperCase()}</div>
-                                    <Line data={data} options={options} />
+                                return (
+                                    <div key={index} className="bg-black text-white rounded-lg shadow-md min-w-[100px] flex flex-col items-center justify-center">
+                                        <div className="sm:text-2xl text-sm font-bold mb-1 text-center">{denom.toUpperCase()}</div>
+                                        {/* Conditional rendering based on device type */}
+                                        {isMobile ? (
+                                            <div>Chart optimized for mobile</div>
+                                        ) : (
+                                            <Line data={data} options={options} />
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                            <>
+                                <div className="pt-2 bg-black text-white">
+                                    <div className="p-1 bg-black"> 
+                                        <div className="text-3xl font-bold text-white mb-2">Total Treasury Value Over Time</div>
+                                        <Line data={totalTreasuryChartConfig} options={options} />
+                                    </div>
                                 </div>
-                            );
-                        })}
+                                <div className="p-1 bg-black">
+                                    <div className="text-3xl font-bold text-white mb-4">Total Treasury vs BTC Price</div>
+                                    <Line data={prepareComparisonChartData(totalTreasuryChartData, chartData)} options={comparisonOptions} />
+                                </div>
+                            </>
                     </div>
-                        <>
-                            <div className="pt-2 bg-black text-white">
-                                <div className="p-1 bg-black"> 
-                                    <div className="text-3xl font-bold text-white mb-2">Total Treasury Value Over Time</div>
-                                    <Line data={totalTreasuryChartConfig} options={options} />
-                                </div>
-                            </div>
-                            <div className="p-1 bg-black">
-                                <div className="text-3xl font-bold text-white mb-4">Total Treasury vs BTC Price</div>
-                                <Line data={prepareComparisonChartData(totalTreasuryChartData, chartData)} options={comparisonOptions} />
-                            </div>
-                        </>
-                </div>
-            </>
-        )}
+                </>
+            )}
+        </Suspense>
         </>
     );
 }

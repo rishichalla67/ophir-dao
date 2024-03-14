@@ -338,7 +338,7 @@ const AnalyticsDashboard = () => {
                 </div>
                 <div className="flex justify-left space-x-4 p-4">
                     <button
-                        className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 border-t border-r border-l border-gold ${activeTab === 'treasury' ? 'text-yellow-400 border-gold' : 'text-white border-transparent'}`}
+                        className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 rounded border-t border-r border-l border-gold ${activeTab === 'treasury' ? 'text-yellow-400 border-gold' : 'text-white border-transparent'}`}
                         onClick={() => setActiveTab('treasury')}
                     >
                         Ophir Treasury
