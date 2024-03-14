@@ -437,10 +437,8 @@ const SeekerRound = () => {
             });
         } else if (window.keplr) {
             // Assuming Keplr has a similar disconnect method
-            await window.keplr.disconnect("migaloo-1")
-            .then(() => {
-                resetWalletState();
-            });
+            resetWalletState();
+            
         }
     };
     
