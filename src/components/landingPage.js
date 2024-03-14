@@ -20,7 +20,7 @@ const LandingPage = () => {
     // Start cycling through random digits
     const intervalId = setInterval(updatePlaceholder, 3); // Update every 100ms
 
-    fetch('https://parallax-analytics.onrender.com/ophir/totalTreasuryValue')
+    fetch('https://parallax-analytics.onrender.com/ophir/treasury')
       .then(response => response.json())
       .then(data => {
         setTotalTreasuryValue(data.totalTreasuryValue);
