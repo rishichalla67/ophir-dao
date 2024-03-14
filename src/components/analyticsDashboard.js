@@ -1,8 +1,8 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import axios from 'axios';
-import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
 import CryptoPieChart from './pieChart';
+import Charts from './charts';
 
 const Modal = ({ isOpen, onClose, data }) => {
     if (!isOpen) return null;
@@ -41,162 +41,6 @@ const Modal = ({ isOpen, onClose, data }) => {
     );
 };
 
-
-  const prepareTotalTreasuryChartData = (data) => {
-    // Sort data by date
-    if (!data) {
-        // Handle the case where data is null or undefined
-        // For example, you could return an empty object or some default value
-        return {
-            labels: [],
-            datasets: []
-        };
-    }
-    const sortedData = data.sort((a, b) => new Date(a.date) - new Date(b.date));
-    const chartLabels = sortedData.map(item => item.date);
-    const chartDataValues = sortedData.map(item => item.totalValue);
-
-    return {
-        labels: chartLabels,
-        datasets: [
-            {
-                label: 'Total Treasury Value',
-                data: chartDataValues,
-                fill: false,
-                backgroundColor: 'rgb(255, 206, 86)',
-                borderColor: 'rgba(255, 206, 86)',
-                tension: 0.1
-            }
-        ]
-    };
-};
-
-const prepareComparisonChartData = (totalTreasuryData, chartData) => {
-    const chartLabels = totalTreasuryData.map(item => item.date);
-    // Ensure there's at least one value and it's not null for both datasets
-    if (!totalTreasuryData.length || !chartData['wBTC'].length) return { labels: [], datasets: [] };
-
-    // Initialize starting values
-    const startTreasuryValue = totalTreasuryData[0].totalValue;
-    const startWBTCValue = chartData['wBTC'].find(data => data.price !== null)?.price || 0;
-
-    // Avoid division by zero
-    if (startTreasuryValue === 0 || startWBTCValue === 0) return { labels: [], datasets: [] };
-
-    // Calculate percentage change from the start for each value
-    const treasuryValues = totalTreasuryData.map(item => ((item.totalValue - startTreasuryValue) / startTreasuryValue) * 100);
-    const wBTCValues = chartLabels.map(label => {
-        const labelDate = new Date(label).toISOString().slice(0, 10);
-        const matchingWBTCData = chartData['wBTC'].find(data => {
-            const dataDate = new Date(data.timestamp).toISOString().slice(0, 10);
-            return dataDate === labelDate;
-        });
-        if (matchingWBTCData) {
-            return ((matchingWBTCData.price - startWBTCValue) / startWBTCValue) * 100;
-        }
-        return null;
-    });
-    return {
-        labels: chartLabels,
-        datasets: [
-            {
-                label: 'Total Treasury Value (% Change)',
-                data: treasuryValues,
-                fill: false,
-                borderColor: 'rgb(255, 206, 86)',
-                backgroundColor: 'rgba(255, 206, 86, 0.5)',
-                yAxisID: 'y',
-            },
-            {
-                label: 'BTC Price (% Change)',
-                data: wBTCValues,
-                fill: false,
-                borderColor: 'rgb(255, 255, 255)',
-                backgroundColor: 'rgba(255, 255, 255, 0.5)',
-                yAxisID: 'y',
-            }
-        ]
-    };
-};
-
-
-const comparisonOptions = {
-    scales: {
-        y: {
-            type: 'linear',
-            display: true,
-            position: 'left',
-            title: {
-              display: true,
-              text: '% Change from Start'
-            },
-            ticks: {
-                color: 'white', // Change Y-axis ticks color to white
-            },
-            grid: {
-                color: 'rgba(255, 255, 255, 0.1)', // Change Y-axis grid lines color to white with some transparency
-            }
-        },
-        x: {
-            ticks: {
-                color: 'white', // Change X-axis ticks color to white
-            },
-            grid: {
-                color: 'rgba(255, 255, 255, 0.1)', // Change X-axis grid lines color to white with some transparency
-            }
-        }
-    }
-};
-
-  const createChartData = (chartData) => {
-    const datasets = Object.keys(chartData).filter(denom => denom.toLowerCase() !== 'ophir').map((denom) => {
-        const dataPoints = chartData[denom];
-        const chartDataValues = dataPoints.map(dataPoint => dataPoint.value);
-        const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint.timestamp).toLocaleDateString());
-
-        return {
-            label: `${denom.toUpperCase()} Value`,
-            data: chartDataValues,
-            fill: false,
-            borderColor: `#${Math.floor(Math.random()*16777215).toString(16)}`, // Random color for each dataset
-            tension: 0.1,
-            pointRadius: 3, // Smaller point size
-            pointHoverRadius: 5 // Slightly larger when hovered for better visibility
-        };
-    });
-
-    // Assuming all data points have the same timestamps, use the first denom (excluding 'Ophir') to get labels
-    const firstNonOphirDenom = Object.keys(chartData).find(denom => denom.toLowerCase() !== 'ophir');
-    const labels = chartData[firstNonOphirDenom].map(dataPoint => new Date(dataPoint.timestamp).toLocaleDateString());
-
-    return {
-        labels,
-        datasets
-    };
-};
-
-const options = {
-    scales: {
-        y: {
-            beginAtZero: false,
-            ticks: {
-                color: 'white', // Change Y-axis ticks color to white
-            },
-            grid: {
-                color: 'rgba(255, 255, 255, 0.1)', // Change Y-axis grid lines color to white with some transparency
-            }
-        },
-        x: {
-            ticks: {
-                color: 'white', // Change X-axis ticks color to white
-            },
-            grid: {
-                color: 'rgba(255, 255, 255, 0.1)', // Change X-axis grid lines color to white with some transparency
-            }
-        }
-    }
-};
-
 const formatNumber = (number, digits) => {
     return number.toLocaleString('en-US', {
       minimumFractionDigits: digits,
@@ -212,9 +56,6 @@ const AnalyticsDashboard = () => {
     const [ophirStats, setOphirStats] = useState(null);
     const [ophirTreasury, setOphirTreasury] = useState(null);
     const [priceData, setPriceData] = useState(null);
-    const [chartData, setChartData] = useState(null);
-    const [totalTreasuryChartData, setTotalTreasuryChartData] = useState(null);
-    const [chartOption, setChartOption] = useState('value'); // 'amount', 'value', 'price'
     const [inBitcoin, setInBitcoin] = useState(false);
     const [inLuna, setInLuna] = useState(false);
     const [inWhale, setInWhale] = useState(false);
@@ -222,6 +63,20 @@ const AnalyticsDashboard = () => {
     const [isModalOpen, setModalOpen] = useState(false);
     const [modalData, setModalData] = useState({});
     const [showProgressBar, setShowProgressBar] = useState(true);
+    const [activeTab, setActiveTab] = useState('treasury'); // Add this line to manage active tab
+    const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+
+    useEffect(() => {
+        const handleResize = () => {
+            setWindowWidth(window.innerWidth);
+        };
+    
+        window.addEventListener('resize', handleResize);
+    
+        // Cleanup the event listener on component unmount
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     // useEffect(() => {
     //     const timer = setTimeout(() => {
@@ -230,6 +85,7 @@ const AnalyticsDashboard = () => {
 
     //     return () => clearTimeout(timer);
     // }, []);
+
 
     const toggleModal = () => setModalOpen(!isModalOpen);
 
@@ -243,10 +99,6 @@ const AnalyticsDashboard = () => {
         return formatNumber(numericValue / priceData['wBTC'], 4);
     }
 
-    const chartOptionChangeHandler = (event) => {
-        setChartOption(event.target.value);
-    };
-
     
 
     const fetchData = async () => {
@@ -254,13 +106,9 @@ const AnalyticsDashboard = () => {
             const statsResponse = await axios.get(`${prodUrl}/ophir/stats`);
             const treasuryResponse = await axios.get(`${prodUrl}/ophir/treasury`);
             const prices = await axios.get(`${prodUrl}/ophir/prices`);
-            const chartData = await axios.get(`${prodUrl}/ophir/treasury/chartData`)
-            const totalTreasuryChartData = await axios.get(`${prodUrl}/ophir/treasury/totalValueChartData`)
             setOphirStats(statsResponse.data);
             setOphirTreasury(treasuryResponse.data);
             setPriceData(prices.data);
-            setChartData(chartData.data);
-            setTotalTreasuryChartData(totalTreasuryChartData.data)
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -349,32 +197,10 @@ const AnalyticsDashboard = () => {
         return formattedData;
     }
 
-    const totalTreasuryChartConfig = prepareTotalTreasuryChartData(totalTreasuryChartData);
-
 
     if (!ophirStats && showProgressBar) {
         return (
           <>
-            {/* <style>
-              {`
-                @keyframes fillAnimation {
-                    from { width: 0%; }
-                    to { width: 100%; }
-                }
-
-                .animate-fill {
-                    animation: fillAnimation 15s linear forwards;
-                }
-              `}
-            </style>
-            <div className="flex flex-col justify-center items-center h-screen">
-                <div className="text-white mb-4">Fetching On-Chain Data...</div>
-                <div className="relative w-full max-w-xs">
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                      <div className="h-full bg-yellow-500 animate-fill"></div>
-                  </div>
-                </div>
-            </div> */}
             <div className="flex flex-col justify-center items-center h-screen">
                 <div className="text-white mb-4">Fetching On-Chain Data...</div>
                 <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
@@ -382,16 +208,80 @@ const AnalyticsDashboard = () => {
           </>
         );
     }
-    // if(!ophirStats && !showProgressBar){
-    //     return (
-    //         <div className="flex flex-col justify-center items-center h-screen">
-    //           <div className="text-white mb-4">Fetching On-Chain Data...</div>
-    //           <div className="text-white mb-4">Hmm seems this is taking a while, wait 10 seconds</div>
-    //           <div classname= "text-white mb-4">and if still loading, try refreshing the page again.</div>
-    //           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
-    //         </div>
-    //     )
-    // }
+
+    
+
+    const renderTabContent = () => {
+        switch (activeTab) {
+            case 'treasury':
+                return (
+                    // Existing Ophir Treasury JSX goes here
+                    <div className="p-3 bg-black">
+                        {/* <div className="text-3xl font-bold text-white mb-4">Ophir Treasury</div> */}
+                        <div className="overflow-x-auto pb-2">
+                            <table className="max-w-full bg-black mx-auto table-auto sm:w-full">
+                                <thead className="bg-yellow-400 text-black">
+                                    <tr>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Asset</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Balance</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Rewards</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Location</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="text-white text-xxs sm:text-xs">
+                                    {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
+                                        <tr className={`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
+                                            <td className="text-left py-2 px-1 sm:px-1" title={value?.originalKey}>{key}</td>
+                                            <td className="text-center py-2 px-1 sm:px-1">{parseFloat(value.balance).toLocaleString()}</td>
+                                            <td className="text-center py-2 px-1 sm:px-1">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
+                                            <td className="text-center py-2 px-1 sm:px-1 cursor-pointer" onClick={value.location.includes('Luna Alliance') || value.location.includes('ampRoar Alliance Staked') ? toggleLunaDenomination : value.location === 'Migaloo Alliance' ? toggleWhaleDenomination : null}>
+                                                {value.rewards && (value.location.includes('Luna Alliance') || value.location === 'Migaloo Alliance' || value.location === 'ampRoar Alliance Staked') && (
+                                                    inLuna && (value.location.includes('Luna Alliance') || value.location === 'ampRoar Alliance Staked') ? `${parseFloat(value.rewards).toLocaleString()} luna` :
+                                                    !inLuna && (value.location.includes('Luna Alliance') || value.location === 'ampRoar Alliance Staked') ? `$${formatNumber(parseFloat(value.rewards * priceData['luna']), 2)}` :
+                                                    inWhale && value.location === 'Migaloo Alliance' ? `${parseFloat(value.rewards).toLocaleString()} whale` :
+                                                    `$${formatNumber(parseFloat(value.rewards * priceData['whale']), 2)}`
+                                                )}
+                                            </td>
+                                            <td className="text-center py-2 px-1 sm:px-1">{value.location}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div className="flex justify-center pb-2">
+                            <CryptoPieChart data={formatDataForChart(ophirTreasury)} />
+                        </div>
+                        <div className="mx-[20dvw]">
+                            <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center cursor-pointer" onClick={toggleBitcoinDenomination}>
+                                <img src="https://cdn-icons-png.flaticon.com/512/7185/7185535.png" alt="Icon" className="h-8 w-8 mb-1" />
+                                <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Total Treasury Value</div>
+                                {inBitcoin ? 
+                                    <div className="sm:text-xl text-md ">{formatNumberInBitcoin(ophirTreasury?.totalTreasuryValue)} BTC</div>
+                                    :
+                                    <div className="sm:text-xl text-md ">${formatNumber(ophirTreasury?.totalTreasuryValue,0)}</div>
+                                }
+                                {inBitcoin ? 
+                                    <div className="sm:text-md text-sm text-center mt-1"><a className="font-bold sm:text-sm text-xsm">W/O Ophir:</a> {formatNumberInBitcoin(ophirTreasury?.treasuryValueWithoutOphir)} BTC</div>
+                                    :
+                                    <div className="sm:text-md text-sm text-center mt-1"><a className="font-bold sm:text-sm text-xsm">W/O Ophir:</a> ${formatNumber(ophirTreasury?.treasuryValueWithoutOphir,0)}</div>
+                                }
+                                
+                            </div>
+                        </div>
+                    </div>
+                );
+            case 'charts':
+                return (
+                    <div>
+                        <Charts />
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
   return (
     <>
         {ophirStats && ophirTreasury && priceData &&
@@ -446,163 +336,24 @@ const AnalyticsDashboard = () => {
                         </div>
                     </div>
                 </div>
+                <div className="flex justify-left space-x-4 p-4">
+                    <button
+                        className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 border-t border-r border-l border-gold ${activeTab === 'treasury' ? 'text-yellow-400 border-gold' : 'text-white border-transparent'}`}
+                        onClick={() => setActiveTab('treasury')}
+                    >
+                        Ophir Treasury
+                    </button>
+                    {windowWidth >= 640 && (
+                        <button
+                            className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 border-t border-r border-l border-gold ${activeTab === 'charts' ? 'text-yellow-400 border-gold' : 'text-white border-transparent'}`}
+                            onClick={() => setActiveTab('charts')}
+                        >
+                            Charts
+                        </button>
+                    )}
+                </div>
+                {renderTabContent()}
                 <Modal isOpen={isModalOpen} onClose={toggleModal} data={modalData} />
-                    <div className="p-3 bg-black">
-                        <div className="text-3xl font-bold text-white mb-4">Ophir Treasury</div>
-                        <div className="overflow-x-auto pb-2">
-                        <table className="max-w-full bg-black mx-auto table-auto sm:w-full">
-                            <thead className="bg-yellow-400 text-black">
-                                <tr>
-                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Asset</th>
-                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Balance</th>
-                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
-                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Rewards</th>
-                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Location</th>
-                                </tr>
-                            </thead>
-                            <tbody className="text-white text-xxs sm:text-xs">
-                                {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
-                                    <tr className={`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
-                                        <td className="text-left py-2 px-1 sm:px-1" title={value?.originalKey}>{key}</td>
-                                        <td className="text-center py-2 px-1 sm:px-1">{parseFloat(value.balance).toLocaleString()}</td>
-                                        <td className="text-center py-2 px-1 sm:px-1">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
-                                        <td className="text-center py-2 px-1 sm:px-1 cursor-pointer" onClick={value.location.includes('Luna Alliance') || value.location.includes('ampRoar Alliance Staked') ? toggleLunaDenomination : value.location === 'Migaloo Alliance' ? toggleWhaleDenomination : null}>
-                                            {value.rewards && (value.location.includes('Luna Alliance') || value.location === 'Migaloo Alliance' || value.location === 'ampRoar Alliance Staked') && (
-                                                inLuna && (value.location.includes('Luna Alliance') || value.location === 'ampRoar Alliance Staked') ? `${parseFloat(value.rewards).toLocaleString()} luna` :
-                                                !inLuna && (value.location.includes('Luna Alliance') || value.location === 'ampRoar Alliance Staked') ? `$${formatNumber(parseFloat(value.rewards * priceData['luna']), 2)}` :
-                                                inWhale && value.location === 'Migaloo Alliance' ? `${parseFloat(value.rewards).toLocaleString()} whale` :
-                                                `$${formatNumber(parseFloat(value.rewards * priceData['whale']), 2)}`
-                                            )}
-                                        </td>
-                                        <td className="text-center py-2 px-1 sm:px-1">{value.location}</td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-
-                    </div>
-                    <div className="flex justify-center pb-2">
-                        <CryptoPieChart data={formatDataForChart(ophirTreasury)} />
-                    </div>
-                    <div className="mx-[20dvw]">
-                        <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center cursor-pointer" onClick={toggleBitcoinDenomination}>
-                            <img src="https://cdn-icons-png.flaticon.com/512/7185/7185535.png" alt="Icon" className="h-8 w-8 mb-1" />
-                            <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Total Treasury Value</div>
-                            {inBitcoin ? 
-                                <div className="sm:text-xl text-md ">{formatNumberInBitcoin(ophirTreasury?.totalTreasuryValue)} BTC</div>
-                                :
-                                <div className="sm:text-xl text-md ">${formatNumber(ophirTreasury?.totalTreasuryValue,0)}</div>
-                            }
-                            {inBitcoin ? 
-                                <div className="sm:text-md text-sm text-center mt-1"><a className="font-bold sm:text-sm text-xsm">W/O Ophir:</a> {formatNumberInBitcoin(ophirTreasury?.treasuryValueWithoutOphir)} BTC</div>
-                                :
-                                <div className="sm:text-md text-sm text-center mt-1"><a className="font-bold sm:text-sm text-xsm">W/O Ophir:</a> ${formatNumber(ophirTreasury?.treasuryValueWithoutOphir,0)}</div>
-                            }
-                            
-                        </div>
-                    </div>
-                    
-                </div>
-                <hr className="border-t border-white" />
-                <div className="p-3 bg-black">
-                <div className="text-3xl font-bold text-white mb-4">Charts</div>
-                {/* Selector for chart options */}
-                <div className='pl-2'>
-                    <select onChange={chartOptionChangeHandler} value={chartOption} className="mb-4 bg-slate-800 text-white p-2 rounded">
-                        <option value="value">Asset Value</option>
-                        <option value="amount">Asset Amount</option>
-                        <option value="price">Asset Price</option>
-                    </select>
-                </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {Object.keys(chartData).map((denom, index) => {
-                        const dataPoints = chartData[denom];
-                        const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint?.timestamp).toLocaleDateString());
-                        let chartDataValues;
-                        let labelSuffix;
-
-                        switch (chartOption) {
-                            case 'amount':
-                                chartDataValues = dataPoints.map(dataPoint => dataPoint.asset);
-                                labelSuffix = 'Amount';
-                                break;
-                            case 'price':
-                                chartDataValues = dataPoints.map(dataPoint => dataPoint.price);
-                                labelSuffix = 'Price';
-                                break;
-                            case 'value':
-                            default:
-                                chartDataValues = dataPoints.map(dataPoint => dataPoint.value);
-                                labelSuffix = '$ Value';
-                                break;
-                        }
-
-                        const data = {
-                            labels: chartLabels,
-                            datasets: [
-                                {
-                                    label: `${labelSuffix}`,
-                                    data: chartDataValues,
-                                    fill: false,
-                                    backgroundColor: 'rgb(255, 206, 86)',
-                                    borderColor: 'rgba(255, 206, 86, 2)',
-                                    pointRadius: 0.1,
-                                    pointHoverRadius: 5,
-                                    tension: 0.2
-                                },
-                            ],
-                        };
-
-                        const options = {
-                            scales: {
-                                y: {
-                                    beginAtZero: false,
-                                    ticks: {
-                                        color: 'white', // Change Y-axis ticks color to white
-                                    },
-                                    grid: {
-                                        color: 'rgba(255, 255, 255, 0.1)', // Change Y-axis grid lines color to white with some transparency
-                                    }
-                                },
-                                x: {
-                                    ticks: {
-                                        color: 'white', // Change X-axis ticks color to white
-                                    },
-                                    grid: {
-                                        color: 'rgba(255, 255, 255, 0.1)', // Change X-axis grid lines color to white with some transparency
-                                    }
-                                }
-                            }
-                        };
-
-                        return (
-                            <div key={index} className="bg-black text-white rounded-lg shadow-md min-w-[100px] flex flex-col items-center justify-center">
-                                <div className="sm:text-2xl text-sm font-bold mb-1 text-center">{denom.toUpperCase()}</div>
-                                <Line data={data} options={options} />
-                            </div>
-                        );
-                    })}
-                </div>
-                    {ophirStats && ophirTreasury && priceData &&
-                        <>
-                            <div className="pt-2 bg-black text-white">
-                                <div className="p-1 bg-black"> 
-                                    <div className="text-3xl font-bold text-white mb-2">Total Treasury Value Over Time</div>
-                                    <Line data={totalTreasuryChartConfig} options={options} />
-                                </div>
-                            </div>
-                            <div className="p-1 bg-black">
-                                <div className="text-3xl font-bold text-white mb-4">Total Treasury vs BTC Price</div>
-                                <Line data={prepareComparisonChartData(totalTreasuryChartData, chartData)} options={comparisonOptions} />
-                            </div>
-                        </>
-                    }
-                    
-                    {/* <div className="my-8">
-                        <h2 className="text-xl font-bold mb-4 text-center">Combined Asset Values</h2>
-                        <Line data={createChartData(chartData)} options={options} />
-                    </div> */}
-                </div>
             </div>
         }
     </>
