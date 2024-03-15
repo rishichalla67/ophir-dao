@@ -9,7 +9,7 @@ const formatNumber = (number, digits) => {
     });
   };
 
-const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28FEF', '#EF82A2'];
+const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#A28FEF', '#EF82A2', '#D35400', '#C0392B', '#16A085', '#27AE60', '#2980B9', '#8E44AD', '#2C3E50', '#F39C12', '#BDC3C7', '#7F8C8D', '#2ECC71', '#3498DB', '#9B59B6', '#34495E'];
 
 const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
