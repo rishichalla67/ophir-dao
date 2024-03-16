@@ -10,7 +10,7 @@ const Modal = ({ isOpen, onClose, data }) => {
     const { composition, price } = data;
 
     return (
-        <div className="absolute inset-0 mt-[20%] flex justify-center items-center p-4 md:p-10">
+        <div className="fixed inset-0 flex justify-center items-center p-4 md:p-10">
             <div className="bg-black border border-yellow-400 p-4 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-4xl overflow-auto">
                 <h2 className="text-lg font-bold mb-4">Composition</h2>
                 <div className="overflow-auto max-h-[80vh]">
@@ -102,13 +102,39 @@ const AnalyticsDashboard = () => {
     
 
     const fetchData = async () => {
+        const cacheKey = 'ophirDataCache';
+        const cachedData = localStorage.getItem(cacheKey);
+        const now = new Date();
+    
+        if (cachedData) {
+            const { stats, treasury, prices, timestamp } = JSON.parse(cachedData);
+            const cacheAge = now.getTime() - timestamp;
+    
+            if (cacheAge < 5 * 60 * 1000) { // Cache is younger than 5 minutes
+                setOphirStats(stats);
+                setOphirTreasury(treasury);
+                setPriceData(prices);
+                return;
+            }
+        }
+    
         try {
             const statsResponse = await axios.get(`${prodUrl}/ophir/stats`);
             const treasuryResponse = await axios.get(`${prodUrl}/ophir/treasury`);
-            const prices = await axios.get(`${prodUrl}/ophir/prices`);
+            const pricesResponse = await axios.get(`${prodUrl}/ophir/prices`);
+    
+            const dataToCache = {
+                stats: statsResponse.data,
+                treasury: treasuryResponse.data,
+                prices: pricesResponse.data,
+                timestamp: now.getTime()
+            };
+    
+            localStorage.setItem(cacheKey, JSON.stringify(dataToCache));
+    
             setOphirStats(statsResponse.data);
             setOphirTreasury(treasuryResponse.data);
-            setPriceData(prices.data);
+            setPriceData(pricesResponse.data);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
