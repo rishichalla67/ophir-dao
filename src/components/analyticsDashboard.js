@@ -305,13 +305,13 @@ const AnalyticsDashboard = () => {
                         <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
                             <img src="https://static.thenounproject.com/png/3313489-200.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Market Cap</div>
-                            <div className="sm:text-xl text-md">${formatNumber(ophirStats?.marketCap,0)}</div>
+                            <div className="sm:text-xl text-md" title="(ophir price) * (circulating supply)">${formatNumber(ophirStats?.marketCap,0)}</div>
                         </div>
                         {/* FDV */}
                         <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
                             <img src="https://static.thenounproject.com/png/70884-200.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">FDV</div>
-                            <div className="sm:text-xl text-md">${formatNumber(ophirStats?.fdv,0)}</div>
+                            <div className="sm:text-xl text-md" title="(ophir price) * (total supply)">${formatNumber(ophirStats?.fdv,0)}</div>
                         </div>
                         {/* Ophir Mine */}
                         <div className="bg-yellow-400 text-black rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center" title="Ophir that will be distributed to stakers...">
