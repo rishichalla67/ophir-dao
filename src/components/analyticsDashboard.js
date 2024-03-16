@@ -248,14 +248,14 @@ const AnalyticsDashboard = () => {
                             <table className="max-w-full mx-auto table-auto sm:w-full">
                                 <thead className="treasury-header text-black">
                                     <tr>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Asset</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Balance</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Rewards</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Location</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xxxs">Asset</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xxxs">Balance</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xxxs hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xxxs">Rewards</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xxxs">Location</th>
                                     </tr>
                                 </thead>
-                                <tbody className="text-white text-xxs sm:text-xs">
+                                <tbody className="text-white text-xxs sm:text-xxxs">
                                     {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
                                         <tr className={`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
                                             <td className="text-left asset-padding py-2 px-1 sm:px-1" title={value?.originalKey}>{key}</td>
