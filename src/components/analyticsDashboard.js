@@ -102,13 +102,39 @@ const AnalyticsDashboard = () => {
     
 
     const fetchData = async () => {
+        const cacheKey = 'ophirDataCache';
+        const cachedData = localStorage.getItem(cacheKey);
+        const now = new Date();
+    
+        if (cachedData) {
+            const { stats, treasury, prices, timestamp } = JSON.parse(cachedData);
+            const cacheAge = now.getTime() - timestamp;
+    
+            if (cacheAge < 5 * 60 * 1000) { // Cache is younger than 5 minutes
+                setOphirStats(stats);
+                setOphirTreasury(treasury);
+                setPriceData(prices);
+                return;
+            }
+        }
+    
         try {
             const statsResponse = await axios.get(`${prodUrl}/ophir/stats`);
             const treasuryResponse = await axios.get(`${prodUrl}/ophir/treasury`);
-            const prices = await axios.get(`${prodUrl}/ophir/prices`);
+            const pricesResponse = await axios.get(`${prodUrl}/ophir/prices`);
+    
+            const dataToCache = {
+                stats: statsResponse.data,
+                treasury: treasuryResponse.data,
+                prices: pricesResponse.data,
+                timestamp: now.getTime()
+            };
+    
+            localStorage.setItem(cacheKey, JSON.stringify(dataToCache));
+    
             setOphirStats(statsResponse.data);
             setOphirTreasury(treasuryResponse.data);
-            setPriceData(prices.data);
+            setPriceData(pricesResponse.data);
         } catch (error) {
             console.error('Error fetching data:', error);
         }

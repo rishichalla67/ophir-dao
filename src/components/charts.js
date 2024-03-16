@@ -179,7 +179,6 @@ const Charts = () => {
         fetchData();
     }, []);
 
-
     return(
         <>
         <Suspense fallback={<div className="text-white">Loading Charts...</div>}>
@@ -260,11 +259,9 @@ const Charts = () => {
                                     <div key={index} className="bg-black text-white rounded-lg shadow-md min-w-[100px] flex flex-col items-center justify-center">
                                         <div className="sm:text-2xl text-sm font-bold mb-1 text-center">{denom.toUpperCase()}</div>
                                         {/* Conditional rendering based on device type */}
-                                        {isMobile ? (
-                                            <div>Chart optimized for mobile</div>
-                                        ) : (
+                                        
                                             <Line data={data} options={options} />
-                                        )}
+                                        
                                     </div>
                                 );
                             })}
