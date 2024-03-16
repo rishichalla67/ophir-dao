@@ -185,7 +185,7 @@ const Charts = () => {
         <Suspense fallback={<div className="text-white">Loading Charts...</div>}>
             {chartData && totalTreasuryChartData && (
                 <>
-                    <div className="p-3 bg-black">
+                    <div className="p-3 charts-bg">
                         <div className="text-3xl font-bold text-white mb-4">Charts</div>
                         {/* Selector for chart options */}
                         <div className='pl-2'>
