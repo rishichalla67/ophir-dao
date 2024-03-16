@@ -10,7 +10,7 @@ const Modal = ({ isOpen, onClose, data }) => {
     const { composition, price } = data;
 
     return (
-        <div className="absolute inset-0 mt-[20%] flex justify-center items-center p-4 md:p-10">
+        <div className="fixed inset-0 flex justify-center items-center p-4 md:p-10">
             <div className="bg-black border border-yellow-400 p-4 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-4xl overflow-auto">
                 <h2 className="text-lg font-bold mb-4">Composition</h2>
                 <div className="overflow-auto max-h-[80vh]">
