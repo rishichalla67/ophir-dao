@@ -708,7 +708,7 @@ const SeekerRound = () => {
                                         <td className="px-4 py-2">
                                             {transaction.tx?.txHash ? (
                                                 <a href={`https://inbloc.org/migaloo/transactions/${transaction.tx.txHash}`} target="_blank" rel="noopener noreferrer" className='text-yellow-400'>
-                                                    {transaction.tx.txHash.slice(-4)}
+                                                    ...{transaction.tx.txHash.slice(-4)}
                                                 </a>
                                             ) : (
                                                 <span>N/A</span>
