@@ -694,17 +694,22 @@ const SeekerRound = () => {
                         <table className="min-w-full">
                             <thead>
                                 <tr className="text-left text-white">
-                                    <th className="px-4 py-2">TxHash</th> {/* New column for TxHash */}
+                                    <th className="px-4 py-2">Timestamp</th>
                                     <th className="px-4 py-2">From</th>
                                     <th className="px-4 py-2">To</th>
                                     <th className="px-4 py-2">Amount</th>
                                     <th className="px-4 py-2">Memo</th>
-                                    <th className="px-4 py-2">Timestamp</th>
+                                    <th className="px-4 py-2">TxHash</th> {/* New column for TxHash */}
                                 </tr>
                             </thead>
                             <tbody>
                                 {seekerRoundDetails.transactions.map((transaction, index) => (
                                     <tr key={index} className="border-b border-gray-200 text-white">
+                                        <td className="px-4 py-2">{transaction.timestamp ? new Date(transaction.timestamp).toLocaleString() : 'N/A'}</td>
+                                        <td className="px-4 py-2">...{transaction.tx.messages[0]?.fromAddress ? transaction.tx.messages[0].fromAddress.slice(-5) : 'N/A'}</td>
+                                        <td className="px-4 py-2">DAO Vault</td>
+                                        <td className="px-4 py-2">{transaction.tx.messages[0]?.amount[0]?.amount ? (transaction.tx.messages[0].amount[0].amount / 1000000) : 'N/A'}</td>
+                                        <td className="px-4 py-2">{transaction.tx.memo || 'N/A'}</td>
                                         <td className="px-4 py-2">
                                             {transaction.tx?.txHash ? (
                                                 <a href={`https://inbloc.org/migaloo/transactions/${transaction.tx.txHash}`} target="_blank" rel="noopener noreferrer" className='text-yellow-400'>
@@ -714,11 +719,6 @@ const SeekerRound = () => {
                                                 <span>N/A</span>
                                             )}
                                         </td> {/* New cell for clickable TxHash */}
-                                        <td className="px-4 py-2">{transaction.tx.messages[0]?.fromAddress || 'N/A'}</td>
-                                        <td className="px-4 py-2">{transaction.tx.messages[0]?.toAddress || 'N/A'}</td>
-                                        <td className="px-4 py-2">{transaction.tx.messages[0]?.amount[0]?.amount || 'N/A'}</td>
-                                        <td className="px-4 py-2">{transaction.tx.memo || 'N/A'}</td>
-                                        <td className="px-4 py-2">{transaction.timestamp ? new Date(transaction.timestamp).toLocaleString() : 'N/A'}</td>
                                     </tr>
                                 ))}
                             </tbody>
