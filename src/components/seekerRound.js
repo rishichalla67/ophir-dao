@@ -689,7 +689,7 @@ const SeekerRound = () => {
             </div>
             {connectedWalletAddress && walletAddresses.includes(connectedWalletAddress) && seekerRoundDetails?.transactions && (
                 <div className="mt-4 p-4" style={{ maxWidth: '95dvw'}}>
-                    <div className="text-2xl mb-2">Seeker Transaction History</div>
+                    <div className="text-2xl mb-2">Seeker Transaction History <span className="text-sm">({seekerRoundDetails.transactionCount})</span></div>
                     <div className="overflow-x-auto">
                         <table className="min-w-full">
                             <thead>
