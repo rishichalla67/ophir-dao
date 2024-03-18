@@ -227,7 +227,19 @@ const Charts = () => {
 
     return(
         <>
-        <Suspense fallback={<div className="text-white">Loading Charts...</div>}>
+            <style>
+                {`
+                    @keyframes fadeInOut {
+                        0% { opacity: 0.5; }
+                        50% { opacity: 1; }
+                        100% { opacity: 0.5; }
+                    }
+                    .loading-animation {
+                        animation: fadeInOut 2s linear infinite;
+                    }
+                `}
+            </style>
+            {(!chartData || !totalTreasuryChartData) && <div className="loading-animation text-white flex items-center justify-center">Gathering Chart Data...</div>}
             {chartData && totalTreasuryChartData && (
                 <>
                     <div className="p-3 bg-black">
@@ -276,7 +288,6 @@ const Charts = () => {
                     </div>
                 </>
             )}
-        </Suspense>
         </>
     );
 }
