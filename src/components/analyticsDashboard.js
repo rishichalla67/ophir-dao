@@ -368,14 +368,14 @@ const AnalyticsDashboard = () => {
                     >
                         Ophir Treasury
                     </button>
-                    {windowWidth >= 640 && (
+                    {/* {windowWidth >= 640 && ( */}
                         <button
                             className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 border-t border-r border-l border-gold ${activeTab === 'charts' ? 'text-yellow-400 border-gold' : 'text-white border-transparent'}`}
                             onClick={() => setActiveTab('charts')}
                         >
                             Charts
                         </button>
-                    )}
+                    {/* )} */}
                 </div>
                 {renderTabContent()}
                 <Modal isOpen={isModalOpen} onClose={toggleModal} data={modalData} />

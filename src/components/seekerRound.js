@@ -10,6 +10,7 @@ import Snackbar from '@mui/material/Snackbar';
 import SnackbarContent from '@mui/material/SnackbarContent';
 
 import "../App.css"
+import walletAddresses from '../auth/security.json';
 
 const USDC_DENOM = "ibc/BC5C0BAFD19A5E4133FDA0F3E04AE1FBEE75A4A226554B2CBB021089FF2E1F8A";
 const OPHIR_DAO_VAULT_ADDRESS = "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu";
@@ -25,6 +26,7 @@ const SeekerRound = () => {
     const [twitterHandle, setTwitterHandle] = useState('');
     const [isLedgerConnected, setIsLedgerConnected] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [seekerRoundDetails, setSeekerRoundDetails] = useState(null);
 
     const showAlert = (message, severity = 'info', htmlContent = null) => {
         setAlertInfo({ open: true, message, severity, htmlContent });
@@ -38,6 +40,22 @@ const SeekerRound = () => {
             checkVesting(connectedWalletAddress);
         }
     }, [connectedWalletAddress]); // Re-run this effect when connectedWalletAddress changes
+
+
+    const fetchSeekerRoundDetails = async () => {
+        try {
+            const response = await fetch("https://parallax-analytics.onrender.com/ophir/getSeekerRoundDetails");
+            const data = await response.json();
+            setSeekerRoundDetails(data);
+        } catch (error) {
+            console.error("Failed to fetch seeker round details:", error);
+            showAlert("Failed to fetch seeker round details. Please try again later.", "error");
+        }
+    };
+
+    useEffect(() => {
+        fetchSeekerRoundDetails();
+    }, []);
 
     async function checkVesting(address) {
         const baseUrl = "https://parallax-analytics.onrender.com/ophir/seeker-vesting?contractAddress=";
@@ -528,6 +546,11 @@ const SeekerRound = () => {
                         
                         Introduction and details of the seeker round →
                     </div>
+                    {seekerRoundDetails && (
+                        <div className="text-xs mt-2 text-center">
+                            OPHIR remaining: {seekerRoundDetails?.ophirLeftInSeekersRound.toLocaleString()}
+                        </div>
+                    )}
                     {/* <div className="text-xl mt-10 md:text-3xl font-bold mb-4 hover:cursor-pointer" onClick={() => setUsdcAmount(usdcBalance)}>Balance: {usdcBalance}{usdcBalance !== '' ? ' USDC' : ''}</div> */}
                     <div className="mb-6 pt-4 flex items-center justify-center">
                         <input 
@@ -620,6 +643,7 @@ const SeekerRound = () => {
                             </button>
                         </div>
                         <p className="text-xs mt-2 text-center">Please be cautious as this is a live contract.</p>
+
                     </div>
                 </div>
             </>
@@ -663,8 +687,50 @@ const SeekerRound = () => {
                     </>
                 )}
             </div>
+            {connectedWalletAddress && walletAddresses.includes(connectedWalletAddress) && seekerRoundDetails?.transactions && (
+                <div className="mt-4 p-4" style={{ maxWidth: '95dvw'}}>
+                    <div className="text-2xl mb-2">Seeker Transaction History <span className="text-sm">({seekerRoundDetails.transactionCount})</span></div>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full">
+                            <thead>
+                                <tr className="text-left text-white">
+                                    <th className="px-4 py-2">Timestamp</th>
+                                    <th className="px-4 py-2">From</th>
+                                    <th className="px-4 py-2">To</th>
+                                    <th className="px-4 py-2">Amount</th>
+                                    <th className="px-4 py-2">Memo</th>
+                                    <th className="px-4 py-2">TxHash</th> {/* New column for TxHash */}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {seekerRoundDetails.transactions.map((transaction, index) => (
+                                    <tr key={index} className="border-b border-gray-200 text-white">
+                                        <td className="px-4 py-2">{transaction.timestamp ? new Date(transaction.timestamp).toLocaleString() : 'N/A'}</td>
+                                        <td className="px-4 py-2">...{transaction.tx.messages[0]?.fromAddress ? transaction.tx.messages[0].fromAddress.slice(-5) : 'N/A'}</td>
+                                        <td className="px-4 py-2">DAO Vault</td>
+                                        <td className="px-4 py-2">{transaction.tx.messages[0]?.amount[0]?.amount ? (transaction.tx.messages[0].amount[0].amount / 1000000) : 'N/A'}</td>
+                                        <td className="px-4 py-2">{transaction.tx.memo || 'N/A'}</td>
+                                        <td className="px-4 py-2">
+                                            {transaction.tx?.txHash ? (
+                                                <a href={`https://inbloc.org/migaloo/transactions/${transaction.tx.txHash}`} target="_blank" rel="noopener noreferrer" className='text-yellow-400'>
+                                                    ...{transaction.tx.txHash.slice(-4)}
+                                                </a>
+                                            ) : (
+                                                <span>N/A</span>
+                                            )}
+                                        </td> {/* New cell for clickable TxHash */}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
         </div>
+
     );
 };
 
 export default SeekerRound;
+
+// https://inbloc.org/migaloo/transactions/
