@@ -349,7 +349,7 @@ const SeekerRound = () => {
                 gas: "200000",
             };
     
-            const client = await SigningStargateClient.connectWithSigner("https://rpc.cosmos.directory/migaloo", offlineSigner);
+            const client = await SigningStargateClient.connectWithSigner("https://ww-migaloo-rpc.polkachu.com/", offlineSigner);
             const txHash = await client.signAndBroadcast(accountAddress, [msgSend], fee, memo);
             console.log("Transaction Hash:", txHash);
             showAlert(
