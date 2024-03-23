@@ -36,6 +36,11 @@ const SeekerRound = () => {
         setIsLedgerConnected(bool); // Update the state with data received from WalletConnect
     };
 
+    useEffect(() => {
+        if (connectedWalletAddress === "") {
+            setUsdcBalance(0)
+        }
+    }, [connectedWalletAddress]);
     const showAlert = (message, severity = 'info', htmlContent = null) => {
         setAlertInfo({ open: true, message, severity, htmlContent });
     };
