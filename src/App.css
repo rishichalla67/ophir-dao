@@ -240,6 +240,12 @@
   border-radius: 10px;
 }
 
+/*pie chart*/
+
+.pie-chart-container{
+  height: 550px;
+}
+
 
 
 @media screen and (min-width: 1300px) {
@@ -251,5 +257,10 @@
     padding: 0 15%;
     margin-top: 4rem;
   }
+
+  .pie-chart-container{
+    height: 450px;
+  }
+  
 
 }

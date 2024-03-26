@@ -275,7 +275,7 @@ const AnalyticsDashboard = () => {
                                 </tbody>
                             </table>
                         </div>
-                        <div className="flex justify-center pb-2">
+                        <div className="flex justify-center pb-2 pie-chart-container">
                             <CryptoPieChart data={formatDataForChart(ophirTreasury)} />
                         </div>
                     </div>
