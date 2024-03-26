@@ -4,6 +4,7 @@
   --semi-transparent-gold: rgba(255, 184, 0, 0.7);
   --darker-gold: rgb(163, 117, 0);
   --faded-gold: rgba(148, 141, 104, 1);
+  --light-gold: rgb(250, 213, 90);
   --h1-text-faint-gold: rgb(255, 242, 205);
   --text-gold: rgba(205, 199, 167, 1);
   --drop-shadow-gold: rgba(255, 199, 0, 0.25);
@@ -181,3 +182,85 @@
 }
 
 /*end of seeker round page*/
+
+/*analytic dashboard page*/
+
+.title{
+  margin: 2rem 0.5rem 1.5rem;
+  color: var(--h1-text-faint-gold);
+}
+
+.tot-treasury-wrapper{
+  margin: 0 auto 2rem;
+}
+
+.tot-treasury-div{
+  box-shadow: 0px 4px 45px 0px var(--drop-shadow-gold);
+  /* background: linear-gradient(180deg, rgb(255, 208, 0) 0%, rgb(252, 217, 102) 100%); */
+  background-color: var(--main-black);
+  color: var(--main-white);
+  transition: all 200ms ease-in-out;
+}
+
+.tot-treasury-div:hover{
+  box-shadow: 0px 4px 65px 0px var(--drop-shadow-gold);
+  transition: all 200ms ease-in-out;
+}
+
+.stats-divs{
+  z-index: 99;
+  /* background: linear-gradient(0deg, rgb(255, 208, 0) 0%, rgb(252, 217, 102) 100%); */
+  background-color: var(--main-black);
+  color: var(--main-white);
+}
+
+.treasury-header{
+  background: linear-gradient(90deg, rgb(255, 208, 0) 0%, rgb(255, 222, 112) 100%);
+  padding: 0 1rem;
+}
+
+.treasury-content{
+  background-color: var(--main-black);
+  border-radius: 10px;
+}
+
+.asset-padding{
+  padding: 1rem 0 1rem 1rem;
+}
+
+.underline{
+  border-bottom: 1px solid var(--main-grey);
+  padding: 1rem 0;
+}
+
+/*charts*/
+
+.charts-bg{
+  background-color: var(--main-black);
+  border-radius: 10px;
+}
+
+/*pie chart*/
+
+.pie-chart-container{
+  height: 550px;
+}
+
+
+
+@media screen and (min-width: 1300px) {
+
+
+  /*analytic dashboard page desktop*/
+
+  .page-wrapper{
+    padding: 0 15%;
+    margin-top: 4rem;
+  }
+
+  .pie-chart-container{
+    height: 450px;
+  }
+  
+
+}
