@@ -257,7 +257,7 @@ const AnalyticsDashboard = () => {
                                 </thead>
                                 <tbody className="text-white text-xxs md:text-sm sm:text-lg">
                                     {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
-                                        <tr className= {`underline ... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
+                                        <tr className= {`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
                                             <td className="text-left asset-padding py-4 px-1 sm:px-1" title={value?.originalKey}>{key}</td>
                                             <td className="text-center py-4 px-1 sm:px-1">{parseFloat(value.balance).toLocaleString()}</td>
                                             <td className="text-center py-4 px-1 sm:px-1">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
