@@ -8,8 +8,10 @@ import { stringToPath } from "@cosmjs/crypto";
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import SnackbarContent from '@mui/material/SnackbarContent';
+import WalletConnect from './walletConnect';
 
 import "../App.css"
+import walletAddresses from '../auth/security.json';
 
 const USDC_DENOM = "ibc/BC5C0BAFD19A5E4133FDA0F3E04AE1FBEE75A4A226554B2CBB021089FF2E1F8A";
 const OPHIR_DAO_VAULT_ADDRESS = "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu";
@@ -25,10 +27,24 @@ const SeekerRound = () => {
     const [twitterHandle, setTwitterHandle] = useState('');
     const [isLedgerConnected, setIsLedgerConnected] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [seekerRoundDetails, setSeekerRoundDetails] = useState(null);
 
+    const handleConnectedWalletAddress = (address) => {
+        setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
+    };
+    const handleLedgerConnection = (bool) => {
+        setIsLedgerConnected(bool); // Update the state with data received from WalletConnect
+    };
+
+    useEffect(() => {
+        if (connectedWalletAddress === "") {
+            setUsdcBalance(0)
+        }
+    }, [connectedWalletAddress]);
     const showAlert = (message, severity = 'info', htmlContent = null) => {
         setAlertInfo({ open: true, message, severity, htmlContent });
     };
+    
 
     useEffect(() => {
         if (connectedWalletAddress) {
@@ -38,6 +54,22 @@ const SeekerRound = () => {
             checkVesting(connectedWalletAddress);
         }
     }, [connectedWalletAddress]); // Re-run this effect when connectedWalletAddress changes
+
+
+    const fetchSeekerRoundDetails = async () => {
+        try {
+            const response = await fetch("https://parallax-analytics.onrender.com/ophir/getSeekerRoundDetails");
+            const data = await response.json();
+            setSeekerRoundDetails(data);
+        } catch (error) {
+            console.error("Failed to fetch seeker round details:", error);
+            showAlert("Failed to fetch seeker round details. Please try again later.", "error");
+        }
+    };
+
+    useEffect(() => {
+        fetchSeekerRoundDetails();
+    }, []);
 
     async function checkVesting(address) {
         const baseUrl = "https://parallax-analytics.onrender.com/ophir/seeker-vesting?contractAddress=";
@@ -50,175 +82,6 @@ const SeekerRound = () => {
             setVestingData(null); // Reset or ignore the vesting data if not found or amountVesting is 0
         }
     }
-
-    const connectWalletLeap = async () => {
-        if (window.leap) {
-            try {
-                const chainId = "migaloo-1"; // Make sure to use the correct chain ID for Migaloo
-    
-                // Add chain information to Keplr
-                if (window.leap.experimentalSuggestChain) {
-                    await window.leap.experimentalSuggestChain({
-                        // Chain details
-                        chainId: chainId,
-                        chainName: "Migaloo",
-                        rpc: "https://rpc.migaloo.co", // Example RPC endpoint, replace with actual
-                        rest: "https://rest.migaloo.co", // Example REST endpoint, replace with actual
-                        bip44: {
-                            coinType: 118, // Example coinType, replace with actual
-                        },
-                        bech32Config: {
-                            bech32PrefixAccAddr: "migaloo",
-                            bech32PrefixAccPub: "migaloopub",
-                            bech32PrefixValAddr: "migaloovaloper",
-                            bech32PrefixValPub: "migaloovaloperpub",
-                            bech32PrefixConsAddr: "migaloovalcons",
-                            bech32PrefixConsPub: "migaloovalconspub",
-                        },
-                        currencies: [{
-                            // Example currency, replace with actual
-                            coinDenom: "whale",
-                            coinMinimalDenom: "uwhale",
-                            coinDecimals: 6,
-                        }],
-                        feeCurrencies: [{
-                            // Example fee currency, replace with actual
-                            coinDenom: "whale",
-                            coinMinimalDenom: "uwhale",
-                            coinDecimals: 6,
-                        }],
-                        stakeCurrency: {
-                            // Example stake currency, replace with actual
-                            coinDenom: "whale",
-                            coinMinimalDenom: "uwhale",
-                            coinDecimals: 6,
-                        },
-                        gasPriceStep: {
-                            low: 0.2,
-                            average: 0.45,
-                            high: 0.75,
-                        },
-                    });
-                }
-    
-                await window.leap.enable(chainId);
-                const offlineSigner = window.leap.getOfflineSigner(chainId);
-                const accounts = await offlineSigner.getAccounts();
-                setConnectedWalletAddress(accounts[0].address);
-                setIsLedgerConnected(false); // Indicate that the connection is not through Ledger
-                setIsModalOpen(false); // Close the modal after successful connection
-                return; // Exit the function after successful connection
-            } catch (error) {
-                console.error("Error connecting to LEAP:", error);
-                showAlert(`Error connecting to LEAP: ${error.message}`, "error");
-                setIsModalOpen(false); // Close the modal after successful connection
-                // Don't return here, try connecting with Ledger next
-            }
-        } else {
-            showAlert("LEAP extension not found...", "error");
-        }
-    };
-
-    const connectWalletKeplr = async () => {
-        if (window.keplr) {
-            try {
-                const chainId = "migaloo-1"; // Make sure to use the correct chain ID for Migaloo
-    
-                // Add chain information to Keplr
-                if (window.keplr.experimentalSuggestChain) {
-                    await window.keplr.experimentalSuggestChain({
-                        // Chain details
-                        chainId: chainId,
-                        chainName: "Migaloo",
-                        rpc: "https://rpc.migaloo.co", // Example RPC endpoint, replace with actual
-                        rest: "https://rest.migaloo.co", // Example REST endpoint, replace with actual
-                        bip44: {
-                            coinType: 118, // Example coinType, replace with actual
-                        },
-                        bech32Config: {
-                            bech32PrefixAccAddr: "migaloo",
-                            bech32PrefixAccPub: "migaloopub",
-                            bech32PrefixValAddr: "migaloovaloper",
-                            bech32PrefixValPub: "migaloovaloperpub",
-                            bech32PrefixConsAddr: "migaloovalcons",
-                            bech32PrefixConsPub: "migaloovalconspub",
-                        },
-                        currencies: [{
-                            // Example currency, replace with actual
-                            coinDenom: "whale",
-                            coinMinimalDenom: "uwhale",
-                            coinDecimals: 6,
-                        }],
-                        feeCurrencies: [{
-                            // Example fee currency, replace with actual
-                            coinDenom: "whale",
-                            coinMinimalDenom: "uwhale",
-                            coinDecimals: 6,
-                        }],
-                        stakeCurrency: {
-                            // Example stake currency, replace with actual
-                            coinDenom: "whale",
-                            coinMinimalDenom: "uwhale",
-                            coinDecimals: 6,
-                        },
-                        gasPriceStep: {
-                            low: 0.2,
-                            average: 0.45,
-                            high: 0.75,
-                        },
-                    });
-                }
-    
-                await window.keplr.enable(chainId);
-                const offlineSigner = window.keplr.getOfflineSigner(chainId);
-                const accounts = await offlineSigner.getAccounts();
-                setConnectedWalletAddress(accounts[0].address);
-                setIsLedgerConnected(false); // Indicate that the connection is not through Ledger
-                setIsModalOpen(false); // Close the modal after successful connection
-                return; // Exit the function after successful connection
-            } catch (error) {
-                console.error("Error connecting to Keplr:", error);
-                showAlert(`Error connecting to Keplr: ${error.message}`, "error");
-                setIsModalOpen(false); // Close the modal after successful connection
-                // Don't return here, try connecting with Ledger next
-            }
-        } else {
-            showAlert("Keplr extension not found...", "error");
-        }
-    };
-
-    const connectLedger = async () => {
-        try {
-            const transport = await TransportWebUSB.create();
-            const ledgerSigner = new LedgerSigner(transport, {
-                hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
-                prefix: "migaloo",
-            });
-    
-    
-            // Example: Using ledgerSigner with SigningStargateClient
-
-            // Example: Using ledgerSigner with SigningStargateClient
-            const client = await SigningStargateClient.connectWithSigner(
-                "https://rpc.cosmos.directory/migaloo", 
-                ledgerSigner
-            );
-    
-            // Now you can use `client` to sign and send transactions
-            // For example, to get the accounts:
-            const accounts = await ledgerSigner.getAccounts();
-            setIsLedgerConnected(true);
-            setConnectedWalletAddress(accounts[0].address.replace('-', ''));
-            console.log(accounts);
-            setIsModalOpen(false); // Close the modal after successful connection
-            showAlert("Ledger connected successfully.", "success");
-        } catch (error) {
-            console.error("Error connecting to Ledger:", error);
-            showAlert(`Error connecting to Ledger: ${error.message}`, "error");
-        }
-        
-
-    };
 
     const checkBalance = async (address) => {
         const baseUrl = "https://migaloo-lcd.erisprotocol.com"; // Replace with the actual REST API base URL for Migaloo
@@ -254,6 +117,13 @@ const SeekerRound = () => {
             setIsLoading(false);
             return;
         }
+        const fee = {
+            amount: [{
+                denom: "uwhale",
+                amount: "5000",
+            }],
+            gas: "200000",
+        };
         const memo = `Twitter: ${twitterHandle}`;
         try {
             if(isLedgerConnected){
@@ -265,17 +135,21 @@ const SeekerRound = () => {
                     });
 
                     const client = await SigningStargateClient.connectWithSigner(
-                        "https://rpc.cosmos.directory/migaloo", // Replace with your chain's RPC endpoint
+                        "https://migaloo-rpc.polkachu.com/", // Replace with your chain's RPC endpoint
                         ledgerSigner,
                         { gasPrice: GasPrice.fromString("0.75uwhale") } // Adjust the gas price and denom
                     );
+                    const customFee = {
+                        amount: coins(300000, "uwhale"), // Adjust the fee amount and denom as needed
+                        gas: "200000", // Specify your custom gas limit here
+                    };
 
                     const amount = coins(String(amountNum * 1000000), USDC_DENOM); // Adjust the amount and denom
                     const recipient = OPHIR_DAO_VAULT_ADDRESS; // Replace with the recipient's address
                     const senderAddress = connectedWalletAddress;
 
                     showAlert("Check your hardware wallet to validate and approve the transaction", "info");
-                    const result = await client.sendTokens(senderAddress, recipient, amount, "auto", memo);
+                    const result = await client.sendTokens(senderAddress, recipient, amount, customFee, memo);
                     
                     console.log(result);
                     showAlert(
@@ -299,8 +173,9 @@ const SeekerRound = () => {
                     }
                 } finally {
                     setIsLoading(false)
+                    return
                 }
-                return
+                
             }
 
             const chainId = "migaloo-1"; // Make sure this matches the chain you're interacting with
@@ -323,15 +198,15 @@ const SeekerRound = () => {
                 },
             };
     
-            const fee = {
-                amount: [{
-                    denom: "uwhale",
-                    amount: "5000",
-                }],
-                gas: "200000",
-            };
+            // const fee = {
+            //     amount: [{
+            //         denom: "uwhale",
+            //         amount: "5000",
+            //     }],
+            //     gas: "200000",
+            // };
     
-            const client = await SigningStargateClient.connectWithSigner("https://rpc.cosmos.directory/migaloo", offlineSigner);
+            const client = await SigningStargateClient.connectWithSigner("https://ww-migaloo-rpc.polkachu.com/", offlineSigner);
             const txHash = await client.signAndBroadcast(accountAddress, [msgSend], fee, memo);
             console.log("Transaction Hash:", txHash);
             showAlert(
@@ -386,7 +261,7 @@ const SeekerRound = () => {
                 },
             };
     
-            const rpcEndpoint = "https://rpc.cosmos.directory/migaloo"; // RPC endpoint
+            const rpcEndpoint = "https://migaloo-rpc.polkachu.com/"; // RPC endpoint
             if (isLedgerConnected) {
                 showAlert("Check your hardware wallet to validate and approve the transaction", "info");
             }
@@ -445,45 +320,9 @@ const SeekerRound = () => {
 
     return (
         <div className="global-bg text-white min-h-dvh w-full flex flex-col items-center justify-content" style={{ paddingTop: '20dvh' }}>
-            {isModalOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-                    <div className="bg-black p-5 rounded-lg shadow-lg border border-yellow-400">
-                        <div className="grid grid-cols-2 gap-4">
-                            <button onClick={() => connectWalletLeap()} className="flex flex-col items-center justify-center p-2 hover:bg-slate-600 rounded">
-                                <img src="https://play-lh.googleusercontent.com/qXNXZaFX6PyEksn3kdaRVuzSXoxiCLObrDhpWjN71IxyncCSS-Ftvdi_Hbr2pucgBSM=w240-h480-rw" alt="Leap Extension" className="w-12 h-12"/>
-                                <span>LEAP Extension</span>
-                            </button>
-                            <button onClick={() => connectWalletKeplr()} className="flex flex-col items-center justify-center p-2 hover:bg-slate-600 rounded">
-                                <img src="https://play-lh.googleusercontent.com/SKXXUqR4jXkvPJvKSXhJkQjKUU9wA-hI9lgBTrpxEz5GP8NbaOeSaEp1zzQscv8BTA=w240-h480-rw" alt="Keplr Extension" className="w-12 h-12"/>
-                                <span>Keplr Extension</span>
-                            </button>
-                            <button onClick={() => connectLedger()} className="flex flex-col items-center justify-center p-2 hover:bg-slate-600 rounded">
-                                <img src="https://www.ledger.com/wp-content/uploads/2023/08/Ledger-logo-696.png" alt="Ledger" className="w-12 h-12"/>
-                                <span>Ledger</span>
-                            </button>
-                            {/* <button onClick={() => connectLeapMobile()} className="flex flex-col items-center justify-center p-2 hover:bg-slate-600 rounded">
-                                <img src="https://play-lh.googleusercontent.com/qXNXZaFX6PyEksn3kdaRVuzSXoxiCLObrDhpWjN71IxyncCSS-Ftvdi_Hbr2pucgBSM=w240-h480-rw" alt="Ledger" className="w-12 h-12"/>
-                                <span>Leap Mobile</span>
-                            </button> */}
-                            {/* Add more buttons for other wallets as needed */}
-                        </div>
-                        <div className="flex justify-center w-full">
-                            <button onClick={() => setIsModalOpen(false)} className="py-2 px-4 mt-4 font-medium rounded flex items-center justify-center gap-2 bg-black text-yellow-400 border-none shadow-lg transition-colors duration-300 md:hover:bg-yellow-400 md:hover:text-black connect-button">Close</button>
-                        </div>
-                    <div className="flex justify-center w-full mt-4 sm:hidden">
-                    <a href="https://leapcosmoswallet.page.link/BfpmrsQLhrqJqtQx6" target="_blank" rel="noopener noreferrer" className="" style={{ textDecoration: 'underline', color: 'yellow', cursor: 'pointer' }}>Open this page in LEAP</a>
-                    </div>
-                    </div>
-                </div>
-            )}
+            
             {/* Snackbar for alerts */}
             <h1 className={`text-3xl ${vestingData ? 'mt-14' : ''} mb-3 font-bold h1-color`}>Seeker Round</h1>
-            {/* <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-                <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>
-                    {alertInfo.message}
-                </Alert>
-            </Snackbar> */}
             <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                 anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                 {alertInfo.htmlContent ? (
@@ -498,29 +337,7 @@ const SeekerRound = () => {
                 )}
             </Snackbar>
             <div className="absolute top-14 right-0 m-4 mr-2 sm:mr-4">
-                {connectedWalletAddress ? (
-                    <button 
-                        onClick={disconnectWallet}
-                        className="py-2 px-4 m-2 font-medium rounded flex items-center justify-center gap-2 bg-black text-yellow-400 border-none shadow-lg transition-colors duration-300 md:hover:bg-yellow-400 md:hover:text-black connect-button"
-                    >
-                        Disconnect Wallet
-                    </button>
-                ) : (
-                    <div>
-                        <button 
-                        className="py-2 px-4 m-2 font-medium rounded flex items-center justify-center gap-2 connect-button"
-                        style={{
-                            color: 'white',
-                            boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', /* Adding some shadow for depth */
-                        }}
-                        onClick={() => setIsModalOpen(true)}
-                    >
-                        {/* Icons and text */}
-                        Connect Wallet
-                    </button>
-                    
-                    </div>
-                )}
+                <WalletConnect handleConnectedWalletAddress={handleConnectedWalletAddress} handleLedgerConnectionBool={handleLedgerConnection}/>
             </div>
             <>
                 <div className="seeker-box mx-auto p-4 rounded-lg">
@@ -528,6 +345,11 @@ const SeekerRound = () => {
                         
                         Introduction and details of the seeker round →
                     </div>
+                    {seekerRoundDetails && (
+                        <div className="text-xs mt-2 text-center">
+                            OPHIR remaining: {seekerRoundDetails?.ophirLeftInSeekersRound.toLocaleString()}
+                        </div>
+                    )}
                     {/* <div className="text-xl mt-10 md:text-3xl font-bold mb-4 hover:cursor-pointer" onClick={() => setUsdcAmount(usdcBalance)}>Balance: {usdcBalance}{usdcBalance !== '' ? ' USDC' : ''}</div> */}
                     <div className="mb-6 pt-4 flex items-center justify-center">
                         <input 
@@ -620,6 +442,7 @@ const SeekerRound = () => {
                             </button>
                         </div>
                         <p className="text-xs mt-2 text-center">Please be cautious as this is a live contract.</p>
+
                     </div>
                 </div>
             </>
@@ -663,8 +486,50 @@ const SeekerRound = () => {
                     </>
                 )}
             </div>
+            {connectedWalletAddress && walletAddresses.includes(connectedWalletAddress) && seekerRoundDetails?.transactions && (
+                <div className="mt-4 p-4" style={{ maxWidth: '95dvw'}}>
+                    <div className="text-2xl mb-2">Seeker Transaction History <span className="text-sm">({seekerRoundDetails.transactionCount})</span></div>
+                    <div className="overflow-x-auto">
+                        <table className="min-w-full">
+                            <thead>
+                                <tr className="text-left text-white">
+                                    <th className="px-4 py-2">Timestamp</th>
+                                    <th className="px-4 py-2">From</th>
+                                    <th className="px-4 py-2">To</th>
+                                    <th className="px-4 py-2">Amount</th>
+                                    <th className="px-4 py-2">Memo</th>
+                                    <th className="px-4 py-2">TxHash</th> {/* New column for TxHash */}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {seekerRoundDetails.transactions.map((transaction, index) => (
+                                    <tr key={index} className="border-b border-gray-200 text-white">
+                                        <td className="px-4 py-2">{transaction.timestamp ? new Date(transaction.timestamp).toLocaleString() : 'N/A'}</td>
+                                        <td className="px-4 py-2">...{transaction.tx.messages[0]?.fromAddress ? transaction.tx.messages[0].fromAddress.slice(-5) : 'N/A'}</td>
+                                        <td className="px-4 py-2">DAO Vault</td>
+                                        <td className="px-4 py-2">{transaction.tx.messages[0]?.amount[0]?.amount ? (transaction.tx.messages[0].amount[0].amount / 1000000) : 'N/A'}</td>
+                                        <td className="px-4 py-2">{transaction.tx.memo || 'N/A'}</td>
+                                        <td className="px-4 py-2">
+                                            {transaction.tx?.txHash ? (
+                                                <a href={`https://inbloc.org/migaloo/transactions/${transaction.tx.txHash}`} target="_blank" rel="noopener noreferrer" className='text-yellow-400'>
+                                                    ...{transaction.tx.txHash.slice(-4)}
+                                                </a>
+                                            ) : (
+                                                <span>N/A</span>
+                                            )}
+                                        </td> {/* New cell for clickable TxHash */}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            )}
         </div>
+
     );
 };
 
 export default SeekerRound;
+
+// https://inbloc.org/migaloo/transactions/

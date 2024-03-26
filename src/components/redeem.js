@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { SigningStargateClient } from "@cosmjs/stargate";
+import WalletConnect from './walletConnect';
 
 
 
@@ -9,13 +10,25 @@ const Redeem = () => {
     const [ophirBalance, setOphirBalance] = useState(0); // Add a state for the balance
     const [redemptionValues, setRedemptionValues] = useState({});
     const [ophirPrices, setOphirPrices] = useState({});
-
+    const [isLedgerConnected, setIsLedgerConnected] = useState(false);
+    const handleConnectedWalletAddress = (address) => {
+        setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
+    };
+    const handleLedgerConnection = (bool) => {
+        setIsLedgerConnected(bool); // Update the state with data received from WalletConnect
+    };
     useEffect(() => {
         fetch('https://parallax-analytics.onrender.com/ophir/prices')
             .then(response => response.json())
             .then(data => setOphirPrices(data))
             .catch(error => console.error('Error fetching Ophir prices:', error));
     }, []);
+
+    useEffect(() => {
+        if (connectedWalletAddress === "") {
+            setOphirBalance(0)
+        }
+    }, [connectedWalletAddress]);
 
 
     useEffect(() => {
@@ -169,39 +182,10 @@ const Redeem = () => {
 
     return (
         <div className="bg-black mt-4 text-white min-h-screen flex flex-col items-center" style={{ paddingTop: '10dvh' }}>
-            {connectedWalletAddress ? (
-                <></>
-            ) : (
-                <button 
-                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
-                    style={{
-                        backgroundColor: '#ffcc00', /* Adjusted to a gold/yellow color similar to the images */
-                        color: 'black',
-                        border: 'none',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)', /* Adding some shadow for depth */
-                    }}
-                    onClick={connectWallet}
-                >
-                    <img src="https://play-lh.googleusercontent.com/SKXXUqR4jXkvPJvKSXhJkQjKUU9wA-hI9lgBTrpxEz5GP8NbaOeSaEp1zzQscv8BTA=w240-h480-rw" alt="KEPLR Wallet Icon" style={{ width: '24px', height: '24px' }} /> {/* Icon representing the wallet, adjust path accordingly */}
-                    <img src="https://play-lh.googleusercontent.com/qXNXZaFX6PyEksn3kdaRVuzSXoxiCLObrDhpWjN71IxyncCSS-Ftvdi_Hbr2pucgBSM" alt="LEAP Wallet Icon" style={{ width: '24px', height: '24px' }} /> {/* Icon representing the wallet, adjust path accordingly */}
-                    Connect Your Wallet
-                </button>
-            )}
-            {connectedWalletAddress && (
-                <button 
-                    onClick={disconnectWallet}
-                    className="py-2 px-4 font-bold rounded flex items-center justify-center gap-2 mb-3"
-                    style={{
-                        backgroundColor: '#ffcc00',
-                        color: 'black',
-                        border: 'none',
-                        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
-                    }}
-                >
-                    Disconnect Wallet
-                </button>
-            )}
-            <>
+            <WalletConnect 
+                handleConnectedWalletAddress={handleConnectedWalletAddress} 
+                handleLedgerConnectionBool={handleLedgerConnection}
+            />
                 <div className="w-full max-w-4xl flex flex-col items-center">
                     <div className="text-xl sm:text-3xl font-bold mb-2">Ophir Balance: {ophirBalance}</div>
                     <div className="text-md sm:text-xl mb-2">
@@ -263,7 +247,7 @@ const Redeem = () => {
                     </button>
                     <p className="text-xs mt-2 text-center pb-4">Please be cautious as this is a live contract.</p>
                 </div> */}
-            </>
+            
         </div>
     );
 };

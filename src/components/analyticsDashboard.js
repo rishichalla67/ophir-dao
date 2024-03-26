@@ -10,8 +10,8 @@ const Modal = ({ isOpen, onClose, data }) => {
     const { composition, price } = data;
 
     return (
-        <div className="absolute inset-0 mt-[20%] flex justify-center items-center p-4 md:p-10">
-            <div className="border border-yellow-400 p-4 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-4xl overflow-auto">
+        <div className="fixed inset-0 flex justify-center items-center p-4 md:p-10">
+            <div className="bg-black border border-yellow-400 p-4 rounded-lg w-full max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl 2xl:max-w-4xl overflow-auto">
                 <h2 className="text-lg font-bold mb-4">Composition</h2>
                 <div className="overflow-auto max-h-[80vh]">
                     <table className="min-w-full">
@@ -102,13 +102,39 @@ const AnalyticsDashboard = () => {
     
 
     const fetchData = async () => {
+        const cacheKey = 'ophirDataCache';
+        const cachedData = localStorage.getItem(cacheKey);
+        const now = new Date();
+    
+        if (cachedData) {
+            const { stats, treasury, prices, timestamp } = JSON.parse(cachedData);
+            const cacheAge = now.getTime() - timestamp;
+    
+            if (cacheAge < 5 * 60 * 1000) { // Cache is younger than 5 minutes
+                setOphirStats(stats);
+                setOphirTreasury(treasury);
+                setPriceData(prices);
+                return;
+            }
+        }
+    
         try {
             const statsResponse = await axios.get(`${prodUrl}/ophir/stats`);
             const treasuryResponse = await axios.get(`${prodUrl}/ophir/treasury`);
-            const prices = await axios.get(`${prodUrl}/ophir/prices`);
+            const pricesResponse = await axios.get(`${prodUrl}/ophir/prices`);
+    
+            const dataToCache = {
+                stats: statsResponse.data,
+                treasury: treasuryResponse.data,
+                prices: pricesResponse.data,
+                timestamp: now.getTime()
+            };
+    
+            localStorage.setItem(cacheKey, JSON.stringify(dataToCache));
+    
             setOphirStats(statsResponse.data);
             setOphirTreasury(treasuryResponse.data);
-            setPriceData(prices.data);
+            setPriceData(pricesResponse.data);
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -304,13 +330,13 @@ const AnalyticsDashboard = () => {
                         <div className="stats-divs rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
                             <img src="https://static.thenounproject.com/png/3313489-200.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Market Cap</div>
-                            <div className="sm:text-xl text-md">${formatNumber(ophirStats?.marketCap,0)}</div>
+                            <div className="sm:text-xl text-md" title="(ophir price) * (circulating supply)">${formatNumber(ophirStats?.marketCap,0)}</div>
                         </div>
                         {/* FDV */}
                         <div className="stats-divs rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
                             <img src="https://static.thenounproject.com/png/70884-200.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">FDV</div>
-                            <div className="sm:text-xl text-md">${formatNumber(ophirStats?.fdv,0)}</div>
+                            <div className="sm:text-xl text-md" title="(ophir price) * (total supply)">${formatNumber(ophirStats?.fdv,0)}</div>
                         </div>
                         {/* Ophir Mine */}
                         <div className="stats-divs rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center" title="Ophir that will be distributed to stakers...">
@@ -342,14 +368,14 @@ const AnalyticsDashboard = () => {
                     >
                         Ophir Treasury
                     </button>
-                    {windowWidth >= 640 && (
+                    {/* {windowWidth >= 640 && ( */}
                         <button
                             className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 border-t border-r border-l border-gold ${activeTab === 'charts' ? 'text-yellow-400 border-gold' : 'text-white border-transparent'}`}
                             onClick={() => setActiveTab('charts')}
                         >
                             Charts
                         </button>
-                    )}
+                    {/* )} */}
                 </div>
                 {renderTabContent()}
                 <Modal isOpen={isModalOpen} onClose={toggleModal} data={modalData} />
