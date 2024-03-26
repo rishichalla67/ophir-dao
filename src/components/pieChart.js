@@ -29,7 +29,7 @@ const CryptoPieChart = ({ data }) => {
 
     useEffect(() => {
         const handleResize = () => {
-            setIsMobile(window.innerWidth < 640);
+            setIsMobile(true);
         };
 
         window.addEventListener('resize', handleResize);
@@ -44,7 +44,7 @@ const CryptoPieChart = ({ data }) => {
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    label={isMobile ? null : ({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                    // label={isMobile ? null : ({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     outerRadius={150}
                     fill="#8884d8"
                     dataKey="value"
@@ -59,7 +59,7 @@ const CryptoPieChart = ({ data }) => {
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                 </Pie>
-                {isMobile && <Legend />}
+                <Legend />
                 <Tooltip content={<CustomTooltip />} />
             </PieChart>
         </ResponsiveContainer>
