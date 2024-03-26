@@ -273,13 +273,13 @@ const Charts = () => {
                             )}                            
                             <hr className="border-t border-white w-full my-4"/>
                             <>
-                                <div className="pt-2 bg-black text-white">
-                                    <div className="p-1 bg-black"> 
+                                <div className="pt-2 text-white">
+                                    <div className="p-1"> 
                                         <div className="text-3xl font-bold text-white mb-2">Total Treasury Value Over Time</div>
                                         <Line data={totalTreasuryChartConfig} options={options} />
                                     </div>
                                 </div>
-                                <div className="p-1 bg-black">
+                                <div className="p-1">
                                     <div className="text-3xl font-bold text-white mb-4">Total Treasury vs BTC Price</div>
                                     <Line data={prepareComparisonChartData(totalTreasuryChartData, chartData)} options={comparisonOptions} />
                                 </div>

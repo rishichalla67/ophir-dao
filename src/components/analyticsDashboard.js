@@ -248,14 +248,14 @@ const AnalyticsDashboard = () => {
                             <table className="max-w-full mx-auto table-auto sm:w-full">
                                 <thead className="treasury-header text-black">
                                     <tr>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xxxs">Asset</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xxxs">Balance</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xxxs hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xxxs">Rewards</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xxxs">Location</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Asset</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Balance</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Rewards</th>
+                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Location</th>
                                     </tr>
                                 </thead>
-                                <tbody className="text-white text-xxs sm:text-xxxs">
+                                <tbody className="text-white text-xxs md:text-sm sm:text-lg">
                                     {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
                                         <tr className= {`underline ... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
                                             <td className="text-left asset-padding py-4 px-1 sm:px-1" title={value?.originalKey}>{key}</td>
@@ -362,16 +362,16 @@ const AnalyticsDashboard = () => {
                     </div>
                 </div>
                 <div className="flex justify-left space-x-4 p-4">
-                    <button
-                        className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 rounded border-t border-r border-l border-gold ${activeTab === 'treasury' ? 'text-yellow-400 border-gold' : 'text-white border-transparent'}`}
+                <button
+                        className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'treasury' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
                         onClick={() => setActiveTab('treasury')}
                     >
-                        Ophir Treasury
+                        Treasury
                     </button>
                     {/* {windowWidth >= 640 && ( */}
                         <button
-                            className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 border-t border-r border-l border-gold ${activeTab === 'charts' ? 'text-yellow-400 border-gold' : 'text-white border-transparent'}`}
-                            onClick={() => setActiveTab('charts')}
+                            className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'charts' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
+                            onClick={() => setActiveTab('charts')}                            
                         >
                             Charts
                         </button>
