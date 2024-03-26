@@ -227,123 +227,51 @@ const Charts = () => {
 
     return(
         <>
-        <Suspense fallback={<div className="text-white">Loading Charts...</div>}>
+            <style>
+                {`
+                    @keyframes fadeInOut {
+                        0% { opacity: 0.5; }
+                        50% { opacity: 1; }
+                        100% { opacity: 0.5; }
+                    }
+                    .loading-animation {
+                        animation: fadeInOut 2s linear infinite;
+                    }
+                `}
+            </style>
+            {(!chartData || !totalTreasuryChartData) && <div className="loading-animation text-white flex items-center justify-center">Gathering Chart Data...</div>}
             {chartData && totalTreasuryChartData && (
                 <>
                     <div className="p-3 charts-bg">
                         <div className="text-3xl font-bold text-white mb-4">Charts</div>
                         {/* Selector for chart options */}
-                        
-                        {isMobile ? (
+                                                        
+                            <div className="relative mb-4">
+                                <div className="bg-transparent text-white p-2 rounded cursor-pointer text-center font-bold text-xl hover:bg-white hover:text-black transition-colors duration-300 ease-in-out flex items-center justify-center" onClick={() => document.getElementById('selectedAssetSelect').click()}>
+                                    {selectedAsset ? selectedAsset.toUpperCase() : "Select Asset"} <span className="ml-2">▼</span>
+                                </div>
+                                <select id="selectedAssetSelect" onChange={selectedAssetChangeHandler} value={selectedAsset} className="absolute bg-black top-0 left-0 w-full h-full opacity-0 cursor-pointer">
+                                    <option value="">Select Asset</option>
+                                    {Object.keys(chartData).map((denom, index) => (
+                                        <option key={index} value={denom}>{denom.toUpperCase()}</option>
+                                    ))}
+                                </select>
+                            </div>
+                            {selectedAsset && (
                                 <>
                                     <div className="relative mb-4">
-                                        <div className="bg-transparent text-white p-2 rounded cursor-pointer text-center font-bold text-xl hover:bg-white hover:text-black transition-colors duration-300 ease-in-out flex items-center justify-center" onClick={() => document.getElementById('selectedAssetSelect').click()}>
-                                            {selectedAsset ? selectedAsset.toUpperCase() : "Select Asset"} <span className="ml-2">▼</span>
+                                        <div className="bg-transparent text-white p-2 rounded cursor-pointer text-center font-bold text-xl hover:bg-white hover:text-black transition-colors duration-300 ease-in-out flex items-center justify-center" onClick={() => document.getElementById('chartOptionSelect').click()}>
+                                            {chartOption.charAt(0).toUpperCase() + chartOption.slice(1)} <span className="ml-2">▼</span>
                                         </div>
-                                        <select id="selectedAssetSelect" onChange={selectedAssetChangeHandler} value={selectedAsset} className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer">
-                                            <option value="">Select Asset</option>
-                                            {Object.keys(chartData).map((denom, index) => (
-                                                <option key={index} value={denom}>{denom.toUpperCase()}</option>
-                                            ))}
+                                        <select id="chartOptionSelect" onChange={chartOptionChangeHandler} value={chartOption} className="absolute bg-black top-0 left-0 w-full h-full opacity-0 cursor-pointer">
+                                            <option value="value">Asset Value</option>
+                                            <option value="amount">Asset Amount</option>
+                                            <option value="price">Asset Price</option>
                                         </select>
                                     </div>
-                                    {selectedAsset && (
-                                        <>
-                                            <div className="relative mb-4">
-                                                <div className="bg-transparent text-white p-2 rounded cursor-pointer text-center font-bold text-xl hover:bg-white hover:text-black transition-colors duration-300 ease-in-out flex items-center justify-center" onClick={() => document.getElementById('chartOptionSelect').click()}>
-                                                    {chartOption.charAt(0).toUpperCase() + chartOption.slice(1)} <span className="ml-2">▼</span>
-                                                </div>
-                                                <select id="chartOptionSelect" onChange={chartOptionChangeHandler} value={chartOption} className="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer">
-                                                    <option value="value">Asset Value</option>
-                                                    <option value="amount">Asset Amount</option>
-                                                    <option value="price">Asset Price</option>
-                                                </select>
-                                            </div>
-                                            <Line data={prepareChartDataForSelectedAsset()} options={options} />
-                                        </>
-                                    )}
+                                    <Line data={prepareChartDataForSelectedAsset()} options={options} />
                                 </>
-                            ) : (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    {Object.keys(chartData).map((denom, index) => {
-                                        const dataPoints = chartData[denom];
-                                        const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint?.timestamp).toLocaleDateString());
-                                        let chartDataValues;
-                                        let labelSuffix;
-
-                                        switch (chartOption) {
-                                            case 'amount':
-                                                chartDataValues = dataPoints.map(dataPoint => dataPoint.asset);
-                                                labelSuffix = 'Amount';
-                                                break;
-                                            case 'price':
-                                                chartDataValues = dataPoints.map(dataPoint => dataPoint.price);
-                                                labelSuffix = 'Price';
-                                                break;
-                                            case 'value':
-                                            default:
-                                                chartDataValues = dataPoints.map(dataPoint => dataPoint.value);
-                                                labelSuffix = '$ Value';
-                                                break;
-                                        }
-
-                                        const data = {
-                                            labels: chartLabels,
-                                            datasets: [
-                                                {
-                                                    label: `${labelSuffix}`,
-                                                    data: chartDataValues,
-                                                    fill: false,
-                                                    backgroundColor: 'rgb(255, 206, 86)',
-                                                    borderColor: 'rgba(255, 206, 86, 2)',
-                                                    pointRadius: 0.1,
-                                                    pointHoverRadius: 5,
-                                                    tension: 0.2
-                                                },
-                                            ],
-                                        };
-
-                                        const options = {
-                                            scales: {
-                                                y: {
-                                                    beginAtZero: false,
-                                                    ticks: {
-                                                        color: 'white', // Change Y-axis ticks color to white
-                                                    },
-                                                    grid: {
-                                                        color: 'rgba(255, 255, 255, 0.1)', // Change Y-axis grid lines color to white with some transparency
-                                                    }
-                                                },
-                                                x: {
-                                                    ticks: {
-                                                        color: 'white', // Change X-axis ticks color to white
-                                                    },
-                                                    grid: {
-                                                        color: 'rgba(255, 255, 255, 0.1)', // Change X-axis grid lines color to white with some transparency
-                                                    }
-                                                }
-                                            }
-                                        };
-
-                                        return (
-                                            <div key={index} className="bg-black text-white rounded-lg shadow-md min-w-[100px] flex flex-col items-center justify-center">
-                                                <div className='pl-2'>
-                                                    <select onChange={chartOptionChangeHandler} value={chartOption} className="mb-4 bg-slate-800 text-white p-2 rounded">
-                                                        <option value="value">Asset Value</option>
-                                                        <option value="amount">Asset Amount</option>
-                                                        <option value="price">Asset Price</option>
-                                                    </select>
-                                                </div>
-                                                <div className="sm:text-2xl text-sm font-bold mb-1 text-center">{denom.toUpperCase()}</div>
-                                                {/* Conditional rendering based on device type */}
-                                                
-                                                    <Line data={data} options={options} />
-                                                
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            )}
+                            )}                            
                             <hr className="border-t border-white w-full my-4"/>
                             <>
                                 <div className="pt-2 bg-black text-white">
@@ -360,7 +288,6 @@ const Charts = () => {
                     </div>
                 </>
             )}
-        </Suspense>
         </>
     );
 }
