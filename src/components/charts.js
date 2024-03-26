@@ -184,7 +184,7 @@ const CustomSelect = ({ options, selected, onSelect }) => {
                 `}
             </style>
             <div className="flex justify-center">
-                <div className="bg-transparent text-white p-2 rounded cursor-pointer text-center font-semibold text-xs sm:text-xl hover:bg-white hover:text-black transition-colors duration-300 ease-in-out flex items-center justify-center w-1/4" onClick={() => setIsOpen(!isOpen)}>
+                <div className="bg-transparent text-white p-2 rounded cursor-pointer text-center font-semibold text-xs sm:text-xl hover:bg-yellow-400 hover:text-black transition-colors duration-300 ease-in-out flex items-center justify-center w-1/4" onClick={() => setIsOpen(!isOpen)}>
                     {selected ? selected.toUpperCase() : "Select Asset"} <span className="ml-2">▼</span>
                 </div>
             </div>
@@ -228,30 +228,41 @@ const Charts = () => {
     const prodUrl = 'https://parallax-analytics.onrender.com';
     const localUrl = 'http://localhost:225';
 
+    // const fetchData = async () => {
+    //     const cacheTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+    //     const now = new Date().getTime();
+    //     const chartDataCache = localStorage.getItem('chartData');
+    //     const totalTreasuryChartDataCache = localStorage.getItem('totalTreasuryChartData');
+    //     const cacheTimestamp = localStorage.getItem('cacheTimestamp');
+    
+    //     if (chartDataCache && totalTreasuryChartDataCache && cacheTimestamp && now - cacheTimestamp < cacheTime) {
+    //         setChartData(JSON.parse(chartDataCache));
+    //         setTotalTreasuryChartData(JSON.parse(totalTreasuryChartDataCache));
+    //     } else {
+    //         try {
+    //             const chartDataResponse = await axios.get(`${prodUrl}/ophir/treasury/chartData`);
+    //             const totalTreasuryChartDataResponse = await axios.get(`${prodUrl}/ophir/treasury/totalValueChartData`);
+    
+    //             setChartData(chartDataResponse.data);
+    //             setTotalTreasuryChartData(totalTreasuryChartDataResponse.data);
+    //             // Cache the data
+    //             localStorage.setItem('chartData', JSON.stringify(chartDataResponse.data));
+    //             localStorage.setItem('totalTreasuryChartData', JSON.stringify(totalTreasuryChartDataResponse.data));
+    //             localStorage.setItem('cacheTimestamp', now.toString());
+    //         } catch (error) {
+    //             console.error('Error fetching data:', error);
+    //         }
+    //     }
+    // };
     const fetchData = async () => {
-        const cacheTime = 15 * 60 * 1000; // 15 minutes in milliseconds
-        const now = new Date().getTime();
-        const chartDataCache = localStorage.getItem('chartData');
-        const totalTreasuryChartDataCache = localStorage.getItem('totalTreasuryChartData');
-        const cacheTimestamp = localStorage.getItem('cacheTimestamp');
+        try {
+            const chartDataResponse = await axios.get(`${prodUrl}/ophir/treasury/chartData`);
+            const totalTreasuryChartDataResponse = await axios.get(`${prodUrl}/ophir/treasury/totalValueChartData`);
     
-        if (chartDataCache && totalTreasuryChartDataCache && cacheTimestamp && now - cacheTimestamp < cacheTime) {
-            setChartData(JSON.parse(chartDataCache));
-            setTotalTreasuryChartData(JSON.parse(totalTreasuryChartDataCache));
-        } else {
-            try {
-                const chartDataResponse = await axios.get(`${prodUrl}/ophir/treasury/chartData`);
-                const totalTreasuryChartDataResponse = await axios.get(`${prodUrl}/ophir/treasury/totalValueChartData`);
-    
-                setChartData(chartDataResponse.data);
-                setTotalTreasuryChartData(totalTreasuryChartDataResponse.data);
-                // Cache the data
-                localStorage.setItem('chartData', JSON.stringify(chartDataResponse.data));
-                localStorage.setItem('totalTreasuryChartData', JSON.stringify(totalTreasuryChartDataResponse.data));
-                localStorage.setItem('cacheTimestamp', now.toString());
-            } catch (error) {
-                console.error('Error fetching data:', error);
-            }
+            setChartData(chartDataResponse.data);
+            setTotalTreasuryChartData(totalTreasuryChartDataResponse.data);
+        } catch (error) {
+            console.error('Error fetching data:', error);
         }
     };
     useEffect(() => {
@@ -315,7 +326,7 @@ const Charts = () => {
                     <div className="p-3">
                         {/* <div className="text-3xl font-bold text-white mb-4">Charts</div> */}
                         {/* Selector for chart options */}
-                        <div className="border pt-3 rounded-lg shadow-md ">
+                        <div className="border pt-3 pb-3 rounded-lg shadow-md ">
                             <CustomSelect
                                 options={Object.keys(chartData)}
                                 selected={selectedAsset}
@@ -331,19 +342,27 @@ const Charts = () => {
                                 </div>
                             )}
                         </div>
-                        <div className="pt-2"><Line data={prepareChartDataForSelectedAsset()} options={options} />   </div>           
+                        {selectedAsset && prepareChartDataForSelectedAsset() && (
+                            <div className="pt-2">
+                                <Line data={prepareChartDataForSelectedAsset()} options={options} />
+                            </div>
+                        )}      
                         <hr className="border-t border-white w-full my-4"/>
                         <>
-                            <div className="pt-2 text-white">
-                                <div className="p-1"> 
-                                    <div className="text-md sm:text-3xl font-bold text-white mb-2">Total Treasury Value Over Time</div>
-                                    <Line data={totalTreasuryChartConfig} options={options} />
+                            {totalTreasuryChartData && totalTreasuryChartConfig && totalTreasuryChartConfig.labels.length > 0 && (
+                                <div className="pt-2 text-white">
+                                    <div className="p-1"> 
+                                        <div className="text-md sm:text-3xl font-bold text-white mb-2">Total Treasury Value Over Time</div>
+                                        <Line data={totalTreasuryChartConfig} options={options} />
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="p-1">
-                                <div className="text-md sm:text-3xl font-bold text-white mb-4">Total Treasury vs BTC Price</div>
-                                <Line data={prepareComparisonChartData(totalTreasuryChartData, chartData)} options={comparisonOptions} />
-                            </div>
+                            )}
+                            {totalTreasuryChartData && chartData && prepareComparisonChartData(totalTreasuryChartData, chartData) && (
+                                <div className="p-1">
+                                    <div className="text-md sm:text-3xl font-bold text-white mb-4">Total Treasury vs BTC Price</div>
+                                    <Line data={prepareComparisonChartData(totalTreasuryChartData, chartData)} options={comparisonOptions} />
+                                </div>
+                            )}
                         </>
                     </div>
                 </>
