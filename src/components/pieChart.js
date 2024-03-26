@@ -25,26 +25,23 @@ const CustomTooltip = ({ active, payload }) => {
   
 
 const CryptoPieChart = ({ data }) => {
-    const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
 
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(true);
-        };
+    const total = data.reduce((acc, entry) => acc + entry.value, 0);
 
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
+    // Add a percentage property to each slice
+    const dataWithPercentage = data.map(entry => ({
+        ...entry,
+        name: `${entry.name} (${((entry.value / total) * 100).toFixed(2)}%)`, 
+    }));
 
     return (
         <ResponsiveContainer width="100%" height={400}>
             <PieChart>
                 <Pie
-                    data={data}
+                    data={dataWithPercentage} 
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    // label={isMobile ? null : ({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                     outerRadius={150}
                     fill="#8884d8"
                     dataKey="value"
@@ -55,7 +52,7 @@ const CryptoPieChart = ({ data }) => {
                         bottom: 5,
                     }}
                 >
-                    {data.map((entry, index) => (
+                    {dataWithPercentage.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                 </Pie>
