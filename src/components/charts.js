@@ -1,4 +1,6 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
+import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
+
 import axios from 'axios';
 import { Line } from 'react-chartjs-2';
 import 'chart.js/auto';
@@ -107,6 +109,11 @@ const comparisonOptions = {
                 color: 'rgba(255, 255, 255, 0.1)', // Change X-axis grid lines color to white with some transparency
             }
         }
+    },
+    plugins: {
+        legend: {
+            display: false // This will hide the legend
+        }
     }
 };
 
@@ -129,11 +136,78 @@ const options = {
                 color: 'rgba(255, 255, 255, 0.1)', // Change X-axis grid lines color to white with some transparency
             }
         }
+    },
+    plugins: {
+        legend: {
+            display: false // This will hide the legend
+        }
     }
 };
 
 const LazyLine = lazy(() => import('react-chartjs-2').then(module => ({ default: module.Line })));
 
+const CustomSelect = ({ options, selected, onSelect }) => {
+    const [isOpen, setIsOpen] = useState(false);
+
+    const handleSelect = (value) => {
+        onSelect(value);
+        setIsOpen(false);
+    };
+
+    return (
+
+        <>
+            <style>
+                {`
+                    .custom-scrollbar::-webkit-scrollbar {
+                        width: 8px; /* Adjust scrollbar width */
+                    }
+
+                    .custom-scrollbar::-webkit-scrollbar-track {
+                        background: #2e2e2e; /* Adjust track color */
+                    }
+
+                    .custom-scrollbar::-webkit-scrollbar-thumb {
+                        background: #888; /* Adjust thumb color */
+                        border-radius: 4px; /* Rounded corners for the thumb */
+                    }
+
+                    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                        background: #555; /* Color of the thumb on hover */
+                    }
+
+                    /* For Firefox */
+                    .custom-scrollbar {
+                        scrollbar-width: thin; /* "auto" or "thin" */
+                        scrollbar-color: #888 #2e2e2e; /* thumb and track color */
+                    }
+                `}
+            </style>
+            <div className="flex justify-center">
+                <div className="bg-transparent text-white p-2 rounded cursor-pointer text-center font-semibold text-xs sm:text-xl hover:bg-white hover:text-black transition-colors duration-300 ease-in-out flex items-center justify-center w-1/4" onClick={() => setIsOpen(!isOpen)}>
+                    {selected ? selected.toUpperCase() : "Select Asset"} <span className="ml-2">▼</span>
+                </div>
+            </div>
+            {isOpen && (
+                <div className="absolute z-10 bg-black mt-1 left-1/2 transform -translate-x-1/2 w-1/4 rounded shadow-lg custom-scrollbar">
+                    <div className="max-h-60 overflow-auto">
+                        <div className="py-1">
+                            {options.length > 0 ? (
+                                options.map((option, index) => (
+                                    <div key={index} className="text-white text-xxs sm:text-xl font-semibold hover:bg-gray-700 p-2 cursor-pointer text-center" onClick={() => handleSelect(option)}>
+                                        {option.toUpperCase()}
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="text-white text-xs sm:text-xl p-2 text-center">No options</div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </>
+    );
+};
 
 const Charts = () => {
 
@@ -186,33 +260,28 @@ const Charts = () => {
 
     const prepareChartDataForSelectedAsset = () => {
         if (!chartData || !selectedAsset || !chartData[selectedAsset]) return null;
-
+    
         const dataPoints = chartData[selectedAsset];
         const chartLabels = dataPoints.map(dataPoint => new Date(dataPoint?.timestamp).toLocaleDateString());
         let chartDataValues;
-        let labelSuffix;
-
+    
         switch (chartOption) {
             case 'amount':
                 chartDataValues = dataPoints.map(dataPoint => dataPoint.asset);
-                labelSuffix = 'Amount';
                 break;
             case 'price':
                 chartDataValues = dataPoints.map(dataPoint => dataPoint.price);
-                labelSuffix = 'Price';
                 break;
             case 'value':
             default:
                 chartDataValues = dataPoints.map(dataPoint => dataPoint.value);
-                labelSuffix = '$ Value';
                 break;
         }
-
+    
         return {
             labels: chartLabels,
             datasets: [
                 {
-                    label: `${labelSuffix}`,
                     data: chartDataValues,
                     fill: false,
                     backgroundColor: 'rgb(255, 206, 86)',
@@ -242,49 +311,40 @@ const Charts = () => {
             {(!chartData || !totalTreasuryChartData) && <div className="loading-animation text-white flex items-center justify-center">Gathering Chart Data...</div>}
             {chartData && totalTreasuryChartData && (
                 <>
-                    <div className="p-3 charts-bg">
+                    <hr className="border-t border-gray-200 my-4"/>
+                    <div className="p-3">
                         {/* <div className="text-3xl font-bold text-white mb-4">Charts</div> */}
                         {/* Selector for chart options */}
-                                                        
-                            <div className="relative mb-4">
-                                <div className="bg-transparent text-white p-2 rounded cursor-pointer text-center font-bold text-xl hover:bg-white hover:text-black transition-colors duration-300 ease-in-out flex items-center justify-center" onClick={() => document.getElementById('selectedAssetSelect').click()}>
-                                    {selectedAsset ? selectedAsset.toUpperCase() : "Select Asset"} <span className="ml-2">▼</span>
-                                </div>
-                                <select id="selectedAssetSelect" onChange={selectedAssetChangeHandler} value={selectedAsset} className="absolute bg-black top-0 left-0 w-full h-full opacity-0 cursor-pointer">
-                                    <option value="">Select Asset</option>
-                                    {Object.keys(chartData).map((denom, index) => (
-                                        <option key={index} value={denom}>{denom.toUpperCase()}</option>
-                                    ))}
-                                </select>
-                            </div>
+                        <div className="border pt-3 rounded-lg shadow-md ">
+                            <CustomSelect
+                                options={Object.keys(chartData)}
+                                selected={selectedAsset}
+                                onSelect={setSelectedAsset}
+                            />
                             {selectedAsset && (
-                                <>
-                                    <div className="relative mb-4">
-                                        <div className="bg-transparent text-white p-2 rounded cursor-pointer text-center font-bold text-xl hover:bg-white hover:text-black transition-colors duration-300 ease-in-out flex items-center justify-center" onClick={() => document.getElementById('chartOptionSelect').click()}>
-                                            {chartOption.charAt(0).toUpperCase() + chartOption.slice(1)} <span className="ml-2">▼</span>
-                                        </div>
-                                        <select id="chartOptionSelect" onChange={chartOptionChangeHandler} value={chartOption} className="absolute bg-black top-0 left-0 w-full h-full opacity-0 cursor-pointer">
-                                            <option value="value">Asset Value</option>
-                                            <option value="amount">Asset Amount</option>
-                                            <option value="price">Asset Price</option>
-                                        </select>
-                                    </div>
-                                    <Line data={prepareChartDataForSelectedAsset()} options={options} />
-                                </>
-                            )}                            
-                            <hr className="border-t border-white w-full my-4"/>
-                            <>
-                                <div className="pt-2 text-white">
-                                    <div className="p-1"> 
-                                        <div className="text-3xl font-bold text-white mb-2">Total Treasury Value Over Time</div>
-                                        <Line data={totalTreasuryChartConfig} options={options} />
-                                    </div>
+                                <div className="mt-4 mb-4">
+                                    <CustomSelect
+                                        options={['value', 'amount', 'price']}
+                                        selected={chartOption}
+                                        onSelect={setChartOption}
+                                    />
                                 </div>
-                                <div className="p-1">
-                                    <div className="text-3xl font-bold text-white mb-4">Total Treasury vs BTC Price</div>
-                                    <Line data={prepareComparisonChartData(totalTreasuryChartData, chartData)} options={comparisonOptions} />
+                            )}
+                        </div>
+                        <div className="pt-2"><Line data={prepareChartDataForSelectedAsset()} options={options} />   </div>           
+                        <hr className="border-t border-white w-full my-4"/>
+                        <>
+                            <div className="pt-2 text-white">
+                                <div className="p-1"> 
+                                    <div className="text-md sm:text-3xl font-bold text-white mb-2">Total Treasury Value Over Time</div>
+                                    <Line data={totalTreasuryChartConfig} options={options} />
                                 </div>
-                            </>
+                            </div>
+                            <div className="p-1">
+                                <div className="text-md sm:text-3xl font-bold text-white mb-4">Total Treasury vs BTC Price</div>
+                                <Line data={prepareComparisonChartData(totalTreasuryChartData, chartData)} options={comparisonOptions} />
+                            </div>
+                        </>
                     </div>
                 </>
             )}

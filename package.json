@@ -11,6 +11,7 @@
     "@keplr-wallet/stores": "^0.12.72",
     "@keplr-wallet/types": "^0.12.72",
     "@ledgerhq/hw-transport-webusb": "^6.28.4",
+    "@mui/icons-material": "^5.15.14",
     "@mui/material": "^5.15.12",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
