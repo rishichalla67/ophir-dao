@@ -186,7 +186,7 @@
 /*analytic dashboard page*/
 
 .title{
-  margin: 1rem 0.5rem;
+  margin: 2rem 0.5rem 1.5rem;
   color: var(--h1-text-faint-gold);
 }
 
@@ -195,13 +195,25 @@
 }
 
 .tot-treasury-div{
-  box-shadow: 0 4px 50px 0 var(--drop-shadow-gold);
-  background: linear-gradient(90deg, rgb(255, 208, 0) 0%, rgb(252, 217, 102) 100%);
+  box-shadow: 0px 4px 0px 0px var(--drop-shadow-gold),
+              0px 4px 25px 0px var(--drop-shadow-gold);
+  /* background: linear-gradient(180deg, rgb(255, 208, 0) 0%, rgb(252, 217, 102) 100%); */
+  background-color: var(--main-black);
+  color: var(--main-white);
+  transition: all 200ms ease-in-out;
+}
+
+.tot-treasury-div:hover{
+  transform: translateY(-3px);
+  box-shadow: 0px 7px 45px 0px var(--drop-shadow-gold);
+  transition: all 200ms ease-in-out;
 }
 
 .stats-divs{
-  background-color: var(--light-gold);
-  color: var(--main-black);
+  z-index: 99;
+  /* background: linear-gradient(0deg, rgb(255, 208, 0) 0%, rgb(252, 217, 102) 100%); */
+  background-color: var(--main-black);
+  color: var(--main-white);
 }
 
 .treasury-header{
@@ -215,7 +227,12 @@
 }
 
 .asset-padding{
-  padding: 0 0 0 1rem;
+  padding: 1rem 0 1rem 1rem;
+}
+
+.underline{
+  border-bottom: 1px solid var(--main-grey);
+  padding: 1rem 0;
 }
 
 /*charts*/

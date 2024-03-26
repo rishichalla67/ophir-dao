@@ -244,7 +244,7 @@ const AnalyticsDashboard = () => {
                     // Existing Ophir Treasury JSX goes here
                     <div className="p-3">
                         {/* <div className="text-3xl font-bold text-white mb-4">Ophir Treasury</div> */}
-                        <div className="treasury-content overflow-x-auto pb-2">
+                        <div className="treasury-content overflow-x-auto">
                             <table className="max-w-full mx-auto table-auto sm:w-full">
                                 <thead className="treasury-header text-black">
                                     <tr>
@@ -257,11 +257,11 @@ const AnalyticsDashboard = () => {
                                 </thead>
                                 <tbody className="text-white text-xxs sm:text-xs">
                                     {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
-                                        <tr className={`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
-                                            <td className="text-left asset-padding py-2 px-1 sm:px-1" title={value?.originalKey}>{key}</td>
-                                            <td className="text-center py-2 px-1 sm:px-1">{parseFloat(value.balance).toLocaleString()}</td>
-                                            <td className="text-center py-2 px-1 sm:px-1">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
-                                            <td className="text-center py-2 px-1 sm:px-1 cursor-pointer" onClick={value.location.includes('Luna Alliance') || value.location.includes('ampRoar Alliance Staked') ? toggleLunaDenomination : value.location === 'Migaloo Alliance' ? toggleWhaleDenomination : null}>
+                                        <tr className= {`underline ... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
+                                            <td className="text-left asset-padding py-4 px-1 sm:px-1" title={value?.originalKey}>{key}</td>
+                                            <td className="text-center py-4 px-1 sm:px-1">{parseFloat(value.balance).toLocaleString()}</td>
+                                            <td className="text-center py-4 px-1 sm:px-1">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
+                                            <td className="text-center py-4 px-1 sm:px-1 cursor-pointer" onClick={value.location.includes('Luna Alliance') || value.location.includes('ampRoar Alliance Staked') ? toggleLunaDenomination : value.location === 'Migaloo Alliance' ? toggleWhaleDenomination : null}>
                                                 {value.rewards && (value.location.includes('Luna Alliance') || value.location === 'Migaloo Alliance' || value.location === 'ampRoar Alliance Staked') && (
                                                     inLuna && (value.location.includes('Luna Alliance') || value.location === 'ampRoar Alliance Staked') ? `${parseFloat(value.rewards).toLocaleString()} luna` :
                                                     !inLuna && (value.location.includes('Luna Alliance') || value.location === 'ampRoar Alliance Staked') ? `$${formatNumber(parseFloat(value.rewards * priceData['luna']), 2)}` :
@@ -298,8 +298,8 @@ const AnalyticsDashboard = () => {
                 <div className="p-3">
                     <div className="title text-3xl font-bold text-white">Ophir Statistics</div>
                     <div className="tot-treasury-wrapper">
-                            <div className="tot-treasury-div text-black rounded-lg p-2 shadow-md min-w-[250px] m-2 flex flex-col items-center justify-center cursor-pointer" onClick={toggleBitcoinDenomination}>
-                                <img src="https://cdn-icons-png.flaticon.com/512/7185/7185535.png" alt="Icon" className="h-8 w-8 mb-1" />
+                            <div className="tot-treasury-div rounded-lg p-2 shadow-md min-w-[250px] m-2 flex flex-col items-center justify-center cursor-pointer" onClick={toggleBitcoinDenomination}>
+                                <img src="https://i.ibb.co/d5rJ2qd/7185535-yellow.png" alt="Icon" className="h-8 w-8 mb-1" />
                                 <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Total Treasury Value</div>
                                 {inBitcoin ? 
                                     <div className="sm:text-xl text-md ">{formatNumberInBitcoin(ophirTreasury?.totalTreasuryValue)} BTC</div>
@@ -319,7 +319,7 @@ const AnalyticsDashboard = () => {
                     grid-cols-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6
                     ">
                         {/* Ophir Price */}
-                        <div className="stats-divs text-white rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
+                        <div className="stats-divs rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
                             <img src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Price</div>
                             <div className="sm:text-xl text-md">${formatNumber(ophirStats?.price, 5)}</div>
@@ -328,25 +328,25 @@ const AnalyticsDashboard = () => {
                         </div>
                         {/* Market Cap */}
                         <div className="stats-divs rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
-                            <img src="https://static.thenounproject.com/png/3313489-200.png" alt="Icon" className="h-8 w-8 mb-2" />
+                            <img src="https://i.ibb.co/d20VfyL/3313489-200-yellow.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Market Cap</div>
                             <div className="sm:text-xl text-md" title="(ophir price) * (circulating supply)">${formatNumber(ophirStats?.marketCap,0)}</div>
                         </div>
                         {/* FDV */}
                         <div className="stats-divs rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
-                            <img src="https://static.thenounproject.com/png/70884-200.png" alt="Icon" className="h-8 w-8 mb-2" />
+                            <img src="https://i.ibb.co/RpV2Lq9/70884-200-yellow.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">FDV</div>
                             <div className="sm:text-xl text-md" title="(ophir price) * (total supply)">${formatNumber(ophirStats?.fdv,0)}</div>
                         </div>
                         {/* Ophir Mine */}
                         <div className="stats-divs rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center" title="Ophir that will be distributed to stakers...">
-                            <img src="https://cdn-icons-png.flaticon.com/512/5895/5895891.png" alt="Icon" className="h-8 w-8 mb-1" />
+                            <img src="https://i.ibb.co/bQbQ8vs/5895891-yellow.png" alt="Icon" className="h-8 w-8 mb-1" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Mined Ophir</div>
                             <div className="sm:text-xl text-md ">{formatNumber(ophirStats?.ophirInMine,0)}</div>
                         </div>
                         {/* Circulating Supply */}
                         <div className="stats-divs rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
-                            <img src="https://static.thenounproject.com/png/3844310-200.png" alt="Icon" className="h-8 w-8 mb-2" />
+                            <img src="https://i.ibb.co/wLDhcxv/3844310-200-yellow.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Circulating Supply</div>
                             <div className="sm:text-xl text-md">{formatNumber(ophirStats?.circulatingSupply,0)}</div>
                             <div className="sm:text-sm text-sm text-center text-slate-600" title="(circulating supply / total supply) * 100">{formatNumber(getPercentageOfTotalOphirSupply(ophirStats?.circulatingSupply),2)}%</div>
@@ -354,7 +354,7 @@ const AnalyticsDashboard = () => {
                         </div>
                         {/* Staked Supply */}
                         <div className="stats-divs rounded-lg p-2 shadow-md min-w-[100px] m-2 flex flex-col items-center justify-center">
-                            <img src="https://static.thenounproject.com/png/904757-200.png" alt="Icon" className="h-8 w-8 mb-2" />
+                            <img src="https://i.ibb.co/WnspwH3/904757-200-yellow.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Staked Supply</div>
                             <div className="sm:text-xl text-md">{formatNumber(ophirStats?.stakedSupply,0)}</div>
                             <div className="sm:text-sm text-sm text-center text-slate-600" title="(staked supply / total supply) * 100">{formatNumber(getPercentageOfTotalOphirSupply(ophirStats?.stakedSupply),2)}%</div>
