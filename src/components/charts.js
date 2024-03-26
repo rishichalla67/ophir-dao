@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, lazy } from 'react';
+import React, { useState, useEffect, Suspense, lazy, useRef } from 'react';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 
 import axios from 'axios';
@@ -217,7 +217,7 @@ const Charts = () => {
     const [selectedAsset, setSelectedAsset] = useState(''); // State to manage selected asset for mobile view
     const [nextUpdateTime, setNextUpdateTime] = useState(null);
     const [countdown, setCountdown] = useState('');
-
+    const chartsRef = useRef(null); 
 
     const chartOptionChangeHandler = (event) => {
         setChartOption(event.target.value);
@@ -320,6 +320,11 @@ const Charts = () => {
             ],
         };
     };
+    useEffect(() => {
+        if (chartData && totalTreasuryChartData) {
+            chartsRef.current?.scrollIntoView({ behavior: 'smooth' });
+        }
+    }, [chartData, totalTreasuryChartData]);
 
     return(
         <>
@@ -339,7 +344,7 @@ const Charts = () => {
             {chartData && totalTreasuryChartData && (
                 <>
                     <hr className="border-t border-gray-200 my-4"/>
-                    <div className="p-3">
+                    <div ref={chartsRef} className="p-3">
                         {/* <div className="text-3xl font-bold text-white mb-4">Charts</div> */}
                         {/* Selector for chart options */}
                         <div className="border pt-3 pb-3 rounded-lg shadow-md ">
