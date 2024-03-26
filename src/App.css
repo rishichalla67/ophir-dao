@@ -208,7 +208,7 @@
 }
 
 .stats-divs{
-  z-index: 99;
+  /* z-index: 99; */
   /* background: linear-gradient(0deg, rgb(255, 208, 0) 0%, rgb(252, 217, 102) 100%); */
   background-color: var(--main-black);
   color: var(--main-white);
