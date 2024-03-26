@@ -363,12 +363,13 @@ const Charts = () => {
                                     />
                                 </div>
                             )}
-                        </div>
-                        {selectedAsset && prepareChartDataForSelectedAsset() && (
+                            {selectedAsset && prepareChartDataForSelectedAsset() && (
                             <div className="pt-2">
                                 <Line data={prepareChartDataForSelectedAsset()} options={options} />
                             </div>
                         )}      
+                        </div>
+                        
                         <hr className="border-t border-white w-full my-4"/>
                         <>
                             {totalTreasuryChartData && totalTreasuryChartConfig && totalTreasuryChartConfig.labels.length > 0 && (
