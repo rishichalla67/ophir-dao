@@ -243,6 +243,7 @@ const Charts = () => {
             {chartData && totalTreasuryChartData && (
                 <>
                     <div className="p-3 charts-bg">
+                        {/* <div className="text-3xl font-bold text-white mb-4">Charts</div> */}
                         {/* Selector for chart options */}
                                                         
                             <div className="relative mb-4">

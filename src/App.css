@@ -195,8 +195,7 @@
 }
 
 .tot-treasury-div{
-  box-shadow: 0px 4px 0px 0px var(--drop-shadow-gold),
-              0px 4px 25px 0px var(--drop-shadow-gold);
+  box-shadow: 0px 4px 45px 0px var(--drop-shadow-gold);
   /* background: linear-gradient(180deg, rgb(255, 208, 0) 0%, rgb(252, 217, 102) 100%); */
   background-color: var(--main-black);
   color: var(--main-white);
@@ -204,8 +203,7 @@
 }
 
 .tot-treasury-div:hover{
-  transform: translateY(-3px);
-  box-shadow: 0px 7px 45px 0px var(--drop-shadow-gold);
+  box-shadow: 0px 4px 65px 0px var(--drop-shadow-gold);
   transition: all 200ms ease-in-out;
 }
 
