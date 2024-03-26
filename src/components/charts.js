@@ -184,7 +184,7 @@ const CustomSelect = ({ options, selected, onSelect }) => {
                 `}
             </style>
             <div className="flex justify-center">
-                <div className="bg-transparent text-white p-2 rounded cursor-pointer text-center font-semibold text-xs sm:text-xl hover:bg-yellow-400 hover:text-black transition-colors duration-300 ease-in-out flex items-center justify-center w-1/4" onClick={() => setIsOpen(!isOpen)}>
+                <div className="bg-transparent text-white p-2 rounded cursor-pointer text-center font-semibold text-xxs sm:text-sm hover:bg-yellow-400 hover:text-black transition-colors duration-300 ease-in-out flex items-center justify-center w-1/4" onClick={() => setIsOpen(!isOpen)}>
                     {selected ? selected.toUpperCase() : "Select Asset"} <span className="ml-2">▼</span>
                 </div>
             </div>
@@ -215,6 +215,9 @@ const Charts = () => {
     const [totalTreasuryChartData, setTotalTreasuryChartData] = useState(null);
     const [chartOption, setChartOption] = useState('value'); // 'amount', 'value', 'price'
     const [selectedAsset, setSelectedAsset] = useState(''); // State to manage selected asset for mobile view
+    const [nextUpdateTime, setNextUpdateTime] = useState(null);
+    const [countdown, setCountdown] = useState('');
+
 
     const chartOptionChangeHandler = (event) => {
         setChartOption(event.target.value);
@@ -228,32 +231,6 @@ const Charts = () => {
     const prodUrl = 'https://parallax-analytics.onrender.com';
     const localUrl = 'http://localhost:225';
 
-    // const fetchData = async () => {
-    //     const cacheTime = 15 * 60 * 1000; // 15 minutes in milliseconds
-    //     const now = new Date().getTime();
-    //     const chartDataCache = localStorage.getItem('chartData');
-    //     const totalTreasuryChartDataCache = localStorage.getItem('totalTreasuryChartData');
-    //     const cacheTimestamp = localStorage.getItem('cacheTimestamp');
-    
-    //     if (chartDataCache && totalTreasuryChartDataCache && cacheTimestamp && now - cacheTimestamp < cacheTime) {
-    //         setChartData(JSON.parse(chartDataCache));
-    //         setTotalTreasuryChartData(JSON.parse(totalTreasuryChartDataCache));
-    //     } else {
-    //         try {
-    //             const chartDataResponse = await axios.get(`${prodUrl}/ophir/treasury/chartData`);
-    //             const totalTreasuryChartDataResponse = await axios.get(`${prodUrl}/ophir/treasury/totalValueChartData`);
-    
-    //             setChartData(chartDataResponse.data);
-    //             setTotalTreasuryChartData(totalTreasuryChartDataResponse.data);
-    //             // Cache the data
-    //             localStorage.setItem('chartData', JSON.stringify(chartDataResponse.data));
-    //             localStorage.setItem('totalTreasuryChartData', JSON.stringify(totalTreasuryChartDataResponse.data));
-    //             localStorage.setItem('cacheTimestamp', now.toString());
-    //         } catch (error) {
-    //             console.error('Error fetching data:', error);
-    //         }
-    //     }
-    // };
     const fetchData = async () => {
         try {
             const chartDataResponse = await axios.get(`${prodUrl}/ophir/treasury/chartData`);
@@ -265,9 +242,48 @@ const Charts = () => {
             console.error('Error fetching data:', error);
         }
     };
+    const fetchNextUpdateTime = async () => {
+        try {
+            const response = await axios.get(`${prodUrl}/ophir/nextUpdateTime`);
+            setNextUpdateTime(response.data.nextUpdateTime); // Assuming the endpoint returns an object with a nextUpdateTime property
+        } catch (error) {
+            console.error('Error fetching next update time:', error);
+        }
+    };
     useEffect(() => {
         fetchData();
+        fetchNextUpdateTime(); // Fetch next update time on component mount
+
     }, []);
+
+    useEffect(() => {
+        const calculateCountdown = () => {
+            if (!nextUpdateTime) return '';
+            const currentTime = new Date();
+            const updateTime = new Date(nextUpdateTime);
+            const difference = updateTime - currentTime;
+            if (difference < 0) {
+                // Optionally, fetch nextUpdateTime again if the countdown is over
+                return 'Refreshing soon...';
+            }
+            const minutes = Math.floor((difference / (1000 * 60)) % 60);
+            const seconds = Math.floor((difference / 1000) % 60);
+            return `${minutes} minutes and ${seconds} seconds`;
+        };
+
+        const interval = setInterval(() => {
+            const newCountdown = calculateCountdown();
+            setCountdown(newCountdown);
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [nextUpdateTime]);
+    // Use `countdown` in your component where needed
+    // For example, in your render method:
+    // <div className="text-white text-center text-xxs sm:text-sm mb-2">
+    //     Snapshots of treasury assets are taken every 45 minutes.<br/> Next refresh in {countdown}.
+    // </div>
+
 
     const prepareChartDataForSelectedAsset = () => {
         if (!chartData || !selectedAsset || !chartData[selectedAsset]) return null;
@@ -327,13 +343,14 @@ const Charts = () => {
                         {/* <div className="text-3xl font-bold text-white mb-4">Charts</div> */}
                         {/* Selector for chart options */}
                         <div className="border pt-3 pb-3 rounded-lg shadow-md ">
+                            <div className="text-white text-center text-xxs sm:text-sm mb-2">Snapshots of treasury assets are taken every 45 minutes. <br/> Next snapshot in {countdown}.</div>
                             <CustomSelect
                                 options={Object.keys(chartData)}
                                 selected={selectedAsset}
                                 onSelect={setSelectedAsset}
                             />
                             {selectedAsset && (
-                                <div className="mt-4 mb-4">
+                                <div className="mt-4 ">
                                     <CustomSelect
                                         options={['value', 'amount', 'price']}
                                         selected={chartOption}
