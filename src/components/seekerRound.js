@@ -444,7 +444,7 @@ const SeekerRound = () => {
                         {showIframe && (
                             <div className="iframe-container mt-4">
                                 <iframe 
-                                    src={`https://app.kado.money/?apiKey=${process.env.KADO_API_KEY}&product=BUY&network=noble&onPayCurrency=USD&onRevCurrency=USDC&offPayCurrency=USDC&offRevCurrency=USD&onPayAmount=${usdcAmount || "1000"}&onToAddress=${connectedWalletAddress.replace(/^migaloo/, "noble")}`} 
+                                    src={`https://app.kado.money/?apiKey=${process.env.KADO_API_KEY}&product=BUY&network=noble&onPayCurrency=USD&onRevCurrency=USDC&offPayCurrency=USDC&offRevCurrency=USD&onPayAmount=${usdcAmount ? usdcAmount === "1000" ? "1030" : usdcAmount : "1030"}&onToAddress=${connectedWalletAddress.replace(/^migaloo/, "noble")}`} 
                                     width="400" 
                                     height="600" 
                                     theme="dark"
