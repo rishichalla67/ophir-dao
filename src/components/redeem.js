@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { SigningStargateClient } from "@cosmjs/stargate";
 import WalletConnect from './walletConnect';
 
+const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 
 
 const Redeem = () => {
@@ -52,64 +53,66 @@ const Redeem = () => {
         return () => clearTimeout(debounceTimer); // Clear the timeout if the component unmounts or the value changes
     }, [ophirAmount]);
 
-    const connectWallet = async () => {
-        if (window.keplr) {
-            try {
-                await window.keplr.experimentalSuggestChain({
-                    chainId: "migaloo-1",
-                    chainName: "Migaloo",
-                    rpc: "https://rpc.cosmos.directory/migaloo",
-                    rest: "https://rest.cosmos.directory/migaloo",
-                    bip44: {
-                        coinType: 118,
-                    },
-                    bech32Config: {
-                        bech32PrefixAccAddr: "migaloo",
-                        bech32PrefixAccPub: "migaloopub",
-                        bech32PrefixValAddr: "migaloovaloper",
-                        bech32PrefixValPub: "migaloovaloperpub",
-                        bech32PrefixConsAddr: "migaloovalcons",
-                        bech32PrefixConsPub: "migaloovalconspub",
-                    },
-                    currencies: [{
-                        coinDenom: "WHALE",
-                        coinMinimalDenom: "uwhale",
-                        coinDecimals: 6,
-                        coinGeckoId: "white-whale",
-                    }],
-                    feeCurrencies: [{
-                        coinDenom: "WHALE",
-                        coinMinimalDenom: "uwhale",
-                        coinDecimals: 6,
-                        coinGeckoId: "white-whale",
-                    }],
-                    stakeCurrency: {
-                        coinDenom: "WHALE",
-                        coinMinimalDenom: "uatom",
-                        coinDecimals: 6,
-                        coinGeckoId: "white-whale",
-                    },
-                    gasPriceStep: {
-                        low: 0.75,
-                        average: 0.85,
-                        high: 1.5
-                    },
-                    features: ['stargate', 'ibc-transfer'],
-                });
-                const chainId = "migaloo-1"; // Make sure to use the correct chain ID for Migaloo
-                await window.keplr.enable(chainId);
-                const offlineSigner = window.keplr.getOfflineSigner(chainId);
-                const accounts = await offlineSigner.getAccounts();
-                console.log(accounts);
-                setConnectedWalletAddress(accounts[0].address);
-                
-            } catch (error) {
-                console.error("Error connecting to Keplr:", error);
-            }
-        } else {
-            alert("Please install Keplr extension");
-        }
+    const [codeId, setCodeId] = useState(null); // State variable to store the codeId
+    const getSigner = async () => {
+        const chainId = "narwhal-2"; // Replace with your actual chain ID
+        await window.leap.enable(chainId);
+        const offlineSigner = window.leap.getOfflineSigner(chainId);
+        return offlineSigner;
     };
+
+    // const handleUploadContract = async () => {
+    //     try {
+    //         const signer = await getSigner(); // Implement this function based on your wallet setup
+    //         const codeId = await uploadContract('../wasm/ophirtreasure.wasm', signer);
+    //         console.log('Upload successful, codeId:', codeId);
+    //         alert(`Contract uploaded successfully. Code ID: ${codeId}`);
+    //     } catch (error) {
+    //         console.error('Error uploading contract:', error);
+    //         alert('Error uploading contract. Check console for details.');
+    //     }
+    // };
+    
+    // const handleInstantiateContract = async () => {
+    //     try {
+    //         const signer = await getSigner();
+    //         const initMsg = {/* Your init message */};
+    //         const codeId = codeId; /* Retrieve your codeId from state or previous operation */
+    //         const contractAddress = await instantiateContract(codeId, initMsg, signer);
+    //         console.log('Instantiate successful, contractAddress:', contractAddress);
+    //         alert(`Contract instantiated successfully. Address: ${contractAddress}`);
+    //     } catch (error) {
+    //         console.error('Error instantiating contract:', error);
+    //         alert('Error instantiating contract. Check console for details.');
+    //     }
+    // };
+    
+    // const handleExecuteContract = async () => {
+    //     try {
+    //         const signer = await getSigner();
+    //         const contractAddress = /* Your contract address */;
+    //         const executeMsg = {/* Your execute message */};
+    //         const executeResult = await executeContract(contractAddress, executeMsg, signer);
+    //         console.log('Execute successful:', executeResult);
+    //         alert('Contract executed successfully. Check console for details.');
+    //     } catch (error) {
+    //         console.error('Error executing contract:', error);
+    //         alert('Error executing contract. Check console for details.');
+    //     }
+    // };
+    
+    // const handleQueryContract = async () => {
+    //     try {
+    //         const contractAddress = /* Your contract address */;
+    //         const queryMsg = {/* Your query message */};
+    //         const queryResult = await queryContract(contractAddress, queryMsg);
+    //         console.log('Query successful:', queryResult);
+    //         alert('Contract queried successfully. Check console for details.');
+    //     } catch (error) {
+    //         console.error('Error querying contract:', error);
+    //         alert('Error querying contract. Check console for details.');
+    //     }
+    // };
 
     const checkBalance = async (address) => {
         const baseUrl = "https://migaloo-lcd.erisprotocol.com"; // Replace with the actual REST API base URL for Migaloo
@@ -236,6 +239,11 @@ const Redeem = () => {
                                     </div>
                                 </div>
                             )}
+
+                            {/* <button onClick={handleUploadContract}>Upload Contract</button>
+                            <button onClick={handleInstantiateContract}>Instantiate Contract</button>
+                            <button onClick={handleExecuteContract}>Execute Contract</button>
+                            <button onClick={handleQueryContract}>Query Contract</button> */}
                         </div>
                     </div>
                 {/* <div className="flex flex-col items-center justify-center">

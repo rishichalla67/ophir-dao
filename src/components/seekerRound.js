@@ -26,7 +26,7 @@ const SeekerRound = () => {
     const [alertInfo, setAlertInfo] = useState({ open: false, message: '', severity: 'info' });
     const [twitterHandle, setTwitterHandle] = useState('');
     const [isLedgerConnected, setIsLedgerConnected] = useState(false);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [showIframe, setShowIframe] = useState(false);
     const [seekerRoundDetails, setSeekerRoundDetails] = useState(null);
 
     const handleConnectedWalletAddress = (address) => {
@@ -432,6 +432,27 @@ const SeekerRound = () => {
                                 "Send USDC to OPHIR DAO"
                             )}
                         </button>
+                            <div className="py-2 px-4 font-medium text-center send-button mt-4 cursor-pointer rounded text-white flex justify-center items-center" onClick={() => setShowIframe(!showIframe)}>
+                                {showIframe ? "Close" : "Add more USDC via"}
+                                <svg width="25" height="25" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="ml-2">
+                                    <path opacity="0.75" d="M26.3557 20.2044C27.2146 17.9076 27.4957 15.435 27.1745 13.004C26.5921 8.83417 24.363 5.63033 20.2119 3.35663C14.8984 0.446334 7.7202 1.47183 3.43434 5.75385C1.05482 8.13124 -0.387742 12.0739 1.52394 14.8419C2.9106 16.8472 5.58516 17.5742 7.15978 19.4347C9.12863 21.7611 8.97823 25.3517 10.9332 27.6896C12.6661 29.7617 15.7863 30.3262 18.3506 29.4765C20.4933 28.7655 24.3681 25.6312 26.3557 20.2044Z" fill="#5493F7"/>
+                                    <path opacity="0.8" d="M18.3514 29.4759C20.4939 28.7659 24.3686 25.6314 26.3563 20.2049C27.1987 17.9054 27.6576 15.6918 27.175 13.0044C25.5791 4.1285 14.7102 15.5431 12.8358 16.7019C9.13707 18.9878 8.11563 24.0011 10.7512 27.4595C10.812 27.5393 10.873 27.6157 10.934 27.6888C12.6667 29.7609 15.7869 30.3252 18.3514 29.4759Z" fill="#2043B5"/>
+                                    <path opacity="0.7" d="M21.7304 4.73239C19.4337 3.87355 16.961 3.59238 14.53 3.91362C10.3602 4.49602 7.15615 6.72514 4.88245 10.8762C1.97215 16.1897 2.99786 23.3679 7.27967 27.6538C9.65685 30.0333 13.5995 31.4759 16.3677 29.5642C18.373 28.1775 19.0998 25.5029 20.9605 23.9283C23.2869 21.9595 26.8775 22.1101 29.2155 20.1549C31.2876 18.422 31.8518 15.3018 31.0023 12.7375C30.2915 10.595 27.1572 6.72023 21.7304 4.73239Z" fill="#3573EC"/>
+                                    <path d="M16.4746 20.7192H18.721L15.8784 15.2973L20.801 10.8877H18.1664L13.5626 15.0338L14.4362 10.8877H12.5226L10.4426 20.7192H12.3562L12.9386 17.932L14.3669 16.6424L16.4746 20.7192Z" fill="white"/>
+                                </svg>
+                            </div>
+                        {showIframe && (
+                            <div className="iframe-container mt-4">
+                                <iframe 
+                                    src={`https://app.kado.money/?apiKey=${process.env.KADO_API_KEY}&product=BUY&network=noble&onPayCurrency=USD&onRevCurrency=USDC&offPayCurrency=USDC&offRevCurrency=USD&onPayAmount=${usdcAmount || "1000"}&onToAddress=${connectedWalletAddress.replace(/^migaloo/, "noble")}`} 
+                                    width="400" 
+                                    height="600" 
+                                    theme="dark"
+                                    style={{border: "0px"}}
+                                    title="Kado Money Iframe"
+                                ></iframe>
+                            </div>
+                        )}
                         <div className="text-xs mt-4 text-center">
                             <a href="https://daodao.zone/dao/migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu/treasury" target="_blank" rel="noopener noreferrer">Destination Address: {`${OPHIR_DAO_VAULT_ADDRESS.substring(0, 10)}...${OPHIR_DAO_VAULT_ADDRESS.substring(OPHIR_DAO_VAULT_ADDRESS.length - 4)}`}</a>
                             <button 

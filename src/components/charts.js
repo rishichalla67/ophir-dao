@@ -264,6 +264,7 @@ const Charts = () => {
             const difference = updateTime - currentTime;
             if (difference < 0) {
                 // Optionally, fetch nextUpdateTime again if the countdown is over
+                fetchNextUpdateTime();
                 return 'Refreshing soon...';
             }
             const minutes = Math.floor((difference / (1000 * 60)) % 60);
