@@ -20,6 +20,8 @@ const Redeem = () => {
     const [ophirPrices, setOphirPrices] = useState({});
     const [isLedgerConnected, setIsLedgerConnected] = useState(false);
     const [redeemContractQueryResponse, setRedeemContractQueryResponse] = useState({});
+    const [chainId, setChainId] = useState('migaloo-1');
+    const [rpc, setRPC] = useState('https://migaloo-rpc.polkachu.com/');
     const handleConnectedWalletAddress = (address) => {
         setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
     };
@@ -63,7 +65,21 @@ const Redeem = () => {
 
     const [codeId, setCodeId] = useState(null); // State variable to store the codeId
     const [signer, setSigner] = useState(null); // State variable to store the signer
-    const chainId = "migaloo-1"; // Replace with your actual chain ID
+    // const chainId = "migaloo-1"; // Replace with your actual chain ID
+
+    const chainIdToRPC = {
+        "migaloo-1": "https://migaloo-rpc.polkachu.com/",
+        "narwhal-2": "https://migaloo-testnet-rpc.polkachu.com/",
+    };
+    
+    const handleNetworkChange = (e) => {
+        const selectedChainId = e.target.value;
+        const selectedRPC = chainIdToRPC[selectedChainId];
+        setChainId(selectedChainId);
+        // Assuming you have a state setter for RPC URL
+        setRPC(selectedRPC);
+    };
+
     const getSigner = async () => {
         await window.leap.enable(chainId);
         const offlineSigner = window.leap.getOfflineSigner(chainId);
@@ -188,38 +204,12 @@ const Redeem = () => {
             throw error;
         }
     };
-
-    const handleInstantiateContract = async () => {
-        try {
-            if (!codeId) {
-                alert("Code ID is not set. Please upload the contract first.");
-                return;
-            }
-            const signer = await getSigner();
-            if (!signer) {
-                alert("Signer is not available. Please connect your wallet.");
-                return;
-            }
-            const initMsg = {
-                dao_address: DAO_ADDRESS, // Replace with your actual DAO address
-                redeemable_denom: OPHIR_DENOM, // Replace with your actual redeemable denom
-            };            
-            const contractAddress = await instantiateContract(codeId, initMsg, signer);
-            console.log('Instantiate successful, contractAddress:', contractAddress);
-            alert(`Contract instantiated successfully. Address: ${contractAddress}`);
-        } catch (error) {
-            console.error('Error instantiating contract:', error);
-            alert('Error instantiating contract. Check console for details.');
-        }
-    };
     
     const handleQueryContract = async () => {
         try {
             const queryMsg = {
                 get_asset_values: {}
             };
-            let vestingStart;
-            let vestingEnd;
             const formattedJsonString = JSON.stringify(queryMsg, null, 1); // This adds spaces in the JSON string
             const encodedQuery = Buffer.from(formattedJsonString).toString('base64');
             const queryUrl = `https://ww-migaloo-rest.polkachu.com/cosmwasm/wasm/v1/contract/${CONTRACT_ADDRESS}/smart/${encodedQuery}`;
@@ -228,43 +218,11 @@ const Redeem = () => {
             const queryResponse = await response.json();
             setRedeemContractQueryResponse(queryResponse);
             console.log('Query response:', queryResponse);
-            // if (queryResponse.error) {
-            //     throw new Error(`Query failed: ${queryResponse.error}`);
-            // }
-            // vestingStart = queryResponse.vesting_start;
-            // vestingEnd = queryResponse.vesting_end;
-            // console.log(`Vesting starts at: ${vestingStart}, and ends at: ${vestingEnd}`);
-
-            // // Assuming getSigner and contractAddress are correctly defined elsewhere
-            // const signer = await getSigner();
-    
-            // if (!signer) {
-            //     throw new Error("Signer is not available");
-            // }
-    
-            // const client = await CosmWasmClient.connect(migalooRPC);
-            // const queryResult = await client.queryContractSmart(CONTRACT_ADDRESS, queryMsg);
-    
-            // console.log('Query successful:', queryResult);
-            // alert('Contract queried successfully. Check console for details.');
         } catch (error) {
             console.error('Error querying contract:', error);
             alert(`Error querying contract. ${error.message}`);
         }
     };
-    
-    // const handleQueryContract = async () => {
-    //     try {
-    //         const contractAddress = /* Your contract address */;
-    //         const queryMsg = {/* Your query message */};
-    //         const queryResult = await queryContract(contractAddress, queryMsg);
-    //         console.log('Query successful:', queryResult);
-    //         alert('Contract queried successfully. Check console for details.');
-    //     } catch (error) {
-    //         console.error('Error querying contract:', error);
-    //         alert('Error querying contract. Check console for details.');
-    //     }
-    // };
 
     const checkBalance = async (address) => {
         const baseUrl = "https://migaloo-lcd.erisprotocol.com"; // Replace with the actual REST API base URL for Migaloo
@@ -328,13 +286,6 @@ const Redeem = () => {
         }
     };
     
-    const disconnectWallet = () => {
-        setConnectedWalletAddress(''); // Reset the connected wallet address
-        // Additionally, you might want to reset other relevant states
-        setOphirBalance(0); // Resetting the balance to 0 or initial state
-    };
-    
-
     return (
         <div className="bg-black mt-4 text-white min-h-screen flex flex-col items-center" style={{ paddingTop: '10dvh' }}>
             <WalletConnect 
@@ -393,8 +344,20 @@ const Redeem = () => {
                             )}
                             {connectedWalletAddress && walletAddresses.includes(connectedWalletAddress) &&
                                 <>
+                                    <div className="flex items-center justify-center mt-4">
+                                        
+                                    </div>
                                     <div className="mt-10"> 
-                                        <h3 className="text-lg text-yellow-400 mb-4 text-center">WASM Upload</h3>
+                                    <label htmlFor="networkToggle" className="mr-2 text-white">Select Network:</label>
+                                        <select
+                                            id="networkToggle"
+                                            className="bg-slate-800 text-white border border-yellow-400 rounded p-2"
+                                            onChange={handleNetworkChange}
+                                        >
+                                            <option value="migaloo-1">Mainnet (migaloo-1)</option>
+                                            <option value="narwhal-2">Testnet (narwhal-2)</option>
+                                        </select>
+                                        <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">WASM Upload</h3>
                                         <div className="flex justify-center w-full">
                                             <input className="text-center" type="file" id="wasmFile" name="wasmFile" accept=".wasm" onChange={handleFileChange} />
                                         </div>
@@ -413,8 +376,6 @@ const Redeem = () => {
                                     </pre>
                                 </div>
                             )}
-                            {/* <button onClick={handleExecuteContract}>Execute Contract</button>
-                            <button onClick={handleQueryContract}>Query Contract</button> */}
                         </div>
                     </div>
                 {/* <div className="flex flex-col items-center justify-center">
