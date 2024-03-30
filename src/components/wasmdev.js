@@ -573,7 +573,7 @@ const WasmDev = () => {
                 </div>
                 {Object.keys(redeemContractQueryResponse).length !== 0 && (
                     <div className="w-full bg-slate-800 rounded-lg p-6">
-                    <h3 className="text-xl text-yellow-400 mb-4">Redeem Contract Query Response:</h3>
+                    <h3 className="text-xl text-yellow-400 mb-4">Contract Query Response:</h3>
                     <pre className="text-white text-sm overflow-auto whitespace-pre-wrap">
                         {JSON.stringify(redeemContractQueryResponse, null, 2)}
                     </pre>
