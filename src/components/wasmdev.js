@@ -92,16 +92,16 @@ const WasmDev = () => {
     };
 
     const handleNetworkChange = (event) => {
-        // const isTestnet = event.target.checked;
-        // const selectedChainId = isTestnet ? "narwhal-2" : "migaloo-1";
-        // const selectedRPC = chainIdToRPC[selectedChainId];
-        // setChainId(selectedChainId);
-        // setRPC(selectedRPC);
-        // if (selectedChainId === "narwhal-2") {
-        //     setContractAddress(CONTRACT_ADDRESS_TESTNET);
-        // } else if (selectedChainId === "migaloo-1") {
-        //     setContractAddress(CONTRACT_ADDRESS);
-        // }
+        const isTestnet = event.target.checked;
+        const selectedChainId = isTestnet ? "narwhal-2" : "migaloo-1";
+        const selectedRPC = chainIdToRPC[selectedChainId];
+        setChainId(selectedChainId);
+        setRPC(selectedRPC);
+        if (selectedChainId === "narwhal-2") {
+            setContractAddress(CONTRACT_ADDRESS_TESTNET);
+        } else if (selectedChainId === "migaloo-1") {
+            setContractAddress(CONTRACT_ADDRESS);
+        }
     };
 
     
@@ -111,6 +111,9 @@ const WasmDev = () => {
         return offlineSigner;
     };
     const uploadContract = async (file, signer) => {
+        if (!connectedWalletAddress) {
+            showAlert("Wallet not connected. Please connect your wallet before uploading a contract.", 'error');
+        }
         setIsUploadingContract(true)
         try {
             // Fetch the WASM file from the provided URL
