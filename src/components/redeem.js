@@ -6,10 +6,13 @@ import WalletConnect from './walletConnect';
 import walletAddresses from '../auth/security.json';
 
 const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
-const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com/';
+const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
 const DAO_ADDRESS = "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc";
 const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
-const CONTRACT_ADDRESS = 'migaloo1hsrped09ncz3kyh3hcmws9cnhdexm3cdcmh4pm5fdkn8dc9fwc9s73f3f0';
+const DAO_ADDRESS_TESTNET = "migaloo1wdpwwzljkmw87323jkha700lypkpd37jgxj25dwlflnnz8w6updsukf85v";
+const OPHIR_DENOM_TESNET = "factory/migaloo1tmxrk9cnmqmt7vmwdl2mqgtcp5kezqahvdmw6lr5nya66ckkzhns9qazqg/ophirdao";
+const CONTRACT_ADDRESS = 'migaloo1rm07cfruwlysg8pwp00lumeu9u5ygy7wse3ewka3ac0w36xf5erqye26mq';
+const CONTRACT_ADDRESS_TESTNET = 'migaloo1zqfgjce3s86dsezqfjk98w5q3uuc73ufgwu00kvput87sufhclcqz7emn8';
 
 
 const Redeem = () => {
@@ -20,7 +23,9 @@ const Redeem = () => {
     const [ophirPrices, setOphirPrices] = useState({});
     const [isLedgerConnected, setIsLedgerConnected] = useState(false);
     const [redeemContractQueryResponse, setRedeemContractQueryResponse] = useState({});
-    const [chainId, setChainId] = useState('migaloo-1');
+    const [queryType, setQueryType] = useState('');
+    const [chainId, setChainId] = useState('narwhal-2');
+    const [contractAddress, setContractAddress] = useState(CONTRACT_ADDRESS_TESTNET);
     const [rpc, setRPC] = useState('https://migaloo-rpc.polkachu.com/');
     const handleConnectedWalletAddress = (address) => {
         setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
@@ -68,8 +73,8 @@ const Redeem = () => {
     // const chainId = "migaloo-1"; // Replace with your actual chain ID
 
     const chainIdToRPC = {
-        "migaloo-1": "https://migaloo-rpc.polkachu.com/",
-        "narwhal-2": "https://migaloo-testnet-rpc.polkachu.com/",
+        "migaloo-1": migalooRPC,
+        "narwhal-2": migalooTestnetRPC,
     };
     
     const handleNetworkChange = (e) => {
@@ -78,11 +83,21 @@ const Redeem = () => {
         setChainId(selectedChainId);
         // Assuming you have a state setter for RPC URL
         setRPC(selectedRPC);
+        if (selectedChainId === "narwhal-2") {
+            setContractAddress(CONTRACT_ADDRESS_TESTNET);
+        }
+        else if (selectedChainId === "migaloo-1") {
+            setContractAddress(CONTRACT_ADDRESS);
+        }
     };
 
+    const initMsg = {
+        dao_address: chainId === 'narwhal-2' ? DAO_ADDRESS_TESTNET : DAO_ADDRESS, // Use DAO_ADDRESS_TESTNET if chainId is 'narwhal-2'
+        redeemable_denom: chainId === 'narwhal-2' ? OPHIR_DENOM_TESNET : OPHIR_DENOM, // Replace with your actual redeemable denom
+    }; 
     const getSigner = async () => {
-        await window.leap.enable(chainId);
-        const offlineSigner = window.leap.getOfflineSigner(chainId);
+        await window.keplr.enable(chainId);
+        const offlineSigner = window.keplr.getOfflineSigner(chainId);
         return offlineSigner;
     };
     const uploadContract = async (file, signer) => {
@@ -102,7 +117,7 @@ const Redeem = () => {
     
             // Create a signing client using the offline signer
             const signingClient = await SigningCosmWasmClient.connectWithSigner(
-                migalooRPC,
+                rpc,
                 signer
             );
     
@@ -130,11 +145,8 @@ const Redeem = () => {
             // Extract the code ID from the result
             const codeId = result.logs[0].events.find((event) => event.type === "store_code").attributes.find((attr) => attr.key === "code_id").value;
             setCodeId(codeId);
-            const initMsg = {
-                dao_address: DAO_ADDRESS, // Replace with your actual DAO address
-                redeemable_denom: OPHIR_DENOM, // Replace with your actual redeemable denom
-            };  
-            instantiateContract(Number(codeId), initMsg, signer)
+             
+            instantiateContract(Number(codeId), signer)
             return codeId;
         } catch (error) {
             console.error("Error in uploadContract:", error);
@@ -156,7 +168,7 @@ const Redeem = () => {
         }
     };
     
-    const instantiateContract = async (codeId, initMsg, signer) => {
+    const instantiateContract = async (codeId, signer) => {
         try {
             // Ensure the signer is available
             if (!signer) {
@@ -164,8 +176,8 @@ const Redeem = () => {
             }
     
             // Create a signing client using the signer
-            const client = await SigningCosmWasmClient.connectWithSigner(migalooRPC, signer);
-    
+            
+            const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
             const admin = undefined; // Set admin address if needed, else undefined
             const label = `MyContract-${Math.random()}`; // Unique label for the contract instance
             const initFunds = []; // Initial funds to be sent to the contract, if any
@@ -207,13 +219,29 @@ const Redeem = () => {
     
     const handleQueryContract = async () => {
         try {
-            const queryMsg = {
-                get_asset_values: {}
-            };
+            let queryMsg;
+            switch (queryType) {
+                case 'GetConfig':
+                    queryMsg = { get_config: {} };
+                    break;
+                case 'GetAssetValues':
+                    queryMsg = { get_asset_values: {} };
+                    break;
+                case 'GetRedemptions':
+                    queryMsg = {
+                        get_redemptions: {
+                            sender: connectedWalletAddress,
+                        }
+                    };
+                    break;
+                default:
+                    queryMsg = {};
+                    break;
+            }
             const formattedJsonString = JSON.stringify(queryMsg, null, 1); // This adds spaces in the JSON string
             const encodedQuery = Buffer.from(formattedJsonString).toString('base64');
-            const queryUrl = `https://ww-migaloo-rest.polkachu.com/cosmwasm/wasm/v1/contract/${CONTRACT_ADDRESS}/smart/${encodedQuery}`;
-            
+            let baseURL = chainId === 'narwhal-2' ? 'https://migaloo-testnet-api.polkachu.com' : 'https://migaloo-api.polkachu.com';
+            const queryUrl = `${baseURL}/cosmwasm/wasm/v1/contract/${contractAddress}/smart/${encodedQuery}`;
             const response = await fetch(queryUrl);
             const queryResponse = await response.json();
             setRedeemContractQueryResponse(queryResponse);
@@ -224,13 +252,33 @@ const Redeem = () => {
         }
     };
 
+    const handleInstantiateContract = async () => {
+        try {
+            if (!codeId) {
+                alert("Code ID is not set. Please upload the contract first.");
+                return;
+            }
+            const signer = await getSigner();
+            if (!signer) {
+                alert("Signer is not available. Please connect your wallet.");
+                return;
+            }
+            const contractAddress = await instantiateContract(codeId, signer);
+            console.log('Instantiate successful, contractAddress:', contractAddress);
+            alert(`Contract instantiated successfully. Address: ${contractAddress}`);
+        } catch (error) {
+            console.error('Error instantiating contract:', error);
+            alert('Error instantiating contract. Check console for details.');
+        }
+    };
+
     const checkBalance = async (address) => {
-        const baseUrl = "https://migaloo-lcd.erisprotocol.com"; // Replace with the actual REST API base URL for Migaloo
+        const baseUrl = "https://migaloo-lcd.erisprotocol.com"; 
         const response = await fetch(`${baseUrl}/cosmos/bank/v1beta1/balances/${address}`);
         const data = await response.json();
     
         // Assuming the API returns a list of balance objects, each with denom and amount
-        const ophirBalance = data.balances.find(balance => balance.denom === "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir");
+        const ophirBalance = data.balances.find(balance => balance.denom === OPHIR_DENOM);
     
         if (ophirBalance) {
             console.log(`Ophir Balance: ${ophirBalance.amount}`);
@@ -255,7 +303,7 @@ const Redeem = () => {
             const accountAddress = accounts[0].address;
 
             const amount = {
-                denom: "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir",
+                denom: OPHIR_DENOM,
                 amount: String(parseInt(ophirAmount) * 1000000),
             };
 
@@ -263,7 +311,7 @@ const Redeem = () => {
                 typeUrl: "/cosmos.bank.v1beta1.MsgSend",
                 value: {
                     fromAddress: accountAddress,
-                    toAddress: "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc", // Treasury Address
+                    toAddress: DAO_ADDRESS, // Treasury Address
                     amount: [amount],
                 },
             };
@@ -276,7 +324,7 @@ const Redeem = () => {
                 gas: "200000",
             };
 
-            const client = await SigningStargateClient.connectWithSigner("https://rpc.cosmos.directory/migaloo", offlineSigner);
+            const client = await SigningStargateClient.connectWithSigner(rpc, offlineSigner);
             const txHash = await client.signAndBroadcast(accountAddress, [msgSend], fee, "Withdraw OPHIR");
             console.log("Transaction Hash:", txHash);
             alert("Withdrawal successful!");
@@ -294,9 +342,11 @@ const Redeem = () => {
             />
                 <div className="w-full max-w-4xl flex flex-col items-center">
                     <div className="text-xl sm:text-3xl font-bold mb-2">Ophir Balance: {ophirBalance}</div>
-                    <div className="text-md sm:text-xl mb-2">
-                                        Redemption Price: ${redemptionValues.redemptionPricePerOPHIR ? redemptionValues.redemptionPricePerOPHIR.toFixed(7) : '0.00'}
-                                    </div>
+                    {redemptionValues.redemptionPricePerOPHIR && (
+                        <div className="text-md sm:text-xl mb-2">
+                            Redemption Price: ${redemptionValues.redemptionPricePerOPHIR.toFixed(7)}
+                        </div>
+                    )}
                         <div className="mb-4 items-center flex flex-col">
                             <input 
                                 id="ophirAmount" 
@@ -352,6 +402,7 @@ const Redeem = () => {
                                         <select
                                             id="networkToggle"
                                             className="bg-slate-800 text-white border border-yellow-400 rounded p-2"
+                                            value={chainId}
                                             onChange={handleNetworkChange}
                                         >
                                             <option value="migaloo-1">Mainnet (migaloo-1)</option>
@@ -361,12 +412,56 @@ const Redeem = () => {
                                         <div className="flex justify-center w-full">
                                             <input className="text-center" type="file" id="wasmFile" name="wasmFile" accept=".wasm" onChange={handleFileChange} />
                                         </div>
-                                        {/* <button onClick={handleInstantiateContract}>Instantiate Contract</button> */}
-                                        
+                                        <hr className="my-8 border-white w-full" />
+
+                                        <div className="flex justify-center">
+                                            <input 
+                                                id="codeId" 
+                                                type="number" 
+                                                className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
+                                                placeholder="Enter Code ID" 
+                                                value={codeId}
+                                                onChange={(e) => setCodeId(Number(e.target.value))}
+                                            />
+                                        </div>
+                                        <div className="pt-2 flex justify-center">
+                                            <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleInstantiateContract}>Instantiate Contract</button>
+                                        </div>
                                     </div>
-                                    <hr className="my-8 border-white w-1/2" />
-                                    <button onClick={handleQueryContract}>Query Contract</button>
-                                </>
+                                    <hr className="my-8 border-white w-full" />
+                                    <div className="my-4 ">
+                                        <div className="flex justify-center my-4">
+                                            <input 
+                                                id="contractAddress" 
+                                                type="text" 
+                                                className="bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
+                                                placeholder="Enter Contract Address" 
+                                                value={contractAddress}
+                                                onChange={(e) => {
+                                                    const value = e.target.value;
+                                                    // Regex pattern to match the structure starting with "migaloo" followed by 39 alphanumeric characters
+                                                    const pattern = /^migaloo[a-z0-9]{39}$/;
+                                                    if (pattern.test(value) || value === "") {
+                                                        setContractAddress(value);
+                                                    } else {
+                                                        // Optionally, provide feedback to the user that the input is invalid
+                                                        console.log("Invalid contract address format.");
+                                                    }
+                                                }}
+                                            />
+                                        </div>
+                                        <select
+                                            id="querySelect"
+                                            className="bg-slate-800 text-white border border-yellow-400 rounded p-2"
+                                            onChange={(e) => setQueryType(e.target.value)}
+                                        >
+                                            <option value="">Select a Query</option>
+                                            <option value="GetConfig">Get Config</option>
+                                            <option value="GetAssetValues">Get Asset Values</option>
+                                            <option value="GetRedemptions">Get Redemptions</option>
+                                        </select>
+                                    </div>
+                                    <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleQueryContract}>Query Contract</button>                                </>
                             }
                             {Object.keys(redeemContractQueryResponse).length !== 0 && (
                                 <div className="w-1/2 mt-4 p-4 bg-slate-700 rounded">
