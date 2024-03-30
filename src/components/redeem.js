@@ -209,7 +209,7 @@ const Redeem = () => {
     
             // Extract the contract address from the instantiate response
             const contractAddress = instantiateResponse.contractAddress;
-    
+            setContractAddress(contractAddress);
             return contractAddress;
         } catch (error) {
             console.error("Error in instantiateContract:", error);
