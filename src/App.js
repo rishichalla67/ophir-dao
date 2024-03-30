@@ -10,6 +10,7 @@ import Nav from './components/nav';
 import AnalyticsDashboard from "./components/analyticsDashboard";
 import Redeem from "./components/redeem";
 import SeekerRound from "./components/seekerRound";
+import WasmDev from "./components/wasmdev";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/analytics" element={<AnalyticsDashboard />} /> 
           <Route path="10239457123823985" element={<Redeem />} />
           <Route path="seekers" element={<SeekerRound />} />
+          <Route path="wasmdev" element={<WasmDev />} />
         </Routes>
     </Router>
   );

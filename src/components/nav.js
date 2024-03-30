@@ -4,6 +4,7 @@ import "../App.css"
 const Nav = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isBuyMenuOpen, setIsBuyMenuOpen] = useState(false);
+  const [isDevMenuOpen, setIsDevMenuOpen] = useState(false);
 
   return (
     <header className="nav-color text-white w-full fixed top-0 left-0 z-50">
@@ -92,6 +93,30 @@ const Nav = () => {
                   className="w-6 h-6 mr-2"
                 />
                 Migaloo
+              </a>
+            </div>
+          </div>
+          <div className="text-white text-lg py-2 rounded group cursor-pointer">
+            <div onClick={() => setIsDevMenuOpen(!isDevMenuOpen)} className="flex justify-between items-center">
+              Dev Tools
+              <svg
+                className="w-4 h-4 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d={isBuyMenuOpen ? 'M19 9l-7 7-7-7' : 'M9 5l7 7-7 7'}></path>
+              </svg>
+            </div>
+            <div className={`nav-color rounded-md mt-2 ${isDevMenuOpen ? 'block' : 'hidden'}`}>
+              <a href="/wasmdev" className="text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center" rel="noopener noreferrer">
+                <img
+                  src="https://avatars.githubusercontent.com/u/52079682?s=48&v=4"
+                  alt="Cosmowasm"
+                  className="w-6 h-6 mr-2"
+                />
+                Migaloo WASM
               </a>
             </div>
           </div>

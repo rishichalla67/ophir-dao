@@ -429,200 +429,202 @@ const Redeem = () => {
     
     return (
         <div className="bg-black mt-4 text-white min-h-screen flex flex-col items-center" style={{ paddingTop: '10dvh' }}>
-            <WalletConnect 
-                handleConnectedWalletAddress={handleConnectedWalletAddress} 
-                handleLedgerConnectionBool={handleLedgerConnection}
-            />
-                <div className="w-full max-w-4xl flex flex-col items-center">
-                    <div className="text-xl sm:text-3xl font-bold mb-2">Ophir Balance: {ophirBalance}</div>
-                        {redemptionValues.redemptionPricePerOPHIR && (
-                            <div className="text-md sm:text-xl mb-2">
-                                Redemption Price: ${redemptionValues.redemptionPricePerOPHIR.toFixed(7)}
-                            </div>
-                        )}
-                        <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
-                            anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-                            {alertInfo.htmlContent ? (
-                                <SnackbarContent
-                                    style={{color: 'black', backgroundColor: alertInfo.severity === 'error' ? '#ffcccc' : '#ccffcc' }} // Adjusted colors to be less harsh
-                                    message={<span dangerouslySetInnerHTML={{ __html: alertInfo.htmlContent }} />}
-                                />
-                            ) : (
-                                <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>
-                                    {alertInfo.message}
-                                </Alert>
-                            )}
-                        </Snackbar>
-                        <div className="mb-4 items-center flex flex-col">
-                            <input 
-                                id="ophirAmount" 
-                                type="number" 
-                                className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
-                                placeholder="Enter OPHIR amount" 
-                                value={ophirAmount}
-                                onChange={(e) => setOphirAmount(Number(e.target.value))}
+            <div className="absolute top-14 right-0 m-4 mr-2 sm:mr-4">
+                <WalletConnect 
+                    handleConnectedWalletAddress={handleConnectedWalletAddress} 
+                    handleLedgerConnectionBool={handleLedgerConnection}
+                />
+            </div>
+            <div className="w-full max-w-4xl flex flex-col items-center">
+                <div className="text-xl sm:text-3xl font-bold mb-2">Ophir Balance: {ophirBalance}</div>
+                    {redemptionValues.redemptionPricePerOPHIR && (
+                        <div className="text-md sm:text-xl mb-2">
+                            Redemption Price: ${redemptionValues.redemptionPricePerOPHIR.toFixed(7)}
+                        </div>
+                    )}
+                    <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+                        {alertInfo.htmlContent ? (
+                            <SnackbarContent
+                                style={{color: 'black', backgroundColor: alertInfo.severity === 'error' ? '#ffcccc' : '#ccffcc' }} // Adjusted colors to be less harsh
+                                message={<span dangerouslySetInnerHTML={{ __html: alertInfo.htmlContent }} />}
                             />
-                            {ophirAmount && (
-                                <div className="mt-4 overflow-x-auto">
-                                    <p className="text-xl mb-2 items-center flex flex-col">Assets to be redeemed:</p>
-                                    <table className="table-auto w-full">
-                                        <thead>
-                                            <tr className="text-left">
-                                                <th className="px-4 py-2">Asset</th>
-                                                <th className="px-4 py-2">Amount</th>
-                                                <th className="px-4 py-2">Value</th>
+                        ) : (
+                            <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>
+                                {alertInfo.message}
+                            </Alert>
+                        )}
+                    </Snackbar>
+                    <div className="mb-4 items-center flex flex-col">
+                        <input 
+                            id="ophirAmount" 
+                            type="number" 
+                            className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
+                            placeholder="Enter OPHIR amount" 
+                            value={ophirAmount}
+                            onChange={(e) => setOphirAmount(Number(e.target.value))}
+                        />
+                        {ophirAmount && (
+                            <div className="mt-4 overflow-x-auto">
+                                <p className="text-xl mb-2 items-center flex flex-col">Assets to be redeemed:</p>
+                                <table className="table-auto w-full">
+                                    <thead>
+                                        <tr className="text-left">
+                                            <th className="px-4 py-2">Asset</th>
+                                            <th className="px-4 py-2">Amount</th>
+                                            <th className="px-4 py-2">Value</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    {Object.entries(redemptionValues)
+                                        .filter(([key]) => !["redemptionPricePerOPHIR", "totalRedemptionValue", "calculatedAt"].includes(key))
+                                        .map(([asset, amount]) => {
+                                            const price = ophirPrices[asset] || 0; // Get the price of the asset, default to 0 if not found
+                                            const value = amount * price; // Calculate the value by multiplying the amount by the price
+                                            return { asset, amount, value }; // Return an object with asset, amount, and value
+                                        })
+                                        .filter(({ value }) => value > 0.01) // Filter out any values that are 0.01
+                                        .sort((a, b) => b.value - a.value) // Sort by value in descending order
+                                        .map(({ asset, amount, value }) => (
+                                            <tr key={asset} className="bg-black">
+                                                <td className="border px-4 py-2 text-sm sm:text-base">{asset}</td>
+                                                <td className="border px-4 py-2 text-sm sm:text-base">{amount.toFixed(6)}</td>
+                                                <td className="border px-4 py-2 text-sm sm:text-base">${value.toFixed(2)}</td> {/* Display the value with 2 decimal places */}
                                             </tr>
-                                        </thead>
-                                        <tbody>
-                                        {Object.entries(redemptionValues)
-                                            .filter(([key]) => !["redemptionPricePerOPHIR", "totalRedemptionValue", "calculatedAt"].includes(key))
-                                            .map(([asset, amount]) => {
-                                                const price = ophirPrices[asset] || 0; // Get the price of the asset, default to 0 if not found
-                                                const value = amount * price; // Calculate the value by multiplying the amount by the price
-                                                return { asset, amount, value }; // Return an object with asset, amount, and value
-                                            })
-                                            .filter(({ value }) => value > 0.01) // Filter out any values that are 0.01
-                                            .sort((a, b) => b.value - a.value) // Sort by value in descending order
-                                            .map(({ asset, amount, value }) => (
-                                                <tr key={asset} className="bg-black">
-                                                    <td className="border px-4 py-2 text-sm sm:text-base">{asset}</td>
-                                                    <td className="border px-4 py-2 text-sm sm:text-base">{amount.toFixed(6)}</td>
-                                                    <td className="border px-4 py-2 text-sm sm:text-base">${value.toFixed(2)}</td> {/* Display the value with 2 decimal places */}
-                                                </tr>
-                                            ))
-                                        }
-                                        </tbody>
-                                    </table>
-                                    <div className="text-center mt-4 text-sm sm:text-base">
-                                        Total Value of Redeemed Assets: ${redemptionValues.totalRedemptionValue ? redemptionValues.totalRedemptionValue.toFixed(2) : '0.00'}
-                                    </div>
+                                        ))
+                                    }
+                                    </tbody>
+                                </table>
+                                <div className="text-center mt-4 text-sm sm:text-base">
+                                    Total Value of Redeemed Assets: ${redemptionValues.totalRedemptionValue ? redemptionValues.totalRedemptionValue.toFixed(2) : '0.00'}
+                                </div>
 
+                                <div className="flex justify-center w-full">
+                                    <button className="mt-5 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={executeContractMessage}>Redeem OPHIR</button>
+                                </div>         
+                                                        
+                            </div>
+                            
+                        )}
+                        {connectedWalletAddress && walletAddresses.includes(connectedWalletAddress) &&
+                            <>
+                                <hr className="mt-2 border-white w-full" />
+
+                                <div className="flex items-center justify-center">
+                                    
+                                </div>
+                                <div className="mt-10 w-full flex flex-col items-center"> 
+                                    <label htmlFor="networkToggle" className="mr-2 text-white">Select Network:</label>
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={chainId === "narwhal-2"}
+                                                onChange={handleNetworkChange}
+                                                name="networkToggle"
+                                                color="primary"
+                                            />
+                                        }
+                                        label={chainId === "narwhal-2" ? "Testnet (narwhal-2)" : "Mainnet (migaloo-1)"}
+                                    />
+
+                                    <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">WASM Upload</h3>
                                     <div className="flex justify-center w-full">
-                                        <button className="mt-5 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={executeContractMessage}>Redeem OPHIR</button>
-                                    </div>         
-                                                           
+                                        <input className="text-center" type="file" id="wasmFile" name="wasmFile" accept=".wasm" onChange={handleFileChange} />
+                                    </div>
+                                    <hr className="my-2 border-white w-full" />
+                                    {!isUploadingContract && (
+                                        <>
+                                            <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">WASM Instatiation</h3>
+
+                                            <div className="flex justify-center w-full">
+                                                <input 
+                                                    id="codeId" 
+                                                    type="number" 
+                                                    className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
+                                                    placeholder="Enter Code ID" 
+                                                    value={codeId}
+                                                    onChange={(e) => setCodeId(Number(e.target.value))}
+                                                />
+                                            </div>
+                                            <div className="pt-2 flex justify-center w-full">
+                                                <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleInstantiateContract}>Instantiate Contract</button>
+                                            </div>
+                                            <hr className="my- border-white w-full" />
+                                        </>
+                                    )}
                                 </div>
                                 
-                            )}
-                            {connectedWalletAddress && walletAddresses.includes(connectedWalletAddress) &&
-                                <>
-                                    <hr className="mt-2 border-white w-full" />
+                                <div className="flex flex-col items-center justify-center w-full">
+                                    <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">Contract Interactions</h3>
 
-                                    <div className="flex items-center justify-center">
+                                    <div className="flex justify-center my-4 w-full px-4">
                                         
-                                    </div>
-                                    <div className="mt-10 w-full flex flex-col items-center"> 
-                                        <label htmlFor="networkToggle" className="mr-2 text-white">Select Network:</label>
-                                        <FormControlLabel
-                                            control={
-                                                <Switch
-                                                    checked={chainId === "narwhal-2"}
-                                                    onChange={handleNetworkChange}
-                                                    name="networkToggle"
-                                                    color="primary"
-                                                />
-                                            }
-                                            label={chainId === "narwhal-2" ? "Testnet (narwhal-2)" : "Mainnet (migaloo-1)"}
+                                        <input 
+                                            id="contractAddress" 
+                                            type="text" 
+                                            className="w-full bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
+                                            placeholder="Enter Contract Address" 
+                                            value={contractAddress}
+                                            onChange={(e) => {
+                                                const value = e.target.value;
+                                                // Regex pattern to match the structure starting with "migaloo" followed by 39 alphanumeric characters
+                                                const pattern = /^migaloo[a-z0-9]{39}$/;
+                                                if (pattern.test(value) || value === "") {
+                                                    setContractAddress(value);
+                                                } else {
+                                                    showAlert("Invalid contract address format.", 'error');
+                                                }
+                                            }}
                                         />
-
-                                        <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">WASM Upload</h3>
-                                        <div className="flex justify-center w-full">
-                                            <input className="text-center" type="file" id="wasmFile" name="wasmFile" accept=".wasm" onChange={handleFileChange} />
-                                        </div>
-                                        <hr className="my-2 border-white w-full" />
-                                        {!isUploadingContract && (
-                                            <>
-                                                <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">WASM Instatiation</h3>
-
-                                                <div className="flex justify-center w-full">
-                                                    <input 
-                                                        id="codeId" 
-                                                        type="number" 
-                                                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
-                                                        placeholder="Enter Code ID" 
-                                                        value={codeId}
-                                                        onChange={(e) => setCodeId(Number(e.target.value))}
-                                                    />
-                                                </div>
-                                                <div className="pt-2 flex justify-center w-full">
-                                                    <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleInstantiateContract}>Instantiate Contract</button>
-                                                </div>
-                                                <hr className="my- border-white w-full" />
-                                            </>
-                                        )}
                                     </div>
-                                    
-                                    <div className="flex flex-col items-center justify-center w-full">
-                                        <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">Contract Interactions</h3>
-
-                                        <div className="flex justify-center my-4 w-full px-4">
-                                            
-                                            <input 
-                                                id="contractAddress" 
-                                                type="text" 
-                                                className="w-full bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
-                                                placeholder="Enter Contract Address" 
-                                                value={contractAddress}
+                                    <div className="w-full mb-4">
+                                            <textarea
+                                                id="jsonQuery"
+                                                value={editableQueryMessage}
+                                                className={`w-full h-32 bg-slate-800 text-white rounded p-2 ${jsonQueryValid ? (queryMessage === '' ? 'border border-yellow-400' : 'border border-green-400') : 'border border-red-500'}`} // Dynamically change the border color
+                                                placeholder='Enter JSON Query'
                                                 onChange={(e) => {
-                                                    const value = e.target.value;
-                                                    // Regex pattern to match the structure starting with "migaloo" followed by 39 alphanumeric characters
-                                                    const pattern = /^migaloo[a-z0-9]{39}$/;
-                                                    if (pattern.test(value) || value === "") {
-                                                        setContractAddress(value);
-                                                    } else {
-                                                        showAlert("Invalid contract address format.", 'error');
+                                                    const newValue = e.target.value;
+                                                    setEditableQueryMessage(newValue);
+                                                    try {
+                                                        const jsonQuery = JSON.parse(e.target.value);
+                                                        setQueryMessage(jsonQuery);
+                                                        setQueryType('Custom');
+                                                        setJsonQueryValid(true); // Set valid state
+                                                    } catch (error) {
+                                                        setJsonQueryValid(false); // Set invalid state
                                                     }
                                                 }}
-                                            />
+                                            ></textarea>
                                         </div>
-                                        <div className="w-full mb-4">
-                                                <textarea
-                                                    id="jsonQuery"
-                                                    value={editableQueryMessage}
-                                                    className={`w-full h-32 bg-slate-800 text-white rounded p-2 ${jsonQueryValid ? (queryMessage === '' ? 'border border-yellow-400' : 'border border-green-400') : 'border border-red-500'}`} // Dynamically change the border color
-                                                    placeholder='Enter JSON Query'
-                                                    onChange={(e) => {
-                                                        const newValue = e.target.value;
-                                                        setEditableQueryMessage(newValue);
-                                                        try {
-                                                            const jsonQuery = JSON.parse(e.target.value);
-                                                            setQueryMessage(jsonQuery);
-                                                            setQueryType('Custom');
-                                                            setJsonQueryValid(true); // Set valid state
-                                                        } catch (error) {
-                                                            setJsonQueryValid(false); // Set invalid state
-                                                        }
-                                                    }}
-                                                ></textarea>
-                                            </div>
-                                        <select
-                                            id="querySelect"
-                                            value={queryType}
-                                            className="bg-slate-800 text-white border border-yellow-400 rounded p-2"
-                                            onChange={(e) => setQueryType(e.target.value)}
-                                        >
-                                            <option value="">Select a Query</option>
-                                            <option value="GetConfig">Get Config</option>
-                                            <option value="GetAssetValues">Get Asset Values</option>
-                                            <option value="GetRedemptions">Get Redemptions</option>
-                                            <option value="Custom" disabled>Custom Query</option>
+                                    <select
+                                        id="querySelect"
+                                        value={queryType}
+                                        className="bg-slate-800 text-white border border-yellow-400 rounded p-2"
+                                        onChange={(e) => setQueryType(e.target.value)}
+                                    >
+                                        <option value="">Select a Query</option>
+                                        <option value="GetConfig">Get Config</option>
+                                        <option value="GetAssetValues">Get Asset Values</option>
+                                        <option value="GetRedemptions">Get Redemptions</option>
+                                        <option value="Custom" disabled>Custom Query</option>
 
-                                        </select>
-                                    </div>
-                                    <button className="mt-4 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleQueryContract}>Query Contract</button>                                
-                                </>
-                                
-                            }
-                            {Object.keys(redeemContractQueryResponse).length !== 0 && (
-                                <div className="w-1/2 mt-4 p-4 bg-slate-700 rounded">
-                                    <h3 className="text-lg text-yellow-400 mb-2">Redeem Contract Query Response:</h3>
-                                    <pre className="text-white text-sm overflow-auto whitespace-pre-wrap">
-                                        {JSON.stringify(redeemContractQueryResponse, null, 2)}
-                                    </pre>
+                                    </select>
                                 </div>
-                            )}
-                        </div>
+                                <button className="mt-4 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleQueryContract}>Query Contract</button>                                
+                            </>
+                            
+                        }
+                        {Object.keys(redeemContractQueryResponse).length !== 0 && (
+                            <div className="w-1/2 mt-4 p-4 bg-slate-700 rounded">
+                                <h3 className="text-lg text-yellow-400 mb-2">Redeem Contract Query Response:</h3>
+                                <pre className="text-white text-sm overflow-auto whitespace-pre-wrap">
+                                    {JSON.stringify(redeemContractQueryResponse, null, 2)}
+                                </pre>
+                            </div>
+                        )}
                     </div>
+                </div>
                 {/* <div className="flex flex-col items-center justify-center">
                     <button 
                         className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500"
