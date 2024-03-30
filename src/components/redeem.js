@@ -7,6 +7,9 @@ import walletAddresses from '../auth/security.json';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import SnackbarContent from '@mui/material/SnackbarContent';
+import Switch from '@mui/material/Switch';
+import FormControlLabel from '@mui/material/FormControlLabel';
+
 
 const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
@@ -15,8 +18,9 @@ const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4
 const DAO_ADDRESS_TESTNET = "migaloo1wdpwwzljkmw87323jkha700lypkpd37jgxj25dwlflnnz8w6updsukf85v";
 const OPHIR_DENOM_TESNET = "factory/migaloo1tmxrk9cnmqmt7vmwdl2mqgtcp5kezqahvdmw6lr5nya66ckkzhns9qazqg/ophirdao";
 const CONTRACT_ADDRESS = 'migaloo1rm07cfruwlysg8pwp00lumeu9u5ygy7wse3ewka3ac0w36xf5erqye26mq';
-const CONTRACT_ADDRESS_TESTNET = 'migaloo1f5ln2ywvdz0p0fc7226z4hn0l9xtlwxsd8h24rrk6h80hc8sjthsjej3kq';
+const CONTRACT_ADDRESS_TESTNET = 'migaloo13kazal4u4u4v4dycz84x7v00qg0vp3hl3dla84qard7dsre8qpqqwxncez';
 
+const OPHIR_DECIMAL = 1000000;
 
 const Redeem = () => {
     const [ophirAmount, setOphirAmount] = useState('');
@@ -87,19 +91,31 @@ const Redeem = () => {
         "narwhal-2": migalooTestnetRPC,
     };
     
-    const handleNetworkChange = (e) => {
-        const selectedChainId = e.target.value;
-        const selectedRPC = chainIdToRPC[selectedChainId];
-        setChainId(selectedChainId);
-        // Assuming you have a state setter for RPC URL
-        setRPC(selectedRPC);
-        if (selectedChainId === "narwhal-2") {
-            setContractAddress(CONTRACT_ADDRESS_TESTNET);
-        }
-        else if (selectedChainId === "migaloo-1") {
-            setContractAddress(CONTRACT_ADDRESS);
-        }
-    };
+    // const handleNetworkChange = (e) => {
+    //     const selectedChainId = e.target.value;
+    //     const selectedRPC = chainIdToRPC[selectedChainId];
+    //     setChainId(selectedChainId);
+    //     // Assuming you have a state setter for RPC URL
+    //     setRPC(selectedRPC);
+    //     if (selectedChainId === "narwhal-2") {
+    //         setContractAddress(CONTRACT_ADDRESS_TESTNET);
+    //     }
+    //     else if (selectedChainId === "migaloo-1") {
+    //         setContractAddress(CONTRACT_ADDRESS);
+    //     }
+    // };
+    const handleNetworkChange = (event) => {
+    const isTestnet = event.target.checked;
+    const selectedChainId = isTestnet ? "narwhal-2" : "migaloo-1";
+    const selectedRPC = chainIdToRPC[selectedChainId];
+    setChainId(selectedChainId);
+    setRPC(selectedRPC);
+    if (selectedChainId === "narwhal-2") {
+        setContractAddress(CONTRACT_ADDRESS_TESTNET);
+    } else if (selectedChainId === "migaloo-1") {
+        setContractAddress(CONTRACT_ADDRESS);
+    }
+};
 
     const initMsg = {
         dao_address: chainId === 'narwhal-2' ? DAO_ADDRESS_TESTNET : DAO_ADDRESS, // Use DAO_ADDRESS_TESTNET if chainId is 'narwhal-2'
@@ -272,21 +288,23 @@ const Redeem = () => {
             const message = {
                 distribute_assets: {
                     sender: connectedWalletAddress,
-                    balance_raw: ophirAmount,
-                    // funds: 
+                    amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString()
                 }
             };
             const signer = await getSigner();
     
             const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
-    
+            const funds = [{
+                denom: chainId === 'narwhal-2' ? OPHIR_DENOM_TESNET : OPHIR_DENOM, 
+                amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString()
+            }];
             // const executeMsg = JSON.stringify(message);
             const fee = {
                 amount: [{ denom: "uwhale", amount: "5000" }],
                 gas: "200000",
             };
     
-            const result = await client.execute(connectedWalletAddress, contractAddress, message, fee, "Execute contract message");
+            const result = await client.execute(connectedWalletAddress, contractAddress, message, fee, "Execute contract message", funds);
     
             console.log("Execute contract message result:", result);
             showAlert("Message executed successfully!", 'success');
@@ -411,7 +429,7 @@ const Redeem = () => {
                                 className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
                                 placeholder="Enter OPHIR amount" 
                                 value={ophirAmount}
-                                onChange={(e) => setOphirAmount(e.target.value)}
+                                onChange={(e) => setOphirAmount(Number(e.target.value))}
                             />
                             {ophirAmount && (
                                 <div className="mt-4 overflow-x-auto">
@@ -462,9 +480,9 @@ const Redeem = () => {
                                     <div className="flex items-center justify-center">
                                         
                                     </div>
-                                    <div className="mt-10"> 
-                                    <label htmlFor="networkToggle" className="mr-2 text-white">Select Network:</label>
-                                        <select
+                                    <div className="mt-10 w-full flex flex-col items-center"> 
+                                        <label htmlFor="networkToggle" className="mr-2 text-white">Select Network:</label>
+                                        {/* <select
                                             id="networkToggle"
                                             className="bg-slate-800 text-white border border-yellow-400 rounded p-2"
                                             value={chainId}
@@ -472,14 +490,26 @@ const Redeem = () => {
                                         >
                                             <option value="migaloo-1">Mainnet (migaloo-1)</option>
                                             <option value="narwhal-2">Testnet (narwhal-2)</option>
-                                        </select>
+                                        </select> */}
+                                        <FormControlLabel
+                                            control={
+                                                <Switch
+                                                    checked={chainId === "narwhal-2"}
+                                                    onChange={handleNetworkChange}
+                                                    name="networkToggle"
+                                                    color="primary"
+                                                />
+                                            }
+                                            label={chainId === "narwhal-2" ? "Testnet (narwhal-2)" : "Mainnet (migaloo-1)"}
+                                        />
                                         <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">WASM Upload</h3>
                                         <div className="flex justify-center w-full">
                                             <input className="text-center" type="file" id="wasmFile" name="wasmFile" accept=".wasm" onChange={handleFileChange} />
                                         </div>
-                                        <hr className="my-8 border-white w-full" />
+                                        <hr className="my-2 border-white w-full" />
+                                        <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">WASM Instatiation</h3>
 
-                                        <div className="flex justify-center">
+                                        <div className="flex justify-center w-full">
                                             <input 
                                                 id="codeId" 
                                                 type="number" 
@@ -489,17 +519,19 @@ const Redeem = () => {
                                                 onChange={(e) => setCodeId(Number(e.target.value))}
                                             />
                                         </div>
-                                        <div className="pt-2 flex justify-center">
+                                        <div className="pt-2 flex justify-center w-full">
                                             <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleInstantiateContract}>Instantiate Contract</button>
                                         </div>
                                     </div>
-                                    <hr className="my-8 border-white w-full" />
-                                    <div className="my-4 ">
-                                        <div className="flex justify-center my-4">
+                                    <hr className="my- border-white w-full" />
+                                    <div className="flex flex-col items-center justify-center w-full">
+                                        <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">Contract Interactions</h3>
+
+                                        <div className="flex justify-center my-4 w-full px-4">
                                             <input 
                                                 id="contractAddress" 
                                                 type="text" 
-                                                className="bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
+                                                className="w-full bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
                                                 placeholder="Enter Contract Address" 
                                                 value={contractAddress}
                                                 onChange={(e) => {
@@ -509,8 +541,7 @@ const Redeem = () => {
                                                     if (pattern.test(value) || value === "") {
                                                         setContractAddress(value);
                                                     } else {
-                                                        // Optionally, provide feedback to the user that the input is invalid
-                                                        console.log("Invalid contract address format.");
+                                                        showAlert("Invalid contract address format.", 'error');
                                                     }
                                                 }}
                                             />
@@ -526,7 +557,7 @@ const Redeem = () => {
                                             <option value="GetRedemptions">Get Redemptions</option>
                                         </select>
                                     </div>
-                                    <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleQueryContract}>Query Contract</button>                                
+                                    <button className="mt-4 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleQueryContract}>Query Contract</button>                                
                                 </>
                                 
                             }
