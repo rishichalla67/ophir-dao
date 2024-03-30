@@ -120,12 +120,6 @@ const Redeem = () => {
                 reader.readAsArrayBuffer(file);
             });
     
-            // Enable the Keplr extension for the desired chain
-            // await window.keplr.enable(chainId);
-    
-            // Get the offline signer from Keplr
-    
-            // Create a signing client using the offline signer
             const signingClient = await SigningCosmWasmClient.connectWithSigner(
                 rpc,
                 signer
@@ -274,11 +268,7 @@ const Redeem = () => {
                 showAlert("Please enter a valid OPHIR amount.", 'error');
                 return;
             }
-    
-            // await window.keplr.enable(chainId);
-            // const offlineSigner = window.keplr.getOfflineSigner(chainId);
-            // const accounts = await offlineSigner.getAccounts();
-            // const accountAddress = accounts[0].address;
+
             const message = {
                 distribute_assets: {
                     sender: connectedWalletAddress,
@@ -457,11 +447,19 @@ const Redeem = () => {
                                     <div className="text-center mt-4 text-sm sm:text-base">
                                         Total Value of Redeemed Assets: ${redemptionValues.totalRedemptionValue ? redemptionValues.totalRedemptionValue.toFixed(2) : '0.00'}
                                     </div>
+
+                                    <div className="flex justify-center w-full">
+                                        <button className="mt-5 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={executeContractMessage}>Redeem OPHIR</button>
+                                    </div>         
+                                                           
                                 </div>
+                                
                             )}
                             {connectedWalletAddress && walletAddresses.includes(connectedWalletAddress) &&
                                 <>
-                                    <div className="flex items-center justify-center mt-4">
+                                    <hr className="mt-2 border-white w-full" />
+
+                                    <div className="flex items-center justify-center">
                                         
                                     </div>
                                     <div className="mt-10"> 
@@ -529,7 +527,6 @@ const Redeem = () => {
                                         </select>
                                     </div>
                                     <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleQueryContract}>Query Contract</button>                                
-                                    <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={executeContractMessage}>Execute Redeption</button>                                
                                 </>
                                 
                             }
