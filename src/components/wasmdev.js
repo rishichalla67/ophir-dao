@@ -157,7 +157,7 @@ const WasmDev = () => {
             instantiateContract(Number(codeId), signer)
             return codeId;
         } catch (error) {
-            console.error("Error in uploadContract:", error);
+            showAlert(`Error in uploadContract: ${error.message}`, 'error');
             throw error;
         }finally{
             setIsUploadingContract(false)
@@ -172,9 +172,10 @@ const WasmDev = () => {
         try {
             const signer = await getSigner(); // Assuming getSigner is a function that retrieves the signer
             const codeId = await uploadContract(file, signer);
-            console.log('Upload successful, codeId:', codeId);
+            showAlert(`Upload successful, codeId: ${codeId}`, 'success');
         } catch (error) {
             console.error('Error uploading contract:', error);
+            showAlert(`Error uploading contract: ${error.message}`, 'error');
         }
     };
     
@@ -182,7 +183,7 @@ const WasmDev = () => {
         try {
             // Ensure the signer is available
             if (!signer) {
-                throw new Error("Signer is not available");
+                showAlert("Signer is not available", 'error');
             }
     
             // Create a signing client using the signer
@@ -224,7 +225,7 @@ const WasmDev = () => {
 
             return contractAddress;
         } catch (error) {
-            console.error("Error in instantiateContract:", error);
+            showAlert(`Error in instantiateContract: ${error.message}`, 'error');
             throw error;
         }
     };
@@ -295,7 +296,7 @@ const WasmDev = () => {
     const handleInstantiateContract = async () => {
         try {
             if (!codeId) {
-                showAlert("Code ID is not set. Please upload the contract first.", 'error');
+                showAlert("Code ID is not set.", 'error');
                 return;
             }
             const signer = await getSigner();
