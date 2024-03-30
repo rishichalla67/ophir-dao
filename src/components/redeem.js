@@ -4,6 +4,9 @@ import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import WalletConnect from './walletConnect';
 import walletAddresses from '../auth/security.json';
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+import SnackbarContent from '@mui/material/SnackbarContent';
 
 const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
@@ -23,16 +26,23 @@ const Redeem = () => {
     const [ophirPrices, setOphirPrices] = useState({});
     const [isLedgerConnected, setIsLedgerConnected] = useState(false);
     const [redeemContractQueryResponse, setRedeemContractQueryResponse] = useState({});
+    const [alertInfo, setAlertInfo] = useState({ open: false, message: '', severity: 'info' });
     const [queryType, setQueryType] = useState('');
     const [chainId, setChainId] = useState('narwhal-2');
     const [contractAddress, setContractAddress] = useState(CONTRACT_ADDRESS_TESTNET);
     const [rpc, setRPC] = useState(migalooTestnetRPC);
+
     const handleConnectedWalletAddress = (address) => {
         setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
     };
     const handleLedgerConnection = (bool) => {
         setIsLedgerConnected(bool); // Update the state with data received from WalletConnect
     };
+    const showAlert = (message, severity = 'info', htmlContent = null) => {
+        setAlertInfo({ open: true, message, severity, htmlContent });
+    };
+
+
     useEffect(() => {
         fetch('https://parallax-analytics.onrender.com/ophir/prices')
             .then(response => response.json())
@@ -145,7 +155,7 @@ const Redeem = () => {
             // Extract the code ID from the result
             const codeId = result.logs[0].events.find((event) => event.type === "store_code").attributes.find((attr) => attr.key === "code_id").value;
             setCodeId(codeId);
-             
+            showAlert("WASM uploaded successfully! Attempting to instantiate now...", 'success');
             instantiateContract(Number(codeId), signer)
             return codeId;
         } catch (error) {
@@ -210,6 +220,8 @@ const Redeem = () => {
             // Extract the contract address from the instantiate response
             const contractAddress = instantiateResponse.contractAddress;
             setContractAddress(contractAddress);
+            showAlert(`WASM instantiated successfully! Contract Address: ${contractAddress}`, 'success');
+
             return contractAddress;
         } catch (error) {
             console.error("Error in instantiateContract:", error);
@@ -248,18 +260,18 @@ const Redeem = () => {
             console.log('Query response:', queryResponse);
         } catch (error) {
             console.error('Error querying contract:', error);
-            alert(`Error querying contract. ${error.message}`);
+            showAlert(`Error querying contract. ${error.message}`, 'error');
         }
     };
 
     const executeContractMessage = async () => {
         try {
             if (!window.keplr) {
-                alert("Keplr wallet is not installed.");
+                showAlert("Keplr wallet is not installed.", 'error');
                 return;
             }
             if (!ophirAmount || ophirAmount <= 0) {
-                alert("Please enter a valid OPHIR amount.");
+                showAlert("Please enter a valid OPHIR amount.", 'error');
                 return;
             }
     
@@ -270,7 +282,8 @@ const Redeem = () => {
             const message = {
                 distribute_assets: {
                     sender: connectedWalletAddress,
-                    balance_raw: ophirAmount
+                    balance_raw: ophirAmount,
+                    // funds: 
                 }
             };
             const signer = await getSigner();
@@ -286,30 +299,30 @@ const Redeem = () => {
             const result = await client.execute(connectedWalletAddress, contractAddress, message, fee, "Execute contract message");
     
             console.log("Execute contract message result:", result);
-            alert("Message executed successfully!");
+            showAlert("Message executed successfully!", 'success');
         } catch (error) {
             console.error("Error executing contract message:", error);
-            alert(`Error executing contract message. ${error.message}`);
+            showAlert(`Error executing contract message. ${error.message}`, 'error');
         }
     };
 
     const handleInstantiateContract = async () => {
         try {
             if (!codeId) {
-                alert("Code ID is not set. Please upload the contract first.");
+                showAlert("Code ID is not set. Please upload the contract first.", 'error');
                 return;
             }
             const signer = await getSigner();
             if (!signer) {
-                alert("Signer is not available. Please connect your wallet.");
+                showAlert("Signer is not available. Please connect your wallet.", 'error');
                 return;
             }
             const contractAddress = await instantiateContract(codeId, signer);
             console.log('Instantiate successful, contractAddress:', contractAddress);
-            alert(`Contract instantiated successfully. Address: ${contractAddress}`);
+            showAlert(`Contract instantiated successfully. Address: ${contractAddress}`, 'success');
         } catch (error) {
             console.error('Error instantiating contract:', error);
-            alert('Error instantiating contract. Check console for details.');
+            showAlert('Error instantiating contract. Check console for details.', 'error');
         }
     };
 
@@ -388,6 +401,19 @@ const Redeem = () => {
                             Redemption Price: ${redemptionValues.redemptionPricePerOPHIR.toFixed(7)}
                         </div>
                     )}
+                    <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+                        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+                        {alertInfo.htmlContent ? (
+                            <SnackbarContent
+                                style={{color: 'black', backgroundColor: alertInfo.severity === 'error' ? '#ffcccc' : '#ccffcc' }} // Adjusted colors to be less harsh
+                                message={<span dangerouslySetInnerHTML={{ __html: alertInfo.htmlContent }} />}
+                            />
+                        ) : (
+                            <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>
+                                {alertInfo.message}
+                            </Alert>
+                        )}
+                    </Snackbar>
                         <div className="mb-4 items-center flex flex-col">
                             <input 
                                 id="ophirAmount" 
