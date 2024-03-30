@@ -12,7 +12,7 @@ const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4
 const DAO_ADDRESS_TESTNET = "migaloo1wdpwwzljkmw87323jkha700lypkpd37jgxj25dwlflnnz8w6updsukf85v";
 const OPHIR_DENOM_TESNET = "factory/migaloo1tmxrk9cnmqmt7vmwdl2mqgtcp5kezqahvdmw6lr5nya66ckkzhns9qazqg/ophirdao";
 const CONTRACT_ADDRESS = 'migaloo1rm07cfruwlysg8pwp00lumeu9u5ygy7wse3ewka3ac0w36xf5erqye26mq';
-const CONTRACT_ADDRESS_TESTNET = 'migaloo1zqfgjce3s86dsezqfjk98w5q3uuc73ufgwu00kvput87sufhclcqz7emn8';
+const CONTRACT_ADDRESS_TESTNET = 'migaloo1f5ln2ywvdz0p0fc7226z4hn0l9xtlwxsd8h24rrk6h80hc8sjthsjej3kq';
 
 
 const Redeem = () => {
@@ -26,7 +26,7 @@ const Redeem = () => {
     const [queryType, setQueryType] = useState('');
     const [chainId, setChainId] = useState('narwhal-2');
     const [contractAddress, setContractAddress] = useState(CONTRACT_ADDRESS_TESTNET);
-    const [rpc, setRPC] = useState('https://migaloo-rpc.polkachu.com/');
+    const [rpc, setRPC] = useState(migalooTestnetRPC);
     const handleConnectedWalletAddress = (address) => {
         setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
     };
@@ -252,6 +252,47 @@ const Redeem = () => {
         }
     };
 
+    const executeContractMessage = async () => {
+        try {
+            if (!window.keplr) {
+                alert("Keplr wallet is not installed.");
+                return;
+            }
+            if (!ophirAmount || ophirAmount <= 0) {
+                alert("Please enter a valid OPHIR amount.");
+                return;
+            }
+    
+            // await window.keplr.enable(chainId);
+            // const offlineSigner = window.keplr.getOfflineSigner(chainId);
+            // const accounts = await offlineSigner.getAccounts();
+            // const accountAddress = accounts[0].address;
+            const message = {
+                distribute_assets: {
+                    sender: connectedWalletAddress,
+                    balance_raw: ophirAmount
+                }
+            };
+            const signer = await getSigner();
+    
+            const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
+    
+            // const executeMsg = JSON.stringify(message);
+            const fee = {
+                amount: [{ denom: "uwhale", amount: "5000" }],
+                gas: "200000",
+            };
+    
+            const result = await client.execute(connectedWalletAddress, contractAddress, message, fee, "Execute contract message");
+    
+            console.log("Execute contract message result:", result);
+            alert("Message executed successfully!");
+        } catch (error) {
+            console.error("Error executing contract message:", error);
+            alert(`Error executing contract message. ${error.message}`);
+        }
+    };
+
     const handleInstantiateContract = async () => {
         try {
             if (!codeId) {
@@ -461,7 +502,10 @@ const Redeem = () => {
                                             <option value="GetRedemptions">Get Redemptions</option>
                                         </select>
                                     </div>
-                                    <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleQueryContract}>Query Contract</button>                                </>
+                                    <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleQueryContract}>Query Contract</button>                                
+                                    <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={executeContractMessage}>Execute Redeption</button>                                
+                                </>
+                                
                             }
                             {Object.keys(redeemContractQueryResponse).length !== 0 && (
                                 <div className="w-1/2 mt-4 p-4 bg-slate-700 rounded">
