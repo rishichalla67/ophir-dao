@@ -86,6 +86,35 @@ const AnalyticsDashboard = () => {
     //     return () => clearTimeout(timer);
     // }, []);
 
+    const handleCellClick = (value, key) => {
+        setModalData({ composition: value?.composition, symbol: key, price: priceData[key] });
+        if (value?.composition) toggleModal();
+      };
+      
+      const handleRewardsClick = (location) => {
+        if (location.includes('Luna Alliance') || location.includes('ampRoar Alliance Staked')) {
+          toggleLunaDenomination();
+        } else if (location === 'Migaloo Alliance') {
+          toggleWhaleDenomination();
+        }
+      };
+      
+      const renderRewards = (value) => {
+        const { rewards, location } = value;
+        if (!rewards || !['Luna Alliance', 'Migaloo Alliance', 'ampRoar Alliance Staked'].some(l => location.includes(l))) {
+          return null;
+        }
+      
+        if (inLuna && (location.includes('Luna Alliance') || location === 'ampRoar Alliance Staked')) {
+          return `${parseFloat(rewards).toLocaleString()} luna`;
+        } else if (!inLuna && (location.includes('Luna Alliance') || location === 'ampRoar Alliance Staked')) {
+          return `$${formatNumber(parseFloat(rewards * priceData['luna']), 2)}`;
+        } else if (inWhale && location === 'Migaloo Alliance') {
+          return `${parseFloat(rewards).toLocaleString()} whale`;
+        } else {
+          return `$${formatNumber(parseFloat(rewards * priceData['whale']), 2)}`;
+        }
+      };
 
     const toggleModal = () => setModalOpen(!isModalOpen);
 
@@ -257,19 +286,14 @@ const AnalyticsDashboard = () => {
                                 </thead>
                                 <tbody className="text-white text-xxs md:text-sm sm:text-lg">
                                     {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
-                                        <tr className= {`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} onClick={() => {setModalData({composition: value?.composition, symbol: key, price: priceData[key]}); value?.composition && toggleModal()}} key={key}>
-                                            <td className="text-left asset-padding py-4 px-1 sm:px-1" title={value?.originalKey}>{key}</td>
-                                            <td className="text-center py-4 px-1 sm:px-1">{parseFloat(value.balance).toLocaleString()}</td>
-                                            <td className="text-center py-4 px-1 sm:px-1">${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
-                                            <td className="text-center py-4 px-1 sm:px-1 cursor-pointer" onClick={value.location.includes('Luna Alliance') || value.location.includes('ampRoar Alliance Staked') ? toggleLunaDenomination : value.location === 'Migaloo Alliance' ? toggleWhaleDenomination : null}>
-                                                {value.rewards && (value.location.includes('Luna Alliance') || value.location === 'Migaloo Alliance' || value.location === 'ampRoar Alliance Staked') && (
-                                                    inLuna && (value.location.includes('Luna Alliance') || value.location === 'ampRoar Alliance Staked') ? `${parseFloat(value.rewards).toLocaleString()} luna` :
-                                                    !inLuna && (value.location.includes('Luna Alliance') || value.location === 'ampRoar Alliance Staked') ? `$${formatNumber(parseFloat(value.rewards * priceData['luna']), 2)}` :
-                                                    inWhale && value.location === 'Migaloo Alliance' ? `${parseFloat(value.rewards).toLocaleString()} whale` :
-                                                    `$${formatNumber(parseFloat(value.rewards * priceData['whale']), 2)}`
-                                                )}
+                                        <tr className= {`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} key={key}>
+                                            <td className="text-left asset-padding py-4 px-1 sm:px-1" title={value?.originalKey} onClick={() => handleCellClick(value, key)}>{key}</td>
+                                            <td className="text-center py-4 px-1 sm:px-1" onClick={() => handleCellClick(value, key)}>{parseFloat(value.balance).toLocaleString()}</td>
+                                            <td className="text-center py-4 px-1 sm:px-1" onClick={() => handleCellClick(value, key)}>${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
+                                            <td className="text-center py-4 px-1 sm:px-1 cursor-pointer" onClick={() => handleRewardsClick(value.location)}>
+                                            {renderRewards(value)}
                                             </td>
-                                            <td className="text-center py-2 px-1 sm:px-1">{value.location}</td>
+                                            <td className="text-center py-2 px-1 sm:px-1" onClick={() => handleCellClick(value, key)}>{value.location}</td>
                                         </tr>
                                     ))}
                                 </tbody>
