@@ -17,8 +17,8 @@ const DAO_ADDRESS = "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0
 const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
 const DAO_ADDRESS_TESTNET = "migaloo1wdpwwzljkmw87323jkha700lypkpd37jgxj25dwlflnnz8w6updsukf85v";
 const OPHIR_DENOM_TESNET = "factory/migaloo1tmxrk9cnmqmt7vmwdl2mqgtcp5kezqahvdmw6lr5nya66ckkzhns9qazqg/ophirdao";
-const CONTRACT_ADDRESS = 'migaloo1rm07cfruwlysg8pwp00lumeu9u5ygy7wse3ewka3ac0w36xf5erqye26mq';
-const CONTRACT_ADDRESS_TESTNET = 'migaloo16qwzw5wd9jxzvsena4pef8yun0cfrdj7l22lj75xtrtt4ewmdlys98l49v';
+const CONTRACT_ADDRESS = "migaloo1rm07cfruwlysg8pwp00lumeu9u5ygy7wse3ewka3ac0w36xf5erqye26mq";
+const CONTRACT_ADDRESS_TESTNET = "migaloo19nt9lf6mzxk8eezyuzcruj2gav2c769ymmr2gafqdksskencxp8spucgh6";
 
 const OPHIR_DECIMAL = 1000000;
 
@@ -332,7 +332,7 @@ const Redeem = () => {
             // const executeMsg = JSON.stringify(message);
             const fee = {
                 amount: [{ denom: "uwhale", amount: "5000" }],
-                gas: "200000",
+                gas: "500000",
             };
     
             const result = await client.execute(connectedWalletAddress, contractAddress, message, fee, "Execute contract message", funds);
