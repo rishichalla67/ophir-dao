@@ -29,15 +29,9 @@ const Redeem = () => {
     const [redemptionValues, setRedemptionValues] = useState({});
     const [ophirPrices, setOphirPrices] = useState({});
     const [isLedgerConnected, setIsLedgerConnected] = useState(false);
-    const [redeemContractQueryResponse, setRedeemContractQueryResponse] = useState({});
     const [alertInfo, setAlertInfo] = useState({ open: false, message: '', severity: 'info' });
-    const [queryType, setQueryType] = useState('');
-    const [editableQueryMessage, setEditableQueryMessage] = useState(''); // New state for the editable JSON string
-    const [queryMessage, setQueryMessage] = useState('');
-    const [jsonQueryValid, setJsonQueryValid] = useState(true); // Add a state to track JSON validity
-    const [isUploadingContract, setIsUploadingContract] = useState(false);
+
     const [chainId, setChainId] = useState('narwhal-2');
-    const [isTestnet, setIsTestnet] = useState(true); // Default to Testnet
 
     const [contractAddress, setContractAddress] = useState(CONTRACT_ADDRESS_TESTNET);
     const [rpc, setRPC] = useState(migalooTestnetRPC);
@@ -52,40 +46,7 @@ const Redeem = () => {
         setAlertInfo({ open: true, message, severity, htmlContent });
     };
 
-    useEffect(() => {
-        // Initialize editableQueryMessage with the stringified version of queryMessage when the component mounts or queryMessage changes
-        setEditableQueryMessage(JSON.stringify(queryMessage, null, 2));
-    }, [queryMessage]);
 
-    useEffect(() => {
-        let queryMsg;
-        switch (queryType) {
-            case 'GetConfig':
-                queryMsg = { get_config: {} };
-                setJsonQueryValid(true);
-                break;
-            case 'GetAssetValues':
-                queryMsg = { get_asset_values: {} };
-                setJsonQueryValid(true);
-                break;
-            case 'GetRedemptions':
-                queryMsg = {
-                    get_redemptions: {
-                        sender: connectedWalletAddress,
-                    }
-                };
-                setJsonQueryValid(true);
-                break;
-            case 'Custom':
-                queryMsg = queryMessage;
-                break;
-            default:
-                queryMsg = {};
-                break;
-        }
-        setQueryMessage(queryMsg);
-        // }
-    }, [queryType]);
 
     useEffect(() => {
         fetch('https://parallax-analytics.onrender.com/ophir/prices')
@@ -122,181 +83,11 @@ const Redeem = () => {
         return () => clearTimeout(debounceTimer); // Clear the timeout if the component unmounts or the value changes
     }, [ophirAmount]);
 
-    const [codeId, setCodeId] = useState(null); // State variable to store the codeId
-    const [signer, setSigner] = useState(null); // State variable to store the signer
-    // const chainId = "migaloo-1"; // Replace with your actual chain ID
 
-    const chainIdToRPC = {
-        "migaloo-1": migalooRPC,
-        "narwhal-2": migalooTestnetRPC,
-    };
-    
-    // const handleNetworkChange = (e) => {
-    //     const selectedChainId = e.target.value;
-    //     const selectedRPC = chainIdToRPC[selectedChainId];
-    //     setChainId(selectedChainId);
-    //     // Assuming you have a state setter for RPC URL
-    //     setRPC(selectedRPC);
-    //     if (selectedChainId === "narwhal-2") {
-    //         setContractAddress(CONTRACT_ADDRESS_TESTNET);
-    //     }
-    //     else if (selectedChainId === "migaloo-1") {
-    //         setContractAddress(CONTRACT_ADDRESS);
-    //     }
-    // };
-    const handleNetworkChange = (event) => {
-        const isTestnet = event.target.checked;
-        const selectedChainId = isTestnet ? "narwhal-2" : "migaloo-1";
-        const selectedRPC = chainIdToRPC[selectedChainId];
-        setChainId(selectedChainId);
-        setRPC(selectedRPC);
-        if (selectedChainId === "narwhal-2") {
-            setContractAddress(CONTRACT_ADDRESS_TESTNET);
-        } else if (selectedChainId === "migaloo-1") {
-            setContractAddress(CONTRACT_ADDRESS);
-        }
-    };
-
-    const initMsg = {
-        dao_address: chainId === 'narwhal-2' ? DAO_ADDRESS_TESTNET : DAO_ADDRESS, // Use DAO_ADDRESS_TESTNET if chainId is 'narwhal-2'
-        redeemable_denom: chainId === 'narwhal-2' ? OPHIR_DENOM_TESNET : OPHIR_DENOM, // Replace with your actual redeemable denom
-    }; 
     const getSigner = async () => {
         await window.keplr.enable(chainId);
         const offlineSigner = window.keplr.getOfflineSigner(chainId);
         return offlineSigner;
-    };
-    const uploadContract = async (file, signer) => {
-        setIsUploadingContract(true)
-        try {
-            // Fetch the WASM file from the provided URL
-            const wasmCode = await new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(new Uint8Array(reader.result));
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(file);
-            });
-    
-            const signingClient = await SigningCosmWasmClient.connectWithSigner(
-                rpc,
-                signer
-            );
-    
-            const fee = {
-                amount: [{
-                    denom: "uwhale",
-                    amount: "5000",
-                }],
-                gas: "1500000",
-            };
-            // Upload the contract code
-            const result = await signingClient.upload(
-                connectedWalletAddress,
-                wasmCode,
-                fee,
-                "Test WASM upload"
-            );
-    
-            console.log(result);
-    
-            if (result.code !== undefined && result.code !== 0) {
-                throw new Error(`Failed to upload contract: ${result.rawLog}`);
-            }
-    
-            // Extract the code ID from the result
-            const codeId = result.logs[0].events.find((event) => event.type === "store_code").attributes.find((attr) => attr.key === "code_id").value;
-            setCodeId(codeId);
-            showAlert("WASM uploaded successfully! Attempting to instantiate now...", 'success');
-            instantiateContract(Number(codeId), signer)
-            return codeId;
-        } catch (error) {
-            console.error("Error in uploadContract:", error);
-            throw error;
-        }finally{
-            setIsUploadingContract(false)
-        }
-    };
-    const handleFileChange = async (event) => {
-        const file = event.target.files[0];
-        if (!file) {
-            console.log("No file selected.");
-            return;
-        }
-        try {
-            const signer = await getSigner(); // Assuming getSigner is a function that retrieves the signer
-            const codeId = await uploadContract(file, signer);
-            console.log('Upload successful, codeId:', codeId);
-        } catch (error) {
-            console.error('Error uploading contract:', error);
-        }
-    };
-    
-    const instantiateContract = async (codeId, signer) => {
-        try {
-            // Ensure the signer is available
-            if (!signer) {
-                throw new Error("Signer is not available");
-            }
-    
-            // Create a signing client using the signer
-            
-            const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
-            const admin = undefined; // Set admin address if needed, else undefined
-            const label = `MyContract-${Math.random()}`; // Unique label for the contract instance
-            const initFunds = []; // Initial funds to be sent to the contract, if any
-    
-            // Define the fee for the instantiate transaction
-            const fee = {
-                amount: [{
-                    denom: "uwhale",
-                    amount: "5000",
-                }],
-                gas: "1500000", // Adjust gas value as needed
-            };
-    
-            // Instantiate the contract
-            const instantiateResponse = await client.instantiate(
-                connectedWalletAddress, // Ensure to get the address from the signer
-                codeId,
-                initMsg,
-                label,
-                fee,
-                { admin, amount: initFunds }
-            );
-    
-            console.log(instantiateResponse);
-    
-            if (instantiateResponse.code !== undefined && instantiateResponse.code !== 0) {
-                throw new Error(`Failed to instantiate contract: ${instantiateResponse.rawLog}`);
-            }
-    
-            // Extract the contract address from the instantiate response
-            const contractAddress = instantiateResponse.contractAddress;
-            setContractAddress(contractAddress);
-            showAlert(`WASM instantiated successfully! Contract Address: ${contractAddress}`, 'success');
-
-            return contractAddress;
-        } catch (error) {
-            console.error("Error in instantiateContract:", error);
-            throw error;
-        }
-    };
-    
-    const handleQueryContract = async () => {
-        try {
-            
-            const formattedJsonString = JSON.stringify(queryMessage, null, 1); // This adds spaces in the JSON string
-            const encodedQuery = Buffer.from(formattedJsonString).toString('base64');
-            let baseURL = chainId === 'narwhal-2' ? 'https://migaloo-testnet-api.polkachu.com' : 'https://migaloo-api.polkachu.com';
-            const queryUrl = `${baseURL}/cosmwasm/wasm/v1/contract/${contractAddress}/smart/${encodedQuery}`;
-            const response = await fetch(queryUrl);
-            const queryResponse = await response.json();
-            setRedeemContractQueryResponse(queryResponse);
-            console.log('Query response:', queryResponse);
-        } catch (error) {
-            console.error('Error querying contract:', error);
-            showAlert(`Error querying contract. ${error.message}`, 'error');
-        }
     };
 
     const executeContractMessage = async () => {
@@ -342,26 +133,6 @@ const Redeem = () => {
         } catch (error) {
             console.error("Error executing contract message:", error);
             showAlert(`Error executing contract message. ${error.message}`, 'error');
-        }
-    };
-
-    const handleInstantiateContract = async () => {
-        try {
-            if (!codeId) {
-                showAlert("Code ID is not set. Please upload the contract first.", 'error');
-                return;
-            }
-            const signer = await getSigner();
-            if (!signer) {
-                showAlert("Signer is not available. Please connect your wallet.", 'error');
-                return;
-            }
-            const contractAddress = await instantiateContract(codeId, signer);
-            console.log('Instantiate successful, contractAddress:', contractAddress);
-            showAlert(`Contract instantiated successfully. Address: ${contractAddress}`, 'success');
-        } catch (error) {
-            console.error('Error instantiating contract:', error);
-            showAlert('Error instantiating contract. Check console for details.', 'error');
         }
     };
 
