@@ -18,7 +18,7 @@ const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4
 const DAO_ADDRESS_TESTNET = "migaloo1wdpwwzljkmw87323jkha700lypkpd37jgxj25dwlflnnz8w6updsukf85v";
 const OPHIR_DENOM_TESNET = "factory/migaloo1tmxrk9cnmqmt7vmwdl2mqgtcp5kezqahvdmw6lr5nya66ckkzhns9qazqg/ophirdao";
 const CONTRACT_ADDRESS = "migaloo1rm07cfruwlysg8pwp00lumeu9u5ygy7wse3ewka3ac0w36xf5erqye26mq";
-const CONTRACT_ADDRESS_TESTNET = "migaloo19nt9lf6mzxk8eezyuzcruj2gav2c769ymmr2gafqdksskencxp8spucgh6";
+const CONTRACT_ADDRESS_TESTNET = "migaloo1sejw0v7gmw3fv56wqr2gy00v3t23l0hwa4p084ft66e8leap9cqqjpczn8";
 
 const OPHIR_DECIMAL = 1000000;
 
