@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { SigningStargateClient } from "@cosmjs/stargate";
-import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import WalletConnect from './walletConnect';
-import walletAddresses from '../auth/security.json';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import SnackbarContent from '@mui/material/SnackbarContent';
-import Switch from '@mui/material/Switch';
-import FormControlLabel from '@mui/material/FormControlLabel';
-
 
 const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
@@ -19,7 +14,6 @@ const DAO_ADDRESS_TESTNET = "migaloo1wdpwwzljkmw87323jkha700lypkpd37jgxj25dwlfln
 const OPHIR_DENOM_TESNET = "factory/migaloo1tmxrk9cnmqmt7vmwdl2mqgtcp5kezqahvdmw6lr5nya66ckkzhns9qazqg/ophirdao";
 const CONTRACT_ADDRESS = "migaloo1rm07cfruwlysg8pwp00lumeu9u5ygy7wse3ewka3ac0w36xf5erqye26mq";
 const CONTRACT_ADDRESS_TESTNET = "migaloo1sejw0v7gmw3fv56wqr2gy00v3t23l0hwa4p084ft66e8leap9cqqjpczn8";
-
 const OPHIR_DECIMAL = 1000000;
 
 const Redeem = () => {
