@@ -14,8 +14,8 @@ const DAO_ADDRESS = "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0
 const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
 const DAO_ADDRESS_TESTNET = "migaloo1wdpwwzljkmw87323jkha700lypkpd37jgxj25dwlflnnz8w6updsukf85v";
 const OPHIR_DENOM_TESNET = "factory/migaloo1tmxrk9cnmqmt7vmwdl2mqgtcp5kezqahvdmw6lr5nya66ckkzhns9qazqg/ophirdao";
-const CONTRACT_ADDRESS = 'migaloo1rm07cfruwlysg8pwp00lumeu9u5ygy7wse3ewka3ac0w36xf5erqye26mq';
-const CONTRACT_ADDRESS_TESTNET = 'migaloo1l29xslhtdfm6h3lxdluz336hhcj9epp2uxktkjj3d9f5ruukr6esvheps2';
+const CONTRACT_ADDRESS = 'migaloo1seez8q2j8t2206w2vxprs9m9sy0nluscnyyngfnvk4sjvlq2ak5q5zsxdk';
+const CONTRACT_ADDRESS_TESTNET = 'migaloo1k2rxx8wn8v7al9awe0e2mf0v4nufluwrvawtm2hu874l2jjfzxxq7qsng7';
 
 const OPHIR_DECIMAL = 1000000;
 
@@ -71,6 +71,14 @@ const WasmDev = () => {
                 queryMsg = {
                     get_redemptions: {
                         sender: connectedWalletAddress,
+                    }
+                };
+                setJsonQueryValid(true);
+                break;
+            case 'GetRedemptionCalculation':
+                queryMsg = {
+                    get_redemption_calculation: {
+                        amount: "10000",
                     }
                 };
                 setJsonQueryValid(true);
@@ -562,6 +570,7 @@ const WasmDev = () => {
                         <option value="GetConfig">Get Config</option>
                         <option value="GetAssetValues">Get Asset Values</option>
                         <option value="GetRedemptions">Get Redemptions</option>
+                        <option value="GetRedemptionCalculation">Get Redemption Calculation</option>
                         <option value="Custom" disabled>Custom Query</option>
                     </select>
                     </div>
