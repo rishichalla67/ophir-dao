@@ -347,9 +347,9 @@ const Redeem = () => {
                     handleLedgerConnectionBool={handleLedgerConnection}
                 />
             </div>
-            <h1 className={`text-3xl font-bold h1-color pt-14 sm:pt-0 cursor-pointer`} onClick={() => setIsTestnet(!isTestnet)}>{isTestnet ? "Redeem OPHIR (Testnet)" : "Redeem OPHIR"}</h1>
+            <h1 className={`text-lg sm:text-3xl font-bold h1-color pt-14 sm:pt-0 cursor-pointer text-center`} onClick={() => setIsTestnet(!isTestnet)}>{isTestnet ? "Redeem OPHIR (Testnet)" : "Redeem OPHIR"}</h1>
             <div className="redeemable-box max-w-4xl flex flex-col items-center">
-                <div className="text-xl sm:text-3xl font-bold mb-2">Ophir Balance: {ophirBalance}</div>
+                <div className="text-lg sm:text-3xl font-bold mb-2 text-center">Ophir Balance: {ophirBalance}</div>
                 {redemptionValues.redemptionPricePerOPHIR && (
                     <div className="text-md sm:text-xl mb-2">
                         Redemption Price: ${redemptionValues.redemptionPricePerOPHIR.toFixed(7)}
@@ -369,15 +369,21 @@ const Redeem = () => {
                     )}
                 </Snackbar>
                 <div className="mb-4 w-full items-center flex flex-col">
-                    <input 
-                        id="ophirAmount" 
-                        type="number" 
-                        className="input-bg text-xl text-white p-2 text-center" 
-                        placeholder="Enter OPHIR amount" 
-                        value={ophirAmount}
-                        onChange={(e) => setOphirAmount(Number(e.target.value))}
-                    />
-                    {ophirAmount && (
+                <input 
+                    id="ophirAmount" 
+                    type="text" 
+                    inputMode="decimal" // Allows mobile users to open numeric keyboard
+                    pattern="[0-9]*" // Ensures only numbers can be input
+                    className="input-bg mt-2 text-xl text-white p-2 text-center" 
+                    placeholder="Enter OPHIR amount" 
+                    value={ophirAmount}
+                    onChange={(e) => {
+                        // Allow only numbers to be input
+                        const value = e.target.value.replace(/[^\d.]/g, '');
+                        setOphirAmount(value ? Number(value) : '');
+                    }}
+                />
+                    {ophirAmount > 0 && (
                         <div className="mt-4 overflow-x-auto">
                             <p className="text-xl mb-2 items-center flex flex-col">Assets to be redeemed:</p>
                             <table className="table-auto w-full">
@@ -440,6 +446,25 @@ const Redeem = () => {
                                                     
                         </div>
                         
+                    )}
+                    {ophirBalance <= 0 && (
+                        
+                        <>
+                            <div className="text-center mt-5 my-4">
+                                <a href="https://app.whitewhale.money/migaloo/swap?from=WHALE&to=OPHIR" target="_blank" rel="noopener noreferrer" className="landing-button font-medium py-2 px-4 hover:bg-yellow-500">
+                                    Buy $OPHIR
+                                </a>
+                            </div>
+                            <div className="text-center my-4">
+                                <a href="/seekers" rel="noopener noreferrer" className="landing-button mt-3 font-medium py-2 px-4 hover:bg-yellow-500">
+                                    $OPHIR Seeker's Round
+                                </a>
+                            </div>
+                            
+                        </>
+                    )}
+                    {ophirAmount <= 0 && (
+                        <div className="text-center mt-5 text-red-500">Please enter a valid OPHIR amount</div>
                     )}
                 </div>
             </div>
