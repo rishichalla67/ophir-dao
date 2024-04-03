@@ -200,8 +200,9 @@ const Redeem = () => {
                     handleLedgerConnectionBool={handleLedgerConnection}
                 />
             </div>
-        <div className="redeemable-box max-w-4xl flex flex-col items-center">
-            <div className="text-xl sm:text-3xl font-bold mb-2">Ophir Balance: {ophirBalance}</div>
+            <h1 className={`text-3xl font-bold h1-color pt-14 sm:pt-0`}>Redeem OPHIR</h1>
+            <div className="redeemable-box max-w-4xl flex flex-col items-center">
+                <div className="text-xl sm:text-3xl font-bold mb-2">Ophir Balance: {ophirBalance}</div>
                 {redemptionValues.redemptionPricePerOPHIR && (
                     <div className="text-md sm:text-xl mb-2">
                         Redemption Price: ${redemptionValues.redemptionPricePerOPHIR.toFixed(7)}
@@ -251,7 +252,7 @@ const Redeem = () => {
                                     .filter(({ value }) => value > 0.01) // Filter out any values that are 0.01
                                     .sort((a, b) => b.value - a.value) // Sort by value in descending order
                                     .map(({ asset, amount, value }) => (
-                                        <tr key={asset} className="table-box">
+                                        <tr key={asset} className="">
                                             <td className="px-4 py-2 text-sm sm:text-base">{asset}</td>
                                             <td className="px-4 py-2 text-sm sm:text-base">{amount.toFixed(6)}</td>
                                             <td className="px-4 py-2 text-sm sm:text-base">${value.toFixed(2)}</td> {/* Display the value with 2 decimal places */}
