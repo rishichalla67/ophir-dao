@@ -87,17 +87,21 @@ const Redeem = () => {
 
     useEffect(() => {
         if (connectedWalletAddress) {
-            if(isTestnet){
-                checkBalanceTestnet(connectedWalletAddress).then(balance => {
-                    setOphirBalance(balance); // Update the balance state when the promise resolves
-                });
-            }else{
-                checkBalance(connectedWalletAddress).then(balance => {
-                    setOphirBalance(balance); // Update the balance state when the promise resolves
-                });
-            }
+            checkBalances();
         }
     }, [connectedWalletAddress]); // Re-run this effect when connectedWalletAddress changes
+
+    function checkBalances() {
+        if(isTestnet){
+            checkBalanceTestnet(connectedWalletAddress).then(balance => {
+                setOphirBalance(balance); // Update the balance state when the promise resolves
+            });
+        }else{
+            checkBalance(connectedWalletAddress).then(balance => {
+                setOphirBalance(balance); // Update the balance state when the promise resolves
+            });
+        }
+    }
 
     useEffect(() => {
         if(isTestnet){
@@ -110,13 +114,13 @@ const Redeem = () => {
     }, [isTestnet]);
 
     useEffect(() => {
-        // const debounceTimer = setTimeout(() => {
+        const debounceTimer = setTimeout(() => {
         if (ophirAmount) {
             handleQueryContract();
         }
-        // }, 500); // 500ms debounce time
+        }, 100); // 100ms debounce time
     
-        // return () => clearTimeout(debounceTimer); // Clear the timeout if the component unmounts or the value changes
+        return () => clearTimeout(debounceTimer); // Clear the timeout if the component unmounts or the value changes
     }, [ophirAmount, isTestnet]);
 
 
@@ -166,6 +170,7 @@ const Redeem = () => {
     
             console.log("Execute contract message result:", result);
             showAlert("Message executed successfully!", 'success');
+            checkBalances();
         } catch (error) {
             console.error("Error executing contract message:", error);
             showAlert(`Error executing contract message. ${error.message}`, 'error');
@@ -245,7 +250,7 @@ const Redeem = () => {
                 }, {}));
             }
             console.log('Redemption Values:', redemptionValues);
-            const totalAmount = calculateTotalValue(redemptionValues);
+            const totalAmount = calculateTotalValue();
             setTotalValueInfo(totalAmount); 
             console.log('Total Value Info:', totalValueInfo);
         } catch (error) {
@@ -253,6 +258,13 @@ const Redeem = () => {
             showAlert(`Error querying contract. ${error.message}`, 'error');
         }
     };
+
+    useEffect(() => {
+        // Assuming calculateTotalValue is modified to directly use state variables
+        // or you pass the latest state as arguments here.
+        const totalValueInfo = calculateTotalValue(redemptionValues, ophirPrices);
+        setTotalValueInfo(totalValueInfo);
+      }, [ophirAmount, redemptionValues, ophirPrices]);
 
     const withdrawCoins = async () => {
         if (!ophirAmount) {
@@ -299,10 +311,10 @@ const Redeem = () => {
         }
     };
 
-    const calculateTotalValue = (redemptionValues) => {
+    const calculateTotalValue = () => {
         let totalValue = 0;
         let allDenomsUsed = true;
-        console.log(redemptionValues);
+        console.log(ophirPrices);
         Object.keys(redemptionValues).forEach(denom => {
             const priceInfo = ophirPrices[denom] || 0; // Default to a price of 0 if not found
             console.log('Token Denom:', denom);
@@ -319,13 +331,13 @@ const Redeem = () => {
         return { totalValue, allDenomsUsed };
     };
     
-    if (Object.keys(ophirPrices).length === 0) {
-        return (
-            <div className="flex justify-center items-center h-screen">
-                <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"></div>
-            </div>
-        );
-    }
+    // if (Object.keys(ophirPrices).length === 0) {
+    //     return (
+    //         <div className="flex justify-center items-center h-screen">
+    //             <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"></div>
+    //         </div>
+    //     );
+    // }
 
     return (
         <div className="global-bg mt-4 text-white min-h-screen flex flex-col items-center w-full" style={{ paddingTop: '10dvh' }}>
@@ -377,7 +389,7 @@ const Redeem = () => {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                {isTestnet ? (
+                                {isTestnet && ophirPrices ? (
                                     Object.entries(redemptionValues)
                                         .filter(([key]) => !["redemptionPricePerOPHIR", "totalRedemptionValue", "calculatedAt"].includes(key))
                                         .map(([asset, amount]) => {
