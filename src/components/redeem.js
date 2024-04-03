@@ -447,8 +447,7 @@ const Redeem = () => {
                         </div>
                         
                     )}
-                    {ophirBalance <= 0 && (
-                        
+                    {connectedWalletAddress && ophirBalance <= 0 && (
                         <>
                             <div className="text-center mt-5 my-4">
                                 <a href="https://app.whitewhale.money/migaloo/swap?from=WHALE&to=OPHIR" target="_blank" rel="noopener noreferrer" className="landing-button font-medium py-2 px-4 hover:bg-yellow-500">
@@ -463,7 +462,7 @@ const Redeem = () => {
                             
                         </>
                     )}
-                    {ophirAmount <= 0 && (
+                    {(ophirAmount <= 0 && ophirAmount !== '') && (
                         <div className="text-center mt-5 text-red-500">Please enter a valid OPHIR amount</div>
                     )}
                 </div>
