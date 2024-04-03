@@ -199,14 +199,14 @@ const Redeem = () => {
     };
     
     return (
-        <div className="bg-black mt-4 text-white min-h-screen flex flex-col items-center w-full" style={{ paddingTop: '10dvh' }}>
+        <div className="global-bg mt-4 text-white min-h-screen flex flex-col items-center w-full" style={{ paddingTop: '10dvh' }}>
             <div className="absolute top-14 right-0 m-4 mr-2 sm:mr-4">
                 <WalletConnect 
                     handleConnectedWalletAddress={handleConnectedWalletAddress} 
                     handleLedgerConnectionBool={handleLedgerConnection}
                 />
             </div>
-        <div className="w-full max-w-4xl flex flex-col items-center">
+        <div className="redeemable-box max-w-4xl flex flex-col items-center">
             <div className="text-xl sm:text-3xl font-bold mb-2">Ophir Balance: {ophirBalance}</div>
                 {redemptionValues.redemptionPricePerOPHIR && (
                     <div className="text-md sm:text-xl mb-2">
@@ -230,7 +230,7 @@ const Redeem = () => {
                     <input 
                         id="ophirAmount" 
                         type="number" 
-                        className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
+                        className="input-bg text-xl text-white p-2 text-center" 
                         placeholder="Enter OPHIR amount" 
                         value={ophirAmount}
                         onChange={(e) => setOphirAmount(Number(e.target.value))}
@@ -240,10 +240,10 @@ const Redeem = () => {
                             <p className="text-xl mb-2 items-center flex flex-col">Assets to be redeemed:</p>
                             <table className="table-auto w-full">
                                 <thead>
-                                    <tr className="text-left">
-                                        <th className="px-4 py-2">Asset</th>
+                                    <tr className="text-left table-header">
+                                        <th className="radius-left px-4 py-2">Assets</th>
                                         <th className="px-4 py-2">Amount</th>
-                                        <th className="px-4 py-2">Value</th>
+                                        <th className="radius-right px-4 py-2">Value</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -257,21 +257,21 @@ const Redeem = () => {
                                     .filter(({ value }) => value > 0.01) // Filter out any values that are 0.01
                                     .sort((a, b) => b.value - a.value) // Sort by value in descending order
                                     .map(({ asset, amount, value }) => (
-                                        <tr key={asset} className="bg-black">
-                                            <td className="border px-4 py-2 text-sm sm:text-base">{asset}</td>
-                                            <td className="border px-4 py-2 text-sm sm:text-base">{amount.toFixed(6)}</td>
-                                            <td className="border px-4 py-2 text-sm sm:text-base">${value.toFixed(2)}</td> {/* Display the value with 2 decimal places */}
+                                        <tr key={asset} className="table-box">
+                                            <td className="px-4 py-2 text-sm sm:text-base">{asset}</td>
+                                            <td className="px-4 py-2 text-sm sm:text-base">{amount.toFixed(6)}</td>
+                                            <td className="px-4 py-2 text-sm sm:text-base">${value.toFixed(2)}</td> {/* Display the value with 2 decimal places */}
                                         </tr>
                                     ))
                                 }
                                 </tbody>
                             </table>
-                            <div className="text-center mt-4 text-sm sm:text-base">
-                                Total Value of Redeemed Assets: ${redemptionValues.totalRedemptionValue ? redemptionValues.totalRedemptionValue.toFixed(2) : '0.00'}
+                            <div className="redeem-assets text-center mt-4 text-sm sm:text-base">
+                                <span className='value-redeem'>Total Value of Redeemed Assets:</span> ${redemptionValues.totalRedemptionValue ? redemptionValues.totalRedemptionValue.toFixed(2) : '0.00'}
                             </div>
 
                             <div className="flex justify-center w-full">
-                                <button className="mt-5 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={executeContractMessage}>Redeem OPHIR</button>
+                                <button className="redeem-button py-2 px-4 font-medium rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={executeContractMessage}>Redeem OPHIR</button>
                             </div>         
                                                     
                         </div>
