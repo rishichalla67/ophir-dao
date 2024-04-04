@@ -431,7 +431,7 @@ const Redeem = () => {
                 <tbody>
                     {balances.map((balance, index) => (
                         <tr key={index}>
-                            <td className="border px-4 py-2">{tokenMappings[balance.denom]?.symbol || balance.denom}</td>
+                            <td className="border px-4 py-2">{tokenMappings[balance.denom]?.symbol || balance.denom.split('/').pop()}</td>
                             <td className="border px-4 py-2">{(balance.amount / Math.pow(10, tokenMappings[balance.denom]?.decimals || 6)).toFixed(tokenMappings[balance.denom]?.decimals || 6)}</td>
                         </tr>
                     ))}
