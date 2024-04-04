@@ -125,6 +125,49 @@ const Redeem = () => {
 
 
     const getSigner = async () => {
+        if (window.keplr.experimentalSuggestChain) {
+            await window.keplr.experimentalSuggestChain({
+                // Chain details
+                chainId: 'narwhal-2',
+                chainName: "Migaloo Testnet",
+                rpc: "https://migaloo-testnet-rpc.polkachu.com:443", // Example RPC endpoint, replace with actual
+                rest: "https://migaloo-testnet-api.polkachu.com", // Example REST endpoint, replace with actual
+                bip44: {
+                    coinType: 118, // Example coinType, replace with actual
+                },
+                bech32Config: {
+                    bech32PrefixAccAddr: "migaloo",
+                    bech32PrefixAccPub: "migaloopub",
+                    bech32PrefixValAddr: "migaloovaloper",
+                    bech32PrefixValPub: "migaloovaloperpub",
+                    bech32PrefixConsAddr: "migaloovalcons",
+                    bech32PrefixConsPub: "migaloovalconspub",
+                },
+                currencies: [{
+                    // Example currency, replace with actual
+                    coinDenom: "whale",
+                    coinMinimalDenom: "uwhale",
+                    coinDecimals: 6,
+                }],
+                feeCurrencies: [{
+                    // Example fee currency, replace with actual
+                    coinDenom: "whale",
+                    coinMinimalDenom: "uwhale",
+                    coinDecimals: 6,
+                }],
+                stakeCurrency: {
+                    // Example stake currency, replace with actual
+                    coinDenom: "whale",
+                    coinMinimalDenom: "uwhale",
+                    coinDecimals: 6,
+                },
+                gasPriceStep: {
+                    low: 0.2,
+                    average: 0.45,
+                    high: 0.75,
+                },
+            });
+        }
         await window.keplr.enable(chainId);
         const offlineSigner = window.keplr.getOfflineSigner(chainId);
         return offlineSigner;
@@ -215,6 +258,50 @@ const Redeem = () => {
         }
     };
 
+    // const handleQueryContract = async () => {
+    //     try {
+    //         const message = {
+    //             get_redemption_calculation: {
+    //                 amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
+    //             }
+    //         };
+    //         const formattedJsonString = JSON.stringify(message, null, 1); // This adds spaces in the JSON string
+    //         const encodedQuery = Buffer.from(formattedJsonString).toString('base64');
+    //         let baseURL = chainId === 'narwhal-2' ? 'https://migaloo-testnet-api.polkachu.com' : 'https://migaloo-api.polkachu.com';
+    //         if(isTestnet){
+    //             baseURL = 'https://migaloo-testnet-api.polkachu.com';
+    //         }
+    //         else{
+    //             baseURL = 'https://migaloo-api.polkachu.com';
+    //         }
+    //         // TODO: Remove before pushing
+    //         // let baseURL = 'https://migaloo-api.polkachu.com'
+    //         // let contractAddress = CONTRACT_ADDRESS;
+            
+    //         const queryUrl = `${baseURL}/cosmwasm/wasm/v1/contract/${contractAddress}/smart/${encodedQuery}`;
+    //         const response = await fetch(queryUrl);
+    //         const queryResponse = await response.json();
+    //         console.log('Query response:', queryResponse.data?.redemptions);
+    
+    //         // Set the redemption values as the response.data.redemptions
+    //         if (queryResponse && queryResponse.data && queryResponse.data?.redemptions) {
+    //             setRedemptionValues(queryResponse.data.redemptions.reduce((acc, redemption) => {
+    //                 const tokenInfo = tokenMappings[redemption.denom] || { symbol: redemption.denom, decimals: 6 }; // Default to denom and 6 decimals if not found
+    //                 const adjustedAmount = Number(redemption.amount) / Math.pow(10, tokenInfo.decimals); // Adjust the amount by the token's decimals
+    //                 acc[tokenInfo.symbol] = adjustedAmount;
+    //                 return acc;
+    //             }, {}));
+    //         }
+    //         console.log('Redemption Values:', redemptionValues);
+    //         const totalAmount = calculateTotalValue();
+    //         setTotalValueInfo(totalAmount); 
+    //         console.log('Total Value Info:', totalValueInfo);
+    //     } catch (error) {
+    //         console.error('Error querying contract:', error);
+    //         showAlert(`Error querying contract. ${error.message}`, 'error');
+    //     }
+    // };
+
     const handleQueryContract = async () => {
         try {
             const message = {
@@ -222,37 +309,26 @@ const Redeem = () => {
                     amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
                 }
             };
-            const formattedJsonString = JSON.stringify(message, null, 1); // This adds spaces in the JSON string
-            const encodedQuery = Buffer.from(formattedJsonString).toString('base64');
-            let baseURL = chainId === 'narwhal-2' ? 'https://migaloo-testnet-api.polkachu.com' : 'https://migaloo-api.polkachu.com';
-            if(isTestnet){
-                baseURL = 'https://migaloo-testnet-api.polkachu.com';
-            }
-            else{
-                baseURL = 'https://migaloo-api.polkachu.com';
-            }
-            // TODO: Remove before pushing
-            // let baseURL = 'https://migaloo-api.polkachu.com'
-            // let contractAddress = CONTRACT_ADDRESS;
-            
-            const queryUrl = `${baseURL}/cosmwasm/wasm/v1/contract/${contractAddress}/smart/${encodedQuery}`;
-            const response = await fetch(queryUrl);
-            const queryResponse = await response.json();
-            console.log('Query response:', queryResponse.data?.redemptions);
     
-            // Set the redemption values as the response.data.redemptions
-            if (queryResponse && queryResponse.data && queryResponse.data?.redemptions) {
-                setRedemptionValues(queryResponse.data.redemptions.reduce((acc, redemption) => {
+            const signer = getSigner();
+            const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
+    
+            // Query the smart contract directly using SigningCosmWasmClient.queryContractSmart
+            const queryResponse = await client.queryContractSmart(contractAddress, message);
+        
+            // Process the query response as needed
+            if (queryResponse && queryResponse.redemptions) {
+                setRedemptionValues(queryResponse.redemptions.reduce((acc, redemption) => {
                     const tokenInfo = tokenMappings[redemption.denom] || { symbol: redemption.denom, decimals: 6 }; // Default to denom and 6 decimals if not found
                     const adjustedAmount = Number(redemption.amount) / Math.pow(10, tokenInfo.decimals); // Adjust the amount by the token's decimals
                     acc[tokenInfo.symbol] = adjustedAmount;
                     return acc;
                 }, {}));
             }
-            console.log('Redemption Values:', redemptionValues);
+    
+            // Assuming calculateTotalValue uses the latest state directly or you pass the latest state as arguments
             const totalAmount = calculateTotalValue();
-            setTotalValueInfo(totalAmount); 
-            console.log('Total Value Info:', totalValueInfo);
+            setTotalValueInfo(totalAmount);
         } catch (error) {
             console.error('Error querying contract:', error);
             showAlert(`Error querying contract. ${error.message}`, 'error');
@@ -383,7 +459,7 @@ const Redeem = () => {
                         setOphirAmount(value ? Number(value) : '');
                     }}
                 />
-                    {ophirAmount > 0 && (
+                    {ophirAmount > 0 && Object.keys(redemptionValues).length > 0 && (
                         <div className="mt-4 overflow-x-auto">
                             <p className="text-xl mb-2 items-center flex flex-col">Assets to be redeemed:</p>
                             <table className="table-auto w-full">
@@ -446,6 +522,9 @@ const Redeem = () => {
                                                     
                         </div>
                         
+                    )}
+                    {ophirAmount > 0 && Object.keys(redemptionValues).length <= 0 && (
+                        <div className="text-center mt-5 text-red-500">Not enough OPHIR to redeem</div>
                     )}
                     {connectedWalletAddress && ophirBalance <= 0 && (
                         <>
