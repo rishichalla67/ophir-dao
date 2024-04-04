@@ -12,10 +12,10 @@ const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
 const DAO_ADDRESS = "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc";
 const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
-const DAO_ADDRESS_TESTNET = "migaloo1wdpwwzljkmw87323jkha700lypkpd37jgxj25dwlflnnz8w6updsukf85v";
-const OPHIR_DENOM_TESNET = "factory/migaloo1tmxrk9cnmqmt7vmwdl2mqgtcp5kezqahvdmw6lr5nya66ckkzhns9qazqg/ophirdao";
+const DAO_ADDRESS_TESTNET = "migaloo14ke63efdjcjh2w6f4q7h4au5ccuktfw0t7ajtx8n6zu0wpr00a8skdv03n";
+const OPHIR_DENOM_TESNET = "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir";
 const CONTRACT_ADDRESS = 'migaloo1seez8q2j8t2206w2vxprs9m9sy0nluscnyyngfnvk4sjvlq2ak5q5zsxdk';
-const CONTRACT_ADDRESS_TESTNET = 'migaloo1k2rxx8wn8v7al9awe0e2mf0v4nufluwrvawtm2hu874l2jjfzxxq7qsng7';
+const CONTRACT_ADDRESS_TESTNET = 'migaloo1svltkgn9ecuf2s5dwrtr6n9whn4n05f2608myy65we35pr8hy7eqsk8zq3';
 
 const OPHIR_DECIMAL = 1000000;
 
