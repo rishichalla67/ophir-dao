@@ -55,6 +55,9 @@ const Redeem = () => {
     const [totalValueInfo, setTotalValueInfo] = useState({ totalValue: 0, allDenomsUsed: false });
     const [isLedgerConnected, setIsLedgerConnected] = useState(false);
     const [alertInfo, setAlertInfo] = useState({ open: false, message: '', severity: 'info' });
+    const [allBalances, setAllBalances] = useState({});
+    const [allBalancesTestnet, setAllBalancesTestnet] = useState({});
+    const [isLoading, setIsLoading] = useState(false);
 
     const [chainId, setChainId] = useState('narwhal-2');
     const [isTestnet, setIsTestnet] = useState(true);
@@ -174,6 +177,7 @@ const Redeem = () => {
     };
 
     const executeContractMessage = async () => {
+        setIsLoading(true);
         try {
             if (!window.keplr) {
                 showAlert("Keplr wallet is not installed.", 'error');
@@ -217,20 +221,27 @@ const Redeem = () => {
         } catch (error) {
             console.error("Error executing contract message:", error);
             showAlert(`Error executing contract message. ${error.message}`, 'error');
+        }finally{
+            setIsLoading(false);
         }
     };
 
     const checkBalance = async (address) => {
-        const baseUrl = "https://migaloo-lcd.erisprotocol.com"; 
-        const response = await fetch(`${baseUrl}/cosmos/bank/v1beta1/balances/${address}`);
-        const data = await response.json();
+        const signer = await getSigner(); // Assuming getSigner is defined as shown previously
     
-        // Assuming the API returns a list of balance objects, each with denom and amount
-        const ophirBalance = data.balances.find(balance => balance.denom === OPHIR_DENOM);
+        // Connect with the signer to get a client capable of signing transactions
+        const client = await SigningStargateClient.connectWithSigner(migalooRPC, signer); // Use the mainnet RPC endpoint
+    
+        // Query all balances for the address
+        const balances = await client.getAllBalances(address);
+        console.log(balances);
+        setAllBalances(balances);
+        // Assuming OPHIR_DENOM is defined elsewhere in your code and represents the denom you're interested in
+        const ophirBalance = balances.find(balance => balance.denom === OPHIR_DENOM);
     
         if (ophirBalance) {
             console.log(`Ophir Balance: ${ophirBalance.amount}`);
-            return ophirBalance.amount/1000000;
+            return parseFloat(ophirBalance.amount) / OPHIR_DECIMAL; // Adjust the division based on the token's decimals, assuming OPHIR_DECIMAL is defined
         } else {
             console.log("Ophir Balance: 0");
             return 0;
@@ -245,7 +256,8 @@ const Redeem = () => {
     
         // Query all balances for the address
         const balances = await client.getAllBalances(address);
-    
+        console.log(balances)
+        setAllBalancesTestnet(balances);
         // Assuming OPHIR_DENOM is defined elsewhere in your code and represents the denom you're interested in
         const ophirBalance = balances.find(balance => balance.denom === OPHIR_DENOM_TESNET);
     
@@ -407,13 +419,26 @@ const Redeem = () => {
         return { totalValue, allDenomsUsed };
     };
     
-    // if (Object.keys(ophirPrices).length === 0) {
-    //     return (
-    //         <div className="flex justify-center items-center h-screen">
-    //             <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-white"></div>
-    //         </div>
-    //     );
-    // }
+    function BalanceTable({ balances }) {
+        return (
+            <table className="table-auto w-full mt-2">
+                <thead>
+                    <tr>
+                        <th className="px-4 py-2">Asset</th>
+                        <th className="px-4 py-2">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {balances.map((balance, index) => (
+                        <tr key={index}>
+                            <td className="border px-4 py-2">{tokenMappings[balance.denom]?.symbol || balance.denom}</td>
+                            <td className="border px-4 py-2">{(balance.amount / Math.pow(10, tokenMappings[balance.denom]?.decimals || 6)).toFixed(tokenMappings[balance.denom]?.decimals || 6)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    }
 
     return (
         <div className="global-bg mt-4 text-white min-h-screen flex flex-col items-center w-full" style={{ paddingTop: '10dvh' }}>
@@ -516,10 +541,17 @@ const Redeem = () => {
 
                             {isTestnet && (
                                 <div className="flex justify-center w-full">
-                                    <button className="redeem-button py-2 px-4 font-medium rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={executeContractMessage}>Redeem OPHIR</button>
+                                    <button className="redeem-button py-2 px-4 font-medium rounded hover:bg-yellow-500 transition duration-300 ease-in-out flex items-center justify-center" onClick={executeContractMessage} disabled={isLoading}>
+                                        <div className="flex items-center justify-center">
+                                            {isLoading ? (
+                                                <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                                            ) : (
+                                                <span>Redeem OPHIR</span>
+                                            )}
+                                        </div>
+                                    </button>
                                 </div>         
                             )}
-                                                    
                         </div>
                         
                     )}
@@ -545,6 +577,23 @@ const Redeem = () => {
                         <div className="text-center mt-5 text-red-500">Please enter a valid OPHIR amount</div>
                     )}
                 </div>
+                {((Array.isArray(allBalancesTestnet) && allBalancesTestnet.length > 0) || (Array.isArray(allBalances) && allBalances.length > 0)) && (
+                    <div className="testnet-balance mt-5">
+                        <div className="text-center text-sm sm:text-base">
+                            {isTestnet ? (
+                                <>
+                                    <span className="font-medium">Testnet Balances:</span>
+                                    <BalanceTable balances={allBalancesTestnet} />
+                                </>
+                            ) : (
+                                <>
+                                    <span className="font-medium">Balances:</span>
+                                    <BalanceTable balances={allBalances} />
+                                </>
+                            )}
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
