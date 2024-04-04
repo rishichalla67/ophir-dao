@@ -40,6 +40,7 @@ const tokenMappings = {
 const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
 const DAO_ADDRESS = "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc";
+const DAO_ADDRESS_TESTNET = "migaloo14ke63efdjcjh2w6f4q7h4au5ccuktfw0t7ajtx8n6zu0wpr00a8skdv03n";
 const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
 const OPHIR_DENOM_TESNET = "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir";
 const CONTRACT_ADDRESS = "migaloo1seez8q2j8t2206w2vxprs9m9sy0nluscnyyngfnvk4sjvlq2ak5q5zsxdk";
@@ -58,6 +59,7 @@ const Redeem = () => {
     const [allBalances, setAllBalances] = useState({});
     const [allBalancesTestnet, setAllBalancesTestnet] = useState({});
     const [isLoading, setIsLoading] = useState(false);
+    const [daoBalance, setDaoBalance] = useState('');
 
     const [chainId, setChainId] = useState('narwhal-2');
     const [isTestnet, setIsTestnet] = useState(true);
@@ -73,6 +75,10 @@ const Redeem = () => {
     const showAlert = (message, severity = 'info', htmlContent = null) => {
         setAlertInfo({ open: true, message, severity, htmlContent });
     };
+
+    useEffect(() => {
+        checkDAOBalance();
+    }, [rpc]);
 
     useEffect(() => {
         fetch('https://parallax-analytics.onrender.com/ophir/prices')
@@ -91,6 +97,10 @@ const Redeem = () => {
     useEffect(() => {
         if (connectedWalletAddress) {
             checkBalances();
+            checkDAOBalance();
+            if (ophirAmount) {
+                handleQueryContract();
+            }
         }
     }, [connectedWalletAddress, isTestnet]); // Re-run this effect when connectedWalletAddress changes
 
@@ -110,9 +120,11 @@ const Redeem = () => {
         if(isTestnet){
             setRPC(migalooTestnetRPC);
             setContractAddress(CONTRACT_ADDRESS_TESTNET);
+            setOphirAmount('');
         }else{
             setRPC(migalooRPC);
             setContractAddress(CONTRACT_ADDRESS);
+            setOphirAmount('');
         }
     }, [isTestnet]);
 
@@ -270,49 +282,27 @@ const Redeem = () => {
         }
     };
 
-    // const handleQueryContract = async () => {
-    //     try {
-    //         const message = {
-    //             get_redemption_calculation: {
-    //                 amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
-    //             }
-    //         };
-    //         const formattedJsonString = JSON.stringify(message, null, 1); // This adds spaces in the JSON string
-    //         const encodedQuery = Buffer.from(formattedJsonString).toString('base64');
-    //         let baseURL = chainId === 'narwhal-2' ? 'https://migaloo-testnet-api.polkachu.com' : 'https://migaloo-api.polkachu.com';
-    //         if(isTestnet){
-    //             baseURL = 'https://migaloo-testnet-api.polkachu.com';
-    //         }
-    //         else{
-    //             baseURL = 'https://migaloo-api.polkachu.com';
-    //         }
-    //         // TODO: Remove before pushing
-    //         // let baseURL = 'https://migaloo-api.polkachu.com'
-    //         // let contractAddress = CONTRACT_ADDRESS;
-            
-    //         const queryUrl = `${baseURL}/cosmwasm/wasm/v1/contract/${contractAddress}/smart/${encodedQuery}`;
-    //         const response = await fetch(queryUrl);
-    //         const queryResponse = await response.json();
-    //         console.log('Query response:', queryResponse.data?.redemptions);
+    const checkDAOBalance = async () => {
+        const signer = await getSigner(); // Assuming getSigner is defined as shown previously
     
-    //         // Set the redemption values as the response.data.redemptions
-    //         if (queryResponse && queryResponse.data && queryResponse.data?.redemptions) {
-    //             setRedemptionValues(queryResponse.data.redemptions.reduce((acc, redemption) => {
-    //                 const tokenInfo = tokenMappings[redemption.denom] || { symbol: redemption.denom, decimals: 6 }; // Default to denom and 6 decimals if not found
-    //                 const adjustedAmount = Number(redemption.amount) / Math.pow(10, tokenInfo.decimals); // Adjust the amount by the token's decimals
-    //                 acc[tokenInfo.symbol] = adjustedAmount;
-    //                 return acc;
-    //             }, {}));
-    //         }
-    //         console.log('Redemption Values:', redemptionValues);
-    //         const totalAmount = calculateTotalValue();
-    //         setTotalValueInfo(totalAmount); 
-    //         console.log('Total Value Info:', totalValueInfo);
-    //     } catch (error) {
-    //         console.error('Error querying contract:', error);
-    //         showAlert(`Error querying contract. ${error.message}`, 'error');
-    //     }
-    // };
+        // Connect with the signer to get a client capable of signing transactions
+        const client = await SigningStargateClient.connectWithSigner(rpc, signer);
+    
+        // Query all balances for the address
+        const balances = await client.getAllBalances(isTestnet ? DAO_ADDRESS_TESTNET : DAO_ADDRESS);
+        // console.log(balances)
+        // setAllBalancesTestnet(balances);
+        // Assuming OPHIR_DENOM is defined elsewhere in your code and represents the denom you're interested in
+        const ophirBalance = balances.find(balance => balance.denom === (isTestnet ? OPHIR_DENOM_TESNET : OPHIR_DENOM));
+        if (ophirBalance) {
+            console.log(`Ophir Balance: ${ophirBalance.amount}`);
+            setDaoBalance(parseFloat(ophirBalance.amount) / 1000000)
+            return parseFloat(ophirBalance.amount) / 1000000; // Adjust the division based on the token's decimals
+        } else {
+            console.log("Ophir Balance: 0");
+            return 0;
+        }
+    };
 
     const handleQueryContract = async () => {
         try {
@@ -402,7 +392,7 @@ const Redeem = () => {
     const calculateTotalValue = () => {
         let totalValue = 0;
         let allDenomsUsed = true;
-        console.log(ophirPrices);
+        // console.log(ophirPrices);
         Object.keys(redemptionValues).forEach(denom => {
             const priceInfo = ophirPrices[denom] || 0; // Default to a price of 0 if not found
             console.log('Token Denom:', denom);
@@ -438,7 +428,7 @@ const Redeem = () => {
                     {balances.map((balance, index) => (
                         <tr key={index}>
                             <td className="border px-4 py-2">{tokenMappings[balance.denom]?.symbol || balance.denom.split('/').pop()}</td>
-                            <td className="border px-4 py-2">{(balance.amount / Math.pow(10, tokenMappings[balance.denom]?.decimals || 6)).toFixed(tokenMappings[balance.denom]?.decimals || 6)}</td>
+                            <td className="border px-4 py-2">{parseFloat((balance.amount / Math.pow(10, tokenMappings[balance.denom]?.decimals || 6)).toFixed(4)).toLocaleString()}</td>
                         </tr>
                     ))}
                 </tbody>
@@ -456,7 +446,7 @@ const Redeem = () => {
             </div>
             <h1 className={`text-lg sm:text-3xl font-bold h1-color pt-14 sm:pt-0 cursor-pointer text-center`} onClick={() => setIsTestnet(!isTestnet)}>{isTestnet ? "Redeem OPHIR (Testnet)" : "Redeem OPHIR"}</h1>
             <div className="redeemable-box max-w-4xl flex flex-col items-center">
-                <div className="text-lg sm:text-3xl font-bold mb-2 text-center">Ophir Balance: {ophirBalance}</div>
+                <div className="text-lg sm:text-3xl font-bold mb-2 text-center">Ophir Balance: {ophirBalance.toLocaleString()}</div>
                 {redemptionValues.redemptionPricePerOPHIR && (
                     <div className="text-md sm:text-xl mb-2">
                         Redemption Price: ${redemptionValues.redemptionPricePerOPHIR.toFixed(7)}
@@ -513,7 +503,7 @@ const Redeem = () => {
                                         .map(({ asset, amount, value }) => (
                                             <tr key={asset}>
                                                 <td className="px-4 py-2 text-sm sm:text-base">{asset.split('/').pop()}</td>
-                                                <td className="px-4 py-2 text-sm sm:text-base">{(amount).toFixed(10)}</td>
+                                                <td className="px-4 py-2 text-sm sm:text-base">{(amount).toFixed(5)}</td>
                                                 <td className="px-4 py-2 text-sm sm:text-base text-center">${value.toFixed(2)}</td>
                                             </tr>
                                         ))
@@ -585,6 +575,9 @@ const Redeem = () => {
                 </div>
                 {((Array.isArray(allBalancesTestnet) && allBalancesTestnet.length > 0) || (Array.isArray(allBalances) && allBalances.length > 0)) && (
                     <div className="testnet-balance mt-5">
+                        <div className="dao-balance text-center mt-4 text-sm sm:text-base">
+                            <span>DAO OPHIR Balance: {daoBalance.toLocaleString()}</span>
+                        </div>
                         <div className="text-center text-sm sm:text-base">
                             {isTestnet ? (
                                 <>
