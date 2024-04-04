@@ -420,6 +420,12 @@ const Redeem = () => {
     };
     
     function BalanceTable({ balances }) {
+        // Ensure balances is an array before proceeding
+        if (!Array.isArray(balances)) {
+            console.error('BalanceTable expects balances to be an array, received:', balances);
+            return null; // Return null or some fallback UI
+        }
+    
         return (
             <table className="table-auto w-full mt-2">
                 <thead>
