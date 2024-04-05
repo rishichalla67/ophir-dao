@@ -44,7 +44,7 @@ const DAO_ADDRESS_TESTNET = "migaloo14ke63efdjcjh2w6f4q7h4au5ccuktfw0t7ajtx8n6zu
 const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
 const OPHIR_DENOM_TESNET = "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir";
 const CONTRACT_ADDRESS = "migaloo1seez8q2j8t2206w2vxprs9m9sy0nluscnyyngfnvk4sjvlq2ak5q5zsxdk";
-const CONTRACT_ADDRESS_TESTNET = "migaloo1f6aqnzx08w7kyljaqeux97qus4djvez9s7nxupam9n6kn0s7d2cqtrz6az";
+const CONTRACT_ADDRESS_TESTNET = "migaloo1ewgnp3lsdp60pm2kqm2y0l06mvetq7e0a64s7mrnznngv3tnpe0qulm2tm";
 const OPHIR_DECIMAL = 1000000;
 
 const Redeem = () => {
@@ -318,14 +318,33 @@ const Redeem = () => {
             // Query the smart contract directly using SigningCosmWasmClient.queryContractSmart
             const queryResponse = await client.queryContractSmart(contractAddress, message);
         
+            console.log(queryResponse)
             // Process the query response as needed
             if (queryResponse && queryResponse.redemptions) {
-                setRedemptionValues(queryResponse.redemptions.reduce((acc, redemption) => {
-                    const tokenInfo = tokenMappings[redemption.denom] || { symbol: redemption.denom, decimals: 6 }; // Default to denom and 6 decimals if not found
-                    const adjustedAmount = Number(redemption.amount) / Math.pow(10, tokenInfo.decimals); // Adjust the amount by the token's decimals
+                const updatedRedemptionValues = queryResponse.redemptions.reduce((acc, redemption) => {
+                    // Retrieve token information from the mappings or use default values
+                    const tokenInfo = tokenMappings[redemption.denom] || { symbol: redemption.denom, decimals: 5 };
+            
+                    // Debugging log to check the tokenInfo being used
+                    console.log('Token Info:', tokenInfo);
+            
+                    // Adjust the amount by the token's decimals
+                    const adjustedAmount = Number(redemption.amount) / Math.pow(10, tokenInfo.decimals);
+            
+                    // Debugging log to check the adjusted amount
+                    console.log('Adjusted Amount for', tokenInfo.symbol, ':', adjustedAmount);
+            
+                    // Accumulate the adjusted amounts by token symbol
                     acc[tokenInfo.symbol] = adjustedAmount;
+            
                     return acc;
-                }, {}));
+                }, {});
+            
+                // Debugging log to check the final accumulated values
+                console.log('Updated Redemption Values:', updatedRedemptionValues);
+            
+                // Update the state with the accumulated values
+                setRedemptionValues(updatedRedemptionValues);
             }
     
             // Assuming calculateTotalValue uses the latest state directly or you pass the latest state as arguments
