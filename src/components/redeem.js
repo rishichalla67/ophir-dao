@@ -5,6 +5,8 @@ import WalletConnect from './walletConnect';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import SnackbarContent from '@mui/material/SnackbarContent';
+import allowedAddresses from '../auth/security.json'; // Adjust the path as necessary
+
 
 const tokenMappings = {
     'ibc/517E13F14A1245D4DE8CF467ADD4DA0058974CDCC880FA6AE536DBCA1D16D84E': { symbol: 'bWhale', decimals: 6 },
@@ -60,11 +62,15 @@ const Redeem = () => {
     const [allBalancesTestnet, setAllBalancesTestnet] = useState({});
     const [isLoading, setIsLoading] = useState(false);
     const [daoBalance, setDaoBalance] = useState('');
-
+    const [recipientAddress, setRecipientAddress] = useState('');
+    const isAddressAllowed = allowedAddresses.includes(connectedWalletAddress);
     const [chainId, setChainId] = useState('narwhal-2');
     const [isTestnet, setIsTestnet] = useState(true);
     const [contractAddress, setContractAddress] = useState(CONTRACT_ADDRESS_TESTNET);
     const [rpc, setRPC] = useState(migalooTestnetRPC);
+    const [isSending, setIsSending] = useState(false); // Add this state at the beginning of your component
+    const [sendOphirAmount, setSendOphirAmount] = useState("100000");
+
 
     const handleConnectedWalletAddress = (address) => {
         setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
@@ -118,10 +124,12 @@ const Redeem = () => {
 
     useEffect(() => {
         if(isTestnet){
+            setChainId("narwhal-2");
             setRPC(migalooTestnetRPC);
             setContractAddress(CONTRACT_ADDRESS_TESTNET);
             setOphirAmount('');
         }else{
+            setChainId("migaloo-1");
             setRPC(migalooRPC);
             setContractAddress(CONTRACT_ADDRESS);
             setOphirAmount('');
@@ -182,7 +190,11 @@ const Redeem = () => {
                     high: 0.75,
                 },
             });
+    
+            // After suggesting the chain, prompt the user to add the OPHIR DAO denom to their Keplr wallet
+            // await window.keplr.experimentalSuggestToken(chainId, isTestnet ? OPHIR_DENOM_TESNET : OPHIR_DENOM, "OPHIR", "https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png", 6);
         }
+        
         await window.keplr.enable(chainId);
         const offlineSigner = window.keplr.getOfflineSigner(chainId);
         return offlineSigner;
@@ -304,6 +316,41 @@ const Redeem = () => {
         }
     };
 
+    const sendOphir = async (recipientAddress) => {
+        try {
+            const signer = await getSigner();
+
+            const amountToSend = {
+                denom: OPHIR_DENOM_TESNET,
+                amount: (Number(sendOphirAmount) * OPHIR_DECIMAL).toString(), // 100000 units of OPHIR
+            };
+    
+            const msgSend = {
+                typeUrl: "/cosmos.bank.v1beta1.MsgSend",
+                value: {
+                    fromAddress: connectedWalletAddress,
+                    toAddress: recipientAddress,
+                    amount: [amountToSend],
+                },
+            };
+    
+            const fee = {
+                amount: [{ denom: "uwhale", amount: "5000" }], // Example fee, adjust as necessary
+                gas: "200000", // Example gas limit, adjust as necessary
+            };
+    
+            // const rpcEndpoint = isTestnet ? migalooTestnetRPC : migalooRPC;
+            const client = await SigningStargateClient.connectWithSigner(migalooTestnetRPC, signer);
+            const txHash = await client.signAndBroadcast(connectedWalletAddress, [msgSend], fee, "Send OPHIR");
+            console.log("Transaction Hash:", txHash);
+            showAlert("OPHIR sent successfully!", 'success');
+            checkBalances()
+        } catch (error) {
+            console.error("Error sending OPHIR:", error);
+            showAlert(`Error sending OPHIR. ${error.message}`, 'error');
+        }
+    };
+
     const handleQueryContract = async () => {
         try {
             const message = {
@@ -362,51 +409,6 @@ const Redeem = () => {
         const totalValueInfo = calculateTotalValue(redemptionValues, ophirPrices);
         setTotalValueInfo(totalValueInfo);
       }, [ophirAmount, redemptionValues, ophirPrices]);
-
-    const withdrawCoins = async () => {
-        if (!ophirAmount) {
-            alert("Please enter an amount to withdraw.");
-            return;
-        }
-
-        try {
-            const chainId = "migaloo-1"; // Make sure this matches the chain you're interacting with
-            await window.keplr.enable(chainId);
-            const offlineSigner = window.keplr.getOfflineSigner(chainId);
-            const accounts = await offlineSigner.getAccounts();
-            const accountAddress = accounts[0].address;
-
-            const amount = {
-                denom: OPHIR_DENOM,
-                amount: String(parseInt(ophirAmount) * 1000000),
-            };
-
-            const msgSend = {
-                typeUrl: "/cosmos.bank.v1beta1.MsgSend",
-                value: {
-                    fromAddress: accountAddress,
-                    toAddress: DAO_ADDRESS, // Treasury Address
-                    amount: [amount],
-                },
-            };
-
-            const fee = {
-                amount: [{
-                    denom: "uwhale",
-                    amount: "5000",
-                }],
-                gas: "200000",
-            };
-
-            const client = await SigningStargateClient.connectWithSigner(rpc, offlineSigner);
-            const txHash = await client.signAndBroadcast(accountAddress, [msgSend], fee, "Withdraw OPHIR");
-            console.log("Transaction Hash:", txHash);
-            alert("Withdrawal successful!");
-        } catch (error) {
-            console.error("Withdrawal error:", error);
-            alert("Withdrawal failed. See console for details.");
-        }
-    };
 
     const calculateTotalValue = () => {
         let totalValue = 0;
@@ -594,21 +596,67 @@ const Redeem = () => {
                 </div>
                 {((Array.isArray(allBalancesTestnet) && allBalancesTestnet.length > 0) || (Array.isArray(allBalances) && allBalances.length > 0)) && (
                     <div className="testnet-balance mt-5">
-                        <div className="dao-balance text-center mt-4 text-sm sm:text-base">
-                            <span>DAO OPHIR Balance: {daoBalance.toLocaleString()}</span>
+                        <div className="dao-balance text-center mt-4 text-sm sm:text-base bg-yellow-500 text-black py-2 px-4 rounded-lg shadow-lg font-bold">
+                            <span>DAO $OPHIR Balance: {daoBalance.toLocaleString()}</span>
                         </div>
-                        <div className="text-center text-sm sm:text-base">
+                        <div className="text-center mt-4 text-sm sm:text-base">
                             {isTestnet ? (
                                 <>
-                                    <span className="font-medium">Testnet Balances:</span>
+                                    <span className="font-medium">Your Testnet Balances:</span>
                                     <BalanceTable balances={allBalancesTestnet} />
                                 </>
                             ) : (
                                 <>
-                                    <span className="font-medium">Balances:</span>
+                                    <span className="font-medium">Your Balances:</span>
                                     <BalanceTable balances={allBalances} />
                                 </>
                             )}
+                        </div>
+                    </div>
+                )}
+                {isAddressAllowed && (
+                    <div className="mt-4">
+                        <div className="flex flex-col items-center">
+                            <input
+                                id="recipientAddress"
+                                type="text"
+                                className="input-bg text-xl text-white p-2 text-center mb-4"
+                                placeholder="Enter recipient address"
+                                value={recipientAddress}
+                                onChange={(e) => setRecipientAddress(e.target.value)}
+                            />
+                            <input
+                                id="amount"
+                                type="text"
+                                className="input-bg text-xl text-white p-2 text-center"
+                                placeholder="100,000"
+                                // Format the display value with commas
+                                value={new Intl.NumberFormat('en-US').format(sendOphirAmount)}
+                                onChange={(e) => {
+                                    // Remove commas from the input value before setting the state
+                                    const value = e.target.value.replace(/,/g, '');
+                                    // Update the state only with numbers
+                                    if (!isNaN(value) && !value.includes(' ')) {
+                                        setSendOphirAmount(value);
+                                    }
+                                }}
+                            />
+                        </div>
+                        <div className="mt-2">
+                            <button
+                                className="py-2 px-4 font-medium rounded hover:bg-blue-500 transition duration-300 ease-in-out block mx-auto"
+                                onClick={() => {
+                                    setIsSending(true); // Set isSending to true when the button is clicked
+                                    sendOphir(recipientAddress).finally(() => setIsSending(false)); // Reset isSending to false when the operation is complete
+                                }}
+                                disabled={!recipientAddress || isSending} // Disable the button when recipientAddress is empty or isSending is true
+                            >
+                                {isSending ? (
+                                    <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white mx-auto"></div> // Spinner
+                                ) : (
+                                    "Send OPHIR"
+                                )}
+                            </button>
                         </div>
                     </div>
                 )}
