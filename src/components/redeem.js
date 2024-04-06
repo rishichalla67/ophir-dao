@@ -53,7 +53,7 @@ const Redeem = () => {
 
     useEffect(() => {
         checkDAOBalance();
-    }, [rpc]);
+    }, [rpc, isLoading]);
 
     useEffect(() => {
         fetch('https://parallax-analytics.onrender.com/ophir/prices')
