@@ -3,6 +3,11 @@ import axios from 'axios';
 import 'chart.js/auto';
 import CryptoPieChart from './pieChart';
 import Charts from './charts';
+import { tokenMappings } from '../helper/tokenMappings';
+import { CosmWasmClient  } from "@cosmjs/cosmwasm-stargate";
+import Alert from '@mui/material/Alert';
+import Snackbar from '@mui/material/Snackbar';
+import SnackbarContent from '@mui/material/SnackbarContent';
 
 const Modal = ({ isOpen, onClose, data }) => {
     if (!isOpen) return null;
@@ -50,7 +55,7 @@ const formatNumber = (number, digits) => {
 
   const prodUrl = 'https://parallax-analytics.onrender.com';
   const localUrl = 'http://localhost:225';
-
+const contractAddress = 'migaloo1esxyqwqn33uckkzlcc26zc8d0yy94pcfac4epnc7rtfxte63gwlqqxux3s';
 
 const AnalyticsDashboard = () => {
     const [ophirStats, setOphirStats] = useState(null);
@@ -65,7 +70,8 @@ const AnalyticsDashboard = () => {
     const [showProgressBar, setShowProgressBar] = useState(true);
     const [activeTab, setActiveTab] = useState('treasury'); // Add this line to manage active tab
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
-
+    const [redemptionPrice, setRedemptionPrice] = useState(0);
+    const [alertInfo, setAlertInfo] = useState({ open: false, message: '', severity: 'info' });
 
     useEffect(() => {
         const handleResize = () => {
@@ -77,6 +83,10 @@ const AnalyticsDashboard = () => {
         // Cleanup the event listener on component unmount
         return () => window.removeEventListener('resize', handleResize);
     }, []);
+
+    const showAlert = (message, severity = 'info', htmlContent = null) => {
+        setAlertInfo({ open: true, message, severity, htmlContent });
+    };
 
     // useEffect(() => {
     //     const timer = setTimeout(() => {
@@ -128,13 +138,72 @@ const AnalyticsDashboard = () => {
         return formatNumber(numericValue / priceData['wBTC'], 4);
     }
 
+    const calculateTotalValue = (redemptionValues, prices) => {
+        console.log(redemptionValues)
+        let totalValue = 0;
+        let allDenomsUsed = true;
+        console.log("PriceDta: ",prices);
+        if (Object.keys(prices).length > 0) {
+            Object.keys(redemptionValues).forEach(denom => {
+                const priceInfo = prices[denom] || 0; // Default to a price of 0 if not found
+                // console.log('Token Denom:', denom);
+                // console.log('Price Info:', priceInfo);
+                if (priceInfo !== 0) {
+                    // console.log(redemptionValues);
+                    const value = redemptionValues[denom] * priceInfo;
+                    // console.log('Token Value:', value);
+                    totalValue += value;
+                } else {
+                    allDenomsUsed = false;
+                }
+            });
+        }
+        return { totalValue, allDenomsUsed };
+    };
+
+    async function getRedemptionPrice (prices) {
+        try {
+            const message = {
+                get_redemption_calculation: {
+                    amount: "10000000000",
+                }
+            };
     
+            const client = await CosmWasmClient.connect('https://migaloo-rpc.polkachu.com/');
+
+            // Query the smart contract directly using CosmWasmClient.queryContractSmart
+            const queryResponse = await client.queryContractSmart(contractAddress, message);
+            let updatedRedemptionValues;
+            console.log(queryResponse)
+            // Process the query response as needed
+            if (queryResponse && queryResponse.redemptions) {
+                updatedRedemptionValues = queryResponse.redemptions.reduce((acc, redemption) => {
+                    // Retrieve token information from the mappings or use default values
+                    const tokenInfo = tokenMappings[redemption.denom] || { symbol: redemption.denom, decimals: 6 };
+                    // Adjust the amount by the token's decimals
+                    const adjustedAmount = Number(redemption.amount) / Math.pow(10, tokenInfo.decimals);            
+                    // Accumulate the adjusted amounts by token symbol
+                    acc[tokenInfo.symbol] = adjustedAmount;
+            
+                    return acc;
+                }, {});
+        
+            }
+            console.log(updatedRedemptionValues)
+            // Assuming calculateTotalValue uses the latest state directly or you pass the latest state as arguments
+            const { totalValue, allDenomsUsed } = calculateTotalValue(updatedRedemptionValues, prices);
+            setRedemptionPrice(totalValue/10000);
+        } catch (error) {
+            console.error('Error querying contract:', error);
+            showAlert(`Error querying contract. ${error.message}`, 'error');
+        }
+    };
 
     const fetchData = async () => {
         const cacheKey = 'ophirDataCache';
         const cachedData = localStorage.getItem(cacheKey);
         const now = new Date();
-    
+        
         if (cachedData) {
             const { stats, treasury, prices, timestamp } = JSON.parse(cachedData);
             const cacheAge = now.getTime() - timestamp;
@@ -151,7 +220,7 @@ const AnalyticsDashboard = () => {
             const statsResponse = await axios.get(`${prodUrl}/ophir/stats`);
             const treasuryResponse = await axios.get(`${prodUrl}/ophir/treasury`);
             const pricesResponse = await axios.get(`${prodUrl}/ophir/prices`);
-    
+            getRedemptionPrice(pricesResponse.data);
             const dataToCache = {
                 stats: statsResponse.data,
                 treasury: treasuryResponse.data,
@@ -167,9 +236,11 @@ const AnalyticsDashboard = () => {
         } catch (error) {
             console.error('Error fetching data:', error);
         }
+        
     };
     useEffect(() => {
         fetchData();
+        
     }, []);
 
     const toggleBitcoinDenomination = () => {
@@ -238,7 +309,7 @@ const AnalyticsDashboard = () => {
                 continue;
             }
             if (data[key].hasOwnProperty('balance')) {
-                console.log(data[key].balance * priceData[key])
+                // console.log(data[key].balance * priceData[key])
                 if(isNaN(data[key].balance * priceData[key])){
                     continue;
                 }
@@ -319,6 +390,19 @@ const AnalyticsDashboard = () => {
     <>
         {ophirStats && ophirTreasury && priceData &&
             <div className="pt-12 page-wrapper global-bg text-white min-h-screen">
+                <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
+                    anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
+                    {alertInfo.htmlContent ? (
+                        <SnackbarContent
+                            style={{color: 'black', backgroundColor: alertInfo.severity === 'error' ? '#ffcccc' : '#ccffcc' }} // Adjusted colors to be less harsh
+                            message={<span dangerouslySetInnerHTML={{ __html: alertInfo.htmlContent }} />}
+                        />
+                    ) : (
+                        <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>
+                            {alertInfo.message}
+                        </Alert>
+                    )}
+                </Snackbar>
                 <div className="p-3">
                     <div className="title text-3xl font-bold text-white">Ophir Statistics</div>
                     <div className="tot-treasury-wrapper">
@@ -347,7 +431,7 @@ const AnalyticsDashboard = () => {
                             <img src="https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png" alt="Icon" className="h-8 w-8 mb-2" />
                             <div className="sm:text-2xl text-sm font-bold mb-1 text-center">Price</div>
                             <div className="sm:text-xl text-md">${formatNumber(ophirStats?.price, 5)}</div>
-                            <div className="sm:text-sm text-sm text-center text-slate-600" title="Redemption Price">RP: ${formatNumber(ophirTreasury?.ophirRedemptionPrice, 4)}</div>
+                            <div className="sm:text-sm text-sm text-center text-slate-600" title="Redemption Price">RP: ${formatNumber(redemptionPrice, 4)}</div>
 
                         </div>
                         {/* Market Cap */}

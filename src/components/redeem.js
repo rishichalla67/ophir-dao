@@ -6,38 +6,7 @@ import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import SnackbarContent from '@mui/material/SnackbarContent';
 import allowedAddresses from '../auth/security.json'; // Adjust the path as necessary
-
-
-const tokenMappings = {
-    'ibc/517E13F14A1245D4DE8CF467ADD4DA0058974CDCC880FA6AE536DBCA1D16D84E': { symbol: 'bWhale', decimals: 6 },
-    'ibc/917C4B1E92EE2F959FC11ECFC435C4048F97E8B00F9444592706F4604F24BF25': {symbol: 'bWhale', decimals: 6},
-    'ibc/B3F639855EE7478750CC8F82072307ED6E131A8EFF20345E1D136B50C4E5EC36': { symbol: 'ampWhale', decimals: 6 },
-    'ibc/834D0AEF380E2A490E4209DFF2785B8DBB7703118C144AC373699525C65B4223': {symbol: 'ampWhale', decimals: 6},
-    'factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir': {symbol: 'ophir', decimals: 6},
-    'uwhale': {symbol: "whale", decimals: 6},
-    'uluna': {symbol: 'luna', decimals: 6},
-    'ibc/EDD6F0D66BCD49C1084FB2C35353B4ACD7B9191117CE63671B61320548F7C89D': {symbol: "whale", decimals: 6},
-    'ibc/EA459CE57199098BA5FFDBD3194F498AA78439328A92C7D136F06A5220903DA6': { symbol: 'ampWHALEt', decimals: 6},
-    'ibc/6E5BF71FE1BEBBD648C8A7CB7A790AEF0081120B2E5746E6563FC95764716D61': { symbol: 'wBTC', decimals: 8},
-    'ibc/EF4222BF77971A75F4E655E2AD2AFDDC520CE428EF938A1C91157E9DFBFF32A3': { symbol: 'kuji', decimals: 6},
-    'ibc/50D7251763B4D5E9DD7A8A6C6B012353E998CDE95C546C1F96D68F7CCB060918': { symbol: 'ampKuji', decimals: 6},
-    'ibc/B65E189D3168DB40C88C6A6C92CA3D3BB0A8B6310325D4C43AB5702F06ECD60B': {symbol: 'wBTCaxl', decimals: 8},
-    'ibc/4627AD2524E3E0523047E35BB76CC90E37D9D57ACF14F0FCBCEB2480705F3CB8': {symbol: 'luna', decimals: 6},
-    'factory/migaloo1erul6xyq0gk6ws98ncj7lnq9l4jn4gnnu9we73gdz78yyl2lr7qqrvcgup/ash': {symbol: 'ash', decimals: 6},
-    'factory/migaloo1p5adwk3nl9pfmjjx6fu9mzn4xfjry4l2x086yq8u8sahfv6cmuyspryvyu/uLP': {symbol: 'ophirWhaleLp', decimals: 6},
-    'factory/migaloo1axtz4y7jyvdkkrflknv9dcut94xr5k8m6wete4rdrw4fuptk896su44x2z/uLP': {symbol: 'whalewBtcLp', decimals: 6},
-    'factory/migaloo1xv4ql6t6r8zawlqn2tyxqsrvjpmjfm6kvdfvytaueqe3qvcwyr7shtx0hj/uLP': {symbol: 'usdcWhaleLp', decimals: 6},
-    'factory/osmo1rckme96ptawr4zwexxj5g5gej9s2dmud8r2t9j0k0prn5mch5g4snzzwjv/sail': {symbol: 'sail', decimals: 6},
-    'factory/terra1vklefn7n6cchn0u962w3gaszr4vf52wjvd4y95t2sydwpmpdtszsqvk9wy/ampROAR': {symbol: 'ampRoar', decimals: 6},
-    'factory/migaloo1cwk3hg5g0rz32u6us8my045ge7es0jnmtfpwt50rv6nagk5aalasa733pt/ampUSDC': {symbol: 'ampUSDC', decimals: 6},
-    'ibc/BC5C0BAFD19A5E4133FDA0F3E04AE1FBEE75A4A226554B2CBB021089FF2E1F8A': {symbol: 'usdc', decimals: 6},
-    'ibc/40C29143BF4153B365089E40E437B7AA819672646C45BB0A5F1E10915A0B6708': {symbol: 'bLuna', decimals: 6},
-    'ibc/05238E98A143496C8AF2B6067BABC84503909ECE9E45FBCBAC2CBA5C889FD82A': {symbol: 'ampLuna', decimals: 6},
-    'factory/kujira16rujrka8vk3c7l7raa37km8eqcxv9z583p3c6e288q879rwp23ksy6efce/bOPHIR01': {symbol: "bOPHIR01", decimals: 6},
-    'ibc/2C962DAB9F57FE0921435426AE75196009FAA1981BF86991203C8411F8980FDB': {symbol: "usdc", decimals: 6}, //axlusdc transfer/channel-253
-    'ibc/B3504E092456BA618CC28AC671A71FB08C6CA0FD0BE7C8A5B5A3E2DD933CC9E4': {symbol: 'usdc', decimals: 6}, //axlUsdc transfer/channel-6 crypto-org-chain-mainnet-1 channel-56
-    'ibc/36A02FFC4E74DF4F64305130C3DFA1B06BEAC775648927AA44467C76A77AB8DB': {symbol: "whale", decimals: 6}
-  };
+import { tokenMappings } from '../helper/tokenMappings';
 
 const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
@@ -45,7 +14,7 @@ const DAO_ADDRESS = "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0
 const DAO_ADDRESS_TESTNET = "migaloo14ke63efdjcjh2w6f4q7h4au5ccuktfw0t7ajtx8n6zu0wpr00a8skdv03n";
 const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
 const OPHIR_DENOM_TESNET = "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir";
-const CONTRACT_ADDRESS = "migaloo1seez8q2j8t2206w2vxprs9m9sy0nluscnyyngfnvk4sjvlq2ak5q5zsxdk";
+const CONTRACT_ADDRESS = "migaloo1esxyqwqn33uckkzlcc26zc8d0yy94pcfac4epnc7rtfxte63gwlqqxux3s";
 const CONTRACT_ADDRESS_TESTNET = "migaloo1kl365y60kjytty53g2d0uue0q29e4zp3fysc9lftmlfr8sceavesypw0q6";
 const OPHIR_DECIMAL = 1000000;
 
@@ -370,17 +339,9 @@ const Redeem = () => {
             if (queryResponse && queryResponse.redemptions) {
                 const updatedRedemptionValues = queryResponse.redemptions.reduce((acc, redemption) => {
                     // Retrieve token information from the mappings or use default values
-                    const tokenInfo = tokenMappings[redemption.denom] || { symbol: redemption.denom, decimals: 5 };
-            
-                    // Debugging log to check the tokenInfo being used
-                    console.log('Token Info:', tokenInfo);
-            
+                    const tokenInfo = tokenMappings[redemption.denom] || { symbol: redemption.denom, decimals: 6 };
                     // Adjust the amount by the token's decimals
-                    const adjustedAmount = Number(redemption.amount) / Math.pow(10, tokenInfo.decimals);
-            
-                    // Debugging log to check the adjusted amount
-                    console.log('Adjusted Amount for', tokenInfo.symbol, ':', adjustedAmount);
-            
+                    const adjustedAmount = Number(redemption.amount) / Math.pow(10, tokenInfo.decimals);            
                     // Accumulate the adjusted amounts by token symbol
                     acc[tokenInfo.symbol] = adjustedAmount;
             
@@ -467,7 +428,7 @@ const Redeem = () => {
             </div>
             <h1 className={`text-lg sm:text-3xl font-bold h1-color pt-14 sm:pt-0 cursor-pointer text-center`} onClick={() => setIsTestnet(!isTestnet)}>{isTestnet ? "Redeem OPHIR (Testnet)" : "Redeem OPHIR"}</h1>
             <div className="redeemable-box max-w-4xl flex flex-col items-center">
-                <div className="text-lg sm:text-3xl font-bold mb-2 text-center">Ophir Balance: {ophirBalance.toLocaleString()}</div>
+                <div className="text-lg sm:text-3xl font-bold mb-2 text-center cursor-pointer" onClick={() => setOphirAmount(ophirBalance)}>Ophir Balance: {ophirBalance.toLocaleString()}</div>
                 {redemptionValues.redemptionPricePerOPHIR && (
                     <div className="text-md sm:text-xl mb-2">
                         Redemption Price: ${redemptionValues.redemptionPricePerOPHIR.toFixed(7)}

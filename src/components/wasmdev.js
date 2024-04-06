@@ -14,11 +14,12 @@ const DAO_ADDRESS = "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0
 const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
 const DAO_ADDRESS_TESTNET = "migaloo14ke63efdjcjh2w6f4q7h4au5ccuktfw0t7ajtx8n6zu0wpr00a8skdv03n";
 const OPHIR_DENOM_TESNET = "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir";
-const CONTRACT_ADDRESS = 'migaloo1seez8q2j8t2206w2vxprs9m9sy0nluscnyyngfnvk4sjvlq2ak5q5zsxdk';
-const CONTRACT_ADDRESS_TESTNET = 'migaloo13q4d7q3ulva0nk3p4eenax4yj0wxs8vqspzq7xrkrdh6zfzgy7zs9gr3tt';
 const DAO_STAKING_CONTRACT_ADDRESS = 'migaloo1kv72vwfhq523yvh0gwyxd4nc7cl5pq32v9jt5w2tn57qtn57g53sghgkuh';
 const DAO_STAKING_CONTRACT_ADDRESS_TESTNET = 'migaloo1kl365y60kjytty53g2d0uue0q29e4zp3fysc9lftmlfr8sceavesypw0q6';
 const DAO_VAULT_ADDRESS = 'migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu';
+const CONTRACT_ADDRESS = 'migaloo1seez8q2j8t2206w2vxprs9m9sy0nluscnyyngfnvk4sjvlq2ak5q5zsxdk';
+const CONTRACT_ADDRESS_TESTNET = 'migaloo13q4d7q3ulva0nk3p4eenax4yj0wxs8vqspzq7xrkrdh6zfzgy7zs9gr3tt';
+
 const OPHIR_DECIMAL = 1000000;
 
 const WasmDev = () => {
@@ -146,14 +147,14 @@ const WasmDev = () => {
                     denom: "uwhale",
                     amount: "5000",
                 }],
-                gas: "1500000",
+                gas: "1750000",
             };
             // Upload the contract code
             const result = await signingClient.upload(
                 connectedWalletAddress,
                 wasmCode,
                 fee,
-                "Test WASM upload"
+                "WASM upload"
             );
     
             console.log(result);
@@ -171,8 +172,6 @@ const WasmDev = () => {
         } catch (error) {
             showAlert(`Error in uploadContract: ${error.message}`, 'error');
             throw error;
-        }finally{
-            setIsUploadingContract(false)
         }
     };
     const handleFileChange = async (event) => {
@@ -211,7 +210,7 @@ const WasmDev = () => {
                     denom: "uwhale",
                     amount: "5000",
                 }],
-                gas: "1500000", // Adjust gas value as needed
+                gas: "1750000", // Adjust gas value as needed
             };
     
             // Instantiate the contract
@@ -239,6 +238,8 @@ const WasmDev = () => {
         } catch (error) {
             showAlert(`Error in instantiateContract: ${error.message}`, 'error');
             throw error;
+        }finally{
+            setIsUploadingContract(false)
         }
     };
     
