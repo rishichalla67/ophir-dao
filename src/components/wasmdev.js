@@ -18,7 +18,7 @@ const DAO_STAKING_CONTRACT_ADDRESS = 'migaloo1kv72vwfhq523yvh0gwyxd4nc7cl5pq32v9
 const DAO_STAKING_CONTRACT_ADDRESS_TESTNET = 'migaloo1kl365y60kjytty53g2d0uue0q29e4zp3fysc9lftmlfr8sceavesypw0q6';
 const DAO_VAULT_ADDRESS = 'migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu';
 const CONTRACT_ADDRESS = 'migaloo1seez8q2j8t2206w2vxprs9m9sy0nluscnyyngfnvk4sjvlq2ak5q5zsxdk';
-const CONTRACT_ADDRESS_TESTNET = 'migaloo1ehqj4qwlykca2j584sjjdcqxcy5qdyvlsnl3m2u7xq2u5d37j33qu9qfd9';
+const CONTRACT_ADDRESS_TESTNET = 'migaloo1mzwk4vcvqtgrsugfw788zxjkwfsul983h6l348kdeyxz074xnzkqltzpvz';
 
 const OPHIR_DECIMAL = 1000000;
 
