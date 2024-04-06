@@ -44,7 +44,7 @@ const DAO_ADDRESS_TESTNET = "migaloo14ke63efdjcjh2w6f4q7h4au5ccuktfw0t7ajtx8n6zu
 const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
 const OPHIR_DENOM_TESNET = "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir";
 const CONTRACT_ADDRESS = "migaloo1seez8q2j8t2206w2vxprs9m9sy0nluscnyyngfnvk4sjvlq2ak5q5zsxdk";
-const CONTRACT_ADDRESS_TESTNET = "migaloo1ewgnp3lsdp60pm2kqm2y0l06mvetq7e0a64s7mrnznngv3tnpe0qulm2tm";
+const CONTRACT_ADDRESS_TESTNET = "migaloo1kl365y60kjytty53g2d0uue0q29e4zp3fysc9lftmlfr8sceavesypw0q6";
 const OPHIR_DECIMAL = 1000000;
 
 const Redeem = () => {

@@ -17,7 +17,7 @@ const OPHIR_DENOM_TESNET = "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80
 const CONTRACT_ADDRESS = 'migaloo1seez8q2j8t2206w2vxprs9m9sy0nluscnyyngfnvk4sjvlq2ak5q5zsxdk';
 const CONTRACT_ADDRESS_TESTNET = 'migaloo13q4d7q3ulva0nk3p4eenax4yj0wxs8vqspzq7xrkrdh6zfzgy7zs9gr3tt';
 const DAO_STAKING_CONTRACT_ADDRESS = 'migaloo1kv72vwfhq523yvh0gwyxd4nc7cl5pq32v9jt5w2tn57qtn57g53sghgkuh';
-const DAO_STAKING_CONTRACT_ADDRESS_TESTNET = 'migaloo1d6kqpt8p8c49zegvyn4v3jeqgwskdsp03m7hkcqf54eavexz8k3qjrp98r';
+const DAO_STAKING_CONTRACT_ADDRESS_TESTNET = 'migaloo1kl365y60kjytty53g2d0uue0q29e4zp3fysc9lftmlfr8sceavesypw0q6';
 const DAO_VAULT_ADDRESS = 'migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu';
 const OPHIR_DECIMAL = 1000000;
 
