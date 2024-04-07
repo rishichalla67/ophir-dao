@@ -89,14 +89,6 @@ const AnalyticsDashboard = () => {
         setAlertInfo({ open: true, message, severity, htmlContent });
     };
 
-    // useEffect(() => {
-    //     const timer = setTimeout(() => {
-    //         setShowProgressBar(false);
-    //     }, 15000); // 15 seconds
-
-    //     return () => clearTimeout(timer);
-    // }, []);
-
     const handleCellClick = (value, key) => {
         setModalData({ composition: value?.composition, symbol: key, price: priceData[key] });
         if (value?.composition) toggleModal();
@@ -363,12 +355,14 @@ const AnalyticsDashboard = () => {
                                             <div className="flex items-center">
                                                 {Array.isArray(tokenImages[key]) ? 
                                                     tokenImages[key].map((imgUrl, index) => (
-                                                        <img key={index} src={imgUrl} alt={`${key}-${index}`} className="h-6 w-6 mr-2" />
+                                                        // Adjust the base size to be slightly larger, e.g., h-5 w-5
+                                                        <img key={index} src={imgUrl} alt={`${key}-${index}`} className={`h-5 w-5 sm:h-7 sm:w-7 md:h-9 md:w-9 lg:h-11 lg:w-11 mr-2 ${tokenImages[key].length > 1 ? 'sm:h-5 sm:w-5' : ''}`} />
                                                     ))
                                                     :
-                                                    <img src={tokenImages[key]} alt={key} className="h-6 w-6 mr-2" />
+                                                    // Adjust the base size for single images as well
+                                                    <img src={tokenImages[key]}  alt={key} className="h-5 w-5 sm:h-7 sm:w-7 md:h-9 md:w-9 lg:h-11 lg:w-11 mr-2" />
                                                 }
-                                                {key}
+                                                <span className="hidden sm:inline">{key}</span>
                                             </div>
                                         </td>
                                         <td className="text-center py-4 px-1 sm:px-1" onClick={() => handleCellClick(value, key)}>{parseFloat(value.balance).toLocaleString()}</td>
