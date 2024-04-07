@@ -428,8 +428,8 @@ const Redeem = () => {
                 <div className="text-lg sm:text-3xl font-bold mb-2 text-center cursor-pointer" onClick={() => setOphirAmount(ophirBalance)}>Ophir Balance: {ophirBalance.toLocaleString()}</div>
                 {simulationResponse && Object.keys(simulationResponse).length > 0 && (
                     <div className="flex justify-between items-center mt-2">
-                        <span className="font-semibold">Circulating Supply: </span>
-                        <span> {simulationResponse.true_circulating_supply ? (simulationResponse.true_circulating_supply / 1000000).toLocaleString() : 'N/A'}</span>
+                        <span className="font-semibold">Circulating Supply:&nbsp;</span>
+                        <span>{simulationResponse.true_circulating_supply ? (simulationResponse.true_circulating_supply / 1000000).toLocaleString() : 'N/A'}</span>
                     </div>
                 )}
                 {redemptionValues.redemptionPricePerOPHIR && (
