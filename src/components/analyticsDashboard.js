@@ -256,6 +256,11 @@ const AnalyticsDashboard = () => {
     function sortAssetsByValue(data, prices, order = 'ascending') {
         // Calculate total value for each asset
         const calculatedValues = Object.entries(data).map(([key, asset]) => {
+            if (!asset || asset.balance === undefined || asset.rewards === undefined) {
+                console.warn(`Missing asset data for key: ${key}`, asset);
+                return null; // Skip this asset if it's missing required data
+            }
+    
             const price = prices[key] || 0;
             const totalValue = (parseFloat(asset.balance) + parseFloat(asset.rewards)) * price;
     
@@ -267,7 +272,7 @@ const AnalyticsDashboard = () => {
             }
             
             return { key: truncatedKey, originalKey: key, ...asset, totalValue };
-        }).filter(asset => asset.totalValue > 0); // Filter out assets with a total value of 0
+        }).filter(asset => asset && asset.totalValue > 0); // Filter out assets with a total value of 0 or missing data
     
         // Sort based on total value
         calculatedValues.sort((a, b) => {
@@ -281,6 +286,7 @@ const AnalyticsDashboard = () => {
         // Convert back to original data format, preserving sorted order
         const sortedData = {};
         calculatedValues.forEach(asset => {
+          if (!asset) return; // Skip if asset is null
           const { key, originalKey, totalValue, ...rest } = asset; // Exclude totalValue from final output
           sortedData[key] = { ...rest, originalKey };
         });
@@ -297,18 +303,24 @@ const AnalyticsDashboard = () => {
         let formattedData = [];
     
         for (const key in data) {
+            // Check if data[key] is not null or undefined before proceeding
+            if (!data[key]) {
+                console.warn(`Missing data for key: ${key}`);
+                continue; // Skip this iteration if data[key] is null or undefined
+            }
+    
             // Exclude the "ophir" key
             if (key === 'ophir') {
                 continue;
             }
             if (data[key].hasOwnProperty('balance')) {
-                // console.log(data[key].balance * priceData[key])
+                // Ensure priceData[key] is not undefined before attempting multiplication
                 if(isNaN(data[key].balance * priceData[key])){
                     continue;
                 }
                 formattedData.push({
                     name: key,
-                    value: parseFloat((data[key].balance*priceData[key]))
+                    value: parseFloat((data[key].balance * priceData[key]))
                 });
             }
         }
