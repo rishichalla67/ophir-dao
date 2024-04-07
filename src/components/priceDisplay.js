@@ -20,16 +20,16 @@ const PriceDisplay = ({ priceData }) => {
         <h2 className="text-2xl font-bold text-white mb-4">Price Data</h2>
         {/* Search input */}
         <input
-  type="text"
-  placeholder="Search by ticker..."
-  value={searchTerm}
-  onChange={(e) => {
-    setSearchTerm(e.target.value);
-    // Scroll the input into view smoothly
-    e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }}
-  className="mb-4 p-2 rounded bg-black"
-/>
+            type="text"
+            placeholder="Search by ticker..."
+            value={searchTerm}
+            onChange={(e) => {
+                setSearchTerm(e.target.value);
+                // Scroll the input into view smoothly
+                e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }}
+            className="mb-4 p-2 rounded bg-black"
+        />
         <div className="grid grid-cols-3 lg:grid-cols-7 md:grid-cols-5 sm:grid-cols-4 gap-4 mb-10">
           {filteredData.sort(([keyA], [keyB]) => keyA.localeCompare(keyB)).map(([key, value]) => (
             <div key={key} className="bg-black p-1 sm:pt-2 rounded-lg shadow-lg flex flex-col items-center">
