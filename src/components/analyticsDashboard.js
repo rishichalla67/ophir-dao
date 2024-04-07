@@ -505,12 +505,12 @@ const AnalyticsDashboard = () => {
                             Charts
                         </button>
                     {/* )} */}
-                    {/* <button
+                    <button
                         className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'prices' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
                         onClick={() => setActiveTab('prices')}
                     >
                         Prices
-                    </button> */}
+                    </button>
                 </div>
                 {renderTabContent()}
                 <Modal isOpen={isModalOpen} onClose={toggleModal} data={modalData} />
