@@ -543,7 +543,10 @@ const Redeem = () => {
                                         <span className="font-semibold">Redeemed OPHIR:</span>
                                         <span>{simulationResponse?.balance_after_fee ? (Number(simulationResponse.balance_after_fee) / 1000000).toLocaleString() : 'N/A'}</span>
                                     </div>
-                                    
+                                    <div className="flex justify-between items-center mt-2">
+                                        <span className="font-semibold">Percent of Circ. Supply:</span>
+                                        <span>{simulationResponse?.balance_after_fee && simulationResponse?.true_circulating_supply ? `${((simulationResponse.balance_after_fee / simulationResponse.true_circulating_supply) * 100).toFixed(2)}%` : 'N/A'}</span>
+                                    </div>
                                 </div>
                             )}
                             {isTestnet && (
