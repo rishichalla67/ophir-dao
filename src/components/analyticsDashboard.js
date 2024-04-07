@@ -133,10 +133,8 @@ const AnalyticsDashboard = () => {
     }
 
     const calculateTotalValue = (redemptionValues, prices) => {
-        console.log(redemptionValues)
         let totalValue = 0;
         let allDenomsUsed = true;
-        console.log("PriceDta: ",prices);
         if (Object.keys(prices).length > 0) {
             Object.keys(redemptionValues).forEach(denom => {
                 const priceInfo = prices[denom] || 0; // Default to a price of 0 if not found

@@ -96,7 +96,7 @@ const Redeem = () => {
         if(isTestnet){
             setChainId("narwhal-2");
             setRPC(migalooTestnetRPC);
-            setContractAddress(daoConfig["DAO_ADDRESS_TESTNET"]);
+            setContractAddress(daoConfig["CONTRACT_ADDRESS_TESTNET"]);
             setOphirAmount('');
         }else{
             setChainId("migaloo-1");
