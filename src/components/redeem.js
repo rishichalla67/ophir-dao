@@ -7,15 +7,16 @@ import Snackbar from '@mui/material/Snackbar';
 import SnackbarContent from '@mui/material/SnackbarContent';
 import allowedAddresses from '../auth/security.json'; // Adjust the path as necessary
 import { tokenMappings } from '../helper/tokenMappings';
+import { daoConfig } from '../helper/daoConfig';
 
 const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
-const DAO_ADDRESS = "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc";
-const DAO_ADDRESS_TESTNET = "migaloo14ke63efdjcjh2w6f4q7h4au5ccuktfw0t7ajtx8n6zu0wpr00a8skdv03n";
-const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
-const OPHIR_DENOM_TESNET = "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir";
-const CONTRACT_ADDRESS = "migaloo1esxyqwqn33uckkzlcc26zc8d0yy94pcfac4epnc7rtfxte63gwlqqxux3s";
-const CONTRACT_ADDRESS_TESTNET = "migaloo1ehqj4qwlykca2j584sjjdcqxcy5qdyvlsnl3m2u7xq2u5d37j33qu9qfd9";
+// const DAO_ADDRESS = "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc";
+// const DAO_ADDRESS_TESTNET = "migaloo14ke63efdjcjh2w6f4q7h4au5ccuktfw0t7ajtx8n6zu0wpr00a8skdv03n";
+// const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
+// const OPHIR_DENOM_TESNET = "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir";
+// const CONTRACT_ADDRESS = "migaloo1q46krtjvaek0r0qedxrknttjjwlr52fg7xewvrjcezl9u8jf0dksgg46qj";
+// const CONTRACT_ADDRESS_TESTNET = "migaloo14fma86yk4yalpvxnq7z0wgxx4st5zk4rrraczjfljm9qn52necdqnamsp3";
 const OPHIR_DECIMAL = 1000000;
 
 const Redeem = () => {
@@ -35,7 +36,7 @@ const Redeem = () => {
     const isAddressAllowed = allowedAddresses.includes(connectedWalletAddress);
     const [chainId, setChainId] = useState('narwhal-2');
     const [isTestnet, setIsTestnet] = useState(true);
-    const [contractAddress, setContractAddress] = useState(CONTRACT_ADDRESS_TESTNET);
+    const [contractAddress, setContractAddress] = useState(daoConfig["CONTRACT_ADDRESS_TESTNET"]);
     const [rpc, setRPC] = useState(migalooTestnetRPC);
     const [isSending, setIsSending] = useState(false); // Add this state at the beginning of your component
     const [sendOphirAmount, setSendOphirAmount] = useState("100000");
@@ -95,12 +96,12 @@ const Redeem = () => {
         if(isTestnet){
             setChainId("narwhal-2");
             setRPC(migalooTestnetRPC);
-            setContractAddress(CONTRACT_ADDRESS_TESTNET);
+            setContractAddress(daoConfig["DAO_ADDRESS_TESTNET"]);
             setOphirAmount('');
         }else{
             setChainId("migaloo-1");
             setRPC(migalooRPC);
-            setContractAddress(CONTRACT_ADDRESS);
+            setContractAddress(daoConfig["CONTRACT_ADDRESS"]);
             setOphirAmount('');
         }
     }, [isTestnet]);
@@ -197,7 +198,7 @@ const Redeem = () => {
     
             const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
             const funds = [{
-                denom: chainId === 'narwhal-2' ? OPHIR_DENOM_TESNET : OPHIR_DENOM, 
+                denom: chainId === 'narwhal-2' ? daoConfig["OPHIR_DENOM_TESNET"] : daoConfig["OPHIR_DENOM"], 
                 amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString()
             }];
             // const executeMsg = JSON.stringify(message);
@@ -230,7 +231,7 @@ const Redeem = () => {
         console.log(balances);
         setAllBalances(balances);
         // Assuming OPHIR_DENOM is defined elsewhere in your code and represents the denom you're interested in
-        const ophirBalance = balances.find(balance => balance.denom === OPHIR_DENOM);
+        const ophirBalance = balances.find(balance => balance.denom === daoConfig["OPHIR_DENOM"]);
     
         if (ophirBalance) {
             console.log(`Ophir Balance: ${ophirBalance.amount}`);
@@ -252,7 +253,7 @@ const Redeem = () => {
         console.log(balances)
         setAllBalancesTestnet(balances);
         // Assuming OPHIR_DENOM is defined elsewhere in your code and represents the denom you're interested in
-        const ophirBalance = balances.find(balance => balance.denom === OPHIR_DENOM_TESNET);
+        const ophirBalance = balances.find(balance => balance.denom === daoConfig["OPHIR_DENOM_TESNET"]);
     
         if (ophirBalance) {
             console.log(`Ophir Balance: ${ophirBalance.amount}`);
@@ -270,11 +271,11 @@ const Redeem = () => {
         const client = await SigningStargateClient.connectWithSigner(rpc, signer);
     
         // Query all balances for the address
-        const balances = await client.getAllBalances(isTestnet ? DAO_ADDRESS_TESTNET : DAO_ADDRESS);
+        const balances = await client.getAllBalances(isTestnet ? daoConfig["DAO_ADDRESS_TESTNET"] : daoConfig["DAO_ADDRESS"]);
         // console.log(balances)
         // setAllBalancesTestnet(balances);
         // Assuming OPHIR_DENOM is defined elsewhere in your code and represents the denom you're interested in
-        const ophirBalance = balances.find(balance => balance.denom === (isTestnet ? OPHIR_DENOM_TESNET : OPHIR_DENOM));
+        const ophirBalance = balances.find(balance => balance.denom === (isTestnet ? daoConfig["OPHIR_DENOM_TESNET"] : daoConfig["OPHIR_DENOM"]));
         if (ophirBalance) {
             console.log(`Ophir Balance: ${ophirBalance.amount}`);
             setDaoBalance(parseFloat(ophirBalance.amount) / 1000000)
@@ -290,7 +291,7 @@ const Redeem = () => {
             const signer = await getSigner();
 
             const amountToSend = {
-                denom: OPHIR_DENOM_TESNET,
+                denom: daoConfig["OPHIR_DENOM_TESNET"],
                 amount: (Number(sendOphirAmount) * OPHIR_DECIMAL).toString(), // 100000 units of OPHIR
             };
     

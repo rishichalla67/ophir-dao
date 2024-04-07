@@ -6,19 +6,11 @@ import Snackbar from '@mui/material/Snackbar';
 import SnackbarContent from '@mui/material/SnackbarContent';
 import Switch from '@mui/material/Switch';
 import FormControlLabel from '@mui/material/FormControlLabel';
+import { daoConfig } from '../helper/daoConfig';
 
 
 const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
-const DAO_ADDRESS = "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc";
-const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
-const DAO_ADDRESS_TESTNET = "migaloo14ke63efdjcjh2w6f4q7h4au5ccuktfw0t7ajtx8n6zu0wpr00a8skdv03n";
-const OPHIR_DENOM_TESNET = "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir";
-const DAO_STAKING_CONTRACT_ADDRESS = 'migaloo1kv72vwfhq523yvh0gwyxd4nc7cl5pq32v9jt5w2tn57qtn57g53sghgkuh';
-const DAO_STAKING_CONTRACT_ADDRESS_TESTNET = 'migaloo1d6kqpt8p8c49zegvyn4v3jeqgwskdsp03m7hkcqf54eavexz8k3qjrp98r';
-const DAO_VAULT_ADDRESS = 'migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu';
-const CONTRACT_ADDRESS = 'migaloo1seez8q2j8t2206w2vxprs9m9sy0nluscnyyngfnvk4sjvlq2ak5q5zsxdk';
-const CONTRACT_ADDRESS_TESTNET = 'migaloo1mzwk4vcvqtgrsugfw788zxjkwfsul983h6l348kdeyxz074xnzkqltzpvz';
 
 const OPHIR_DECIMAL = 1000000;
 
@@ -36,14 +28,14 @@ const WasmDev = () => {
     const [isUploadingContract, setIsUploadingContract] = useState(false);
     const [chainId, setChainId] = useState('narwhal-2');
     // const [isTestnet, setIsTestnet] = useState(true); // Default to Testnet
-    const [contractAddress, setContractAddress] = useState(CONTRACT_ADDRESS_TESTNET);
+    const [contractAddress, setContractAddress] = useState(daoConfig["CONTRACT_ADDRESS_TESTNET"]);
     const [rpc, setRPC] = useState(migalooTestnetRPC);
 
     const initMsg = {
-        dao_address: chainId === 'narwhal-2' ? DAO_ADDRESS_TESTNET : DAO_ADDRESS, // Use DAO_ADDRESS_TESTNET if chainId is 'narwhal-2'
-        redeemable_denom: chainId === 'narwhal-2' ? OPHIR_DENOM_TESNET : OPHIR_DENOM, // Replace with your actual redeemable denom
-        staking_contract: chainId === 'narwhal-2' ? DAO_STAKING_CONTRACT_ADDRESS_TESTNET : DAO_STAKING_CONTRACT_ADDRESS,
-        vault_contract: DAO_VAULT_ADDRESS
+        dao_address: chainId === 'narwhal-2' ? daoConfig["DAO_ADDRESS_TESTNET"] : daoConfig["DAO_ADDRESS"], // Use DAO_ADDRESS_TESTNET if chainId is 'narwhal-2'
+        redeemable_denom: chainId === 'narwhal-2' ? daoConfig["OPHIR_DENOM_TESNET"] : daoConfig["OPHIR_DENOM"], // Replace with your actual redeemable denom
+        staking_contract: chainId === 'narwhal-2' ? daoConfig["DAO_STAKING_CONTRACT_ADDRESS_TESTNET"] : daoConfig["DAO_STAKING_CONTRACT_ADDRESS"],
+        vault_contract: daoConfig["DAO_VAULT_ADDRESS"]
     }; 
 
     const handleConnectedWalletAddress = (address) => {
@@ -117,9 +109,9 @@ const WasmDev = () => {
         setChainId(selectedChainId);
         setRPC(selectedRPC);
         if (selectedChainId === "narwhal-2") {
-            setContractAddress(CONTRACT_ADDRESS_TESTNET);
+            setContractAddress(daoConfig["CONTRACT_ADDRESS_TESTNET"]);
         } else if (selectedChainId === "migaloo-1") {
-            setContractAddress(CONTRACT_ADDRESS);
+            setContractAddress(daoConfig["CONTRACT_ADDRESS"]);
         }
     };
 
@@ -293,7 +285,7 @@ const WasmDev = () => {
     
             const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
             const funds = [{
-                denom: chainId === 'narwhal-2' ? OPHIR_DENOM_TESNET : OPHIR_DENOM, 
+                denom: chainId === 'narwhal-2' ? daoConfig["OPHIR_DENOM_TESNET"] : daoConfig["OPHIR_DENOM"], 
                 amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString()
             }];
             // const executeMsg = JSON.stringify(message);
@@ -333,142 +325,6 @@ const WasmDev = () => {
     };
     
     return (
-        // <div className="bg-black mt-4 text-white min-h-screen flex flex-col items-center" style={{ paddingTop: '10dvh' }}>
-        //     <div className="absolute top-14 right-0 m-4 mr-2 sm:mr-4">
-        //         <WalletConnect 
-        //             handleConnectedWalletAddress={handleConnectedWalletAddress} 
-        //             handleLedgerConnectionBool={handleLedgerConnection}
-        //         />
-        //     </div>
-        //     <div className="w-full max-w-4xl flex flex-col items-center">
-        //         <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
-        //             anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
-        //             {alertInfo.htmlContent ? (
-        //                 <SnackbarContent
-        //                     style={{color: 'black', backgroundColor: alertInfo.severity === 'error' ? '#ffcccc' : '#ccffcc' }} // Adjusted colors to be less harsh
-        //                     message={<span dangerouslySetInnerHTML={{ __html: alertInfo.htmlContent }} />}
-        //                 />
-        //             ) : (
-        //                 <Alert onClose={() => setAlertInfo({ ...alertInfo, open: false })} severity={alertInfo.severity} sx={{ width: '100%' }}>
-        //                     {alertInfo.message}
-        //                 </Alert>
-        //             )}
-        //         </Snackbar>
-        //         <div className="mb-4 items-center flex flex-col">
-        //             <div className="flex justify-center w-full">
-        //                 {/* <button className="mt-5 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={executeContractMessage}>Redeem OPHIR</button> */}
-        //             </div>         
-        //                 <div className="mt-10 w-full flex flex-col items-center"> 
-        //                     <label htmlFor="networkToggle" className="mr-2 text-white">Select Network:</label>
-        //                     <FormControlLabel
-        //                         control={
-        //                             <Switch
-        //                                 checked={chainId === "narwhal-2"}
-        //                                 onChange={handleNetworkChange}
-        //                                 name="networkToggle"
-        //                                 color="primary"
-        //                             />
-        //                         }
-        //                         label={chainId === "narwhal-2" ? "Testnet (narwhal-2)" : "Mainnet (migaloo-1)"}
-        //                     />
-
-        //                     <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">WASM Upload</h3>
-        //                     <div className="flex justify-center w-full">
-        //                         <input className="text-center" type="file" id="wasmFile" name="wasmFile" accept=".wasm" onChange={handleFileChange} />
-        //                     </div>
-        //                     <hr className="my-2 border-white w-full" />
-        //                     {!isUploadingContract && (
-        //                         <>
-        //                             <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">WASM Instatiation</h3>
-
-        //                             <div className="flex justify-center w-full">
-        //                                 <input 
-        //                                     id="codeId" 
-        //                                     type="number" 
-        //                                     className="text-xl bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
-        //                                     placeholder="Enter Code ID" 
-        //                                     value={codeId}
-        //                                     onChange={(e) => setCodeId(Number(e.target.value))}
-        //                                 />
-        //                             </div>
-        //                             <div className="pt-2 flex justify-center w-full">
-        //                                 <button className="py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleInstantiateContract}>Instantiate Contract</button>
-        //                             </div>
-        //                             <hr className="my- border-white w-full" />
-        //                         </>
-        //                     )}
-        //                 </div>
-                        
-        //                 <div className="flex flex-col items-center justify-center w-full">
-        //                     <h3 className="text-lg text-yellow-400 mb-4 pt-4 text-center">Contract Interactions</h3>
-
-        //                     <div className="flex justify-center my-4 w-full px-4">
-                                
-        //                         <input 
-        //                             id="contractAddress" 
-        //                             type="text" 
-        //                             className="w-full bg-slate-800 text-white border border-yellow-400 rounded p-2 text-center" 
-        //                             placeholder="Enter Contract Address" 
-        //                             value={contractAddress}
-        //                             onChange={(e) => {
-        //                                 const value = e.target.value;
-        //                                 // Regex pattern to match the structure starting with "migaloo" followed by 39 alphanumeric characters
-        //                                 const pattern = /^migaloo[a-z0-9]{39}$/;
-        //                                 if (pattern.test(value) || value === "") {
-        //                                     setContractAddress(value);
-        //                                 } else {
-        //                                     showAlert("Invalid contract address format.", 'error');
-        //                                 }
-        //                             }}
-        //                         />
-        //                     </div>
-        //                     <div className="w-full mb-4">
-        //                             <textarea
-        //                                 id="jsonQuery"
-        //                                 value={editableQueryMessage}
-        //                                 className={`w-full h-32 bg-slate-800 text-white rounded p-2 ${jsonQueryValid ? (queryMessage === '' ? 'border border-yellow-400' : 'border border-green-400') : 'border border-red-500'}`} // Dynamically change the border color
-        //                                 placeholder='Enter JSON Query'
-        //                                 onChange={(e) => {
-        //                                     const newValue = e.target.value;
-        //                                     setEditableQueryMessage(newValue);
-        //                                     try {
-        //                                         const jsonQuery = JSON.parse(e.target.value);
-        //                                         setQueryMessage(jsonQuery);
-        //                                         setQueryType('Custom');
-        //                                         setJsonQueryValid(true); // Set valid state
-        //                                     } catch (error) {
-        //                                         setJsonQueryValid(false); // Set invalid state
-        //                                     }
-        //                                 }}
-        //                             ></textarea>
-        //                         </div>
-        //                     <select
-        //                         id="querySelect"
-        //                         value={queryType}
-        //                         className="bg-slate-800 text-white border border-yellow-400 rounded p-2"
-        //                         onChange={(e) => setQueryType(e.target.value)}
-        //                     >
-        //                         <option value="">Select a Query</option>
-        //                         <option value="GetConfig">Get Config</option>
-        //                         <option value="GetAssetValues">Get Asset Values</option>
-        //                         <option value="GetRedemptions">Get Redemptions</option>
-        //                         <option value="Custom" disabled>Custom Query</option>
-
-        //                     </select>
-        //                 </div>
-        //                 <button className="mt-4 py-2 px-4 bg-yellow-400 text-black font-bold rounded hover:bg-yellow-500 transition duration-300 ease-in-out" onClick={handleQueryContract}>Query Contract</button>                                
-
-        //             {Object.keys(redeemContractQueryResponse).length !== 0 && (
-        //                 <div className="w-1/2 mt-4 p-4 bg-slate-700 rounded">
-        //                     <h3 className="text-lg text-yellow-400 mb-2">Redeem Contract Query Response:</h3>
-        //                     <pre className="text-white text-sm overflow-auto whitespace-pre-wrap">
-        //                         {JSON.stringify(redeemContractQueryResponse, null, 2)}
-        //                     </pre>
-        //                 </div>
-        //             )}
-        //         </div>
-        //     </div>
-        // </div>
         <div className="bg-black text-white mt-14 min-h-screen flex flex-col items-center" style={{ paddingTop: '10dvh' }}>
             <div className="absolute top-14 right-0 m-4 mr-2 sm:mr-4">
                 <WalletConnect 
