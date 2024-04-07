@@ -536,11 +536,11 @@ const Redeem = () => {
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center mt-2">
-                                        <span className="font-semibold">Redemption Fee ($OPHIR):</span>
+                                        <span className="font-semibold">Redemption Fee (OPHIR):</span>
                                         <span>{simulationResponse?.fee_amount ? (Number(simulationResponse.fee_amount) / 1000000).toLocaleString() : 'N/A'}</span>
                                     </div>
                                     <div className="flex justify-between items-center mt-2">
-                                        <span className="font-semibold">Redeemed Amount:</span>
+                                        <span className="font-semibold">Redeemed OPHIR:</span>
                                         <span>{simulationResponse?.balance_after_fee ? (Number(simulationResponse.balance_after_fee) / 1000000).toLocaleString() : 'N/A'}</span>
                                     </div>
                                     
