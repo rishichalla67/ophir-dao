@@ -197,7 +197,6 @@ const Redeem = () => {
     
             const result = await client.execute(connectedWalletAddress, contractAddress, message, fee, "Execute contract message", funds);
     
-            console.log("Execute contract message result:", result);
             if (result.transactionHash) {
                 const baseTxnUrl = isTestnet ? "https://parallax-analytics.onrender.com/ophir/migaloo-testnet" : "https://inbloc.org/migaloo/transactions";
                 const txnUrl = `${baseTxnUrl}/${result.transactionHash}`;
@@ -517,8 +516,18 @@ const Redeem = () => {
                                     `$${totalValueInfo.totalValue.toFixed(2)}` : 
                                     `~$${totalValueInfo.totalValue.toFixed(2)}`}
                                 </span>
+                                <div className="text-xs mt-1">
+                                    <span className='value-redeem px-2'>Return vs limit sell at current price ({ophirPrices['ophir'].toFixed(4)}): </span> 
+                                    {ophirPrices['ophir'] && ophirAmount ? (
+                                        <span className={`px-2 ${((totalValueInfo.totalValue - (ophirPrices['ophir'] * ophirAmount)) / (ophirPrices['ophir'] * ophirAmount) * 100) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                            {`${((totalValueInfo.totalValue - (ophirPrices['ophir'] * ophirAmount)) / (ophirPrices['ophir'] * ophirAmount) * 100).toFixed(2)}%`}
+                                        </span>
+                                    ) : (
+                                        <span className='px-2'>N/A</span>
+                                    )}
+                                </div>
                             </div>
-                            {Object.keys(simulationResponse).length !== 0 && (
+                            {Object.keys(simulationResponse).length !== 0  && (
                                 <div className="text-xs sm:text-sm mt-4">
                                     <div className="flex justify-between items-center">
                                         <span className="font-semibold">Redemption Fee (%):</span>
@@ -548,7 +557,7 @@ const Redeem = () => {
                                     </div>
                                 </div>
                             )}
-                            {isTestnet && (
+                            {(isTestnet && simulationResponse?.dao_has_enough_balance) && (
                                 <div className="flex justify-center w-full">
                                     <button className="redeem-button py-2 px-4 font-medium rounded hover:bg-yellow-500 transition duration-300 ease-in-out flex items-center justify-center" onClick={executeContractMessage} disabled={isLoading}>
                                         <div className="flex items-center justify-center">
