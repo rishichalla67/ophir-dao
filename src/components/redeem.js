@@ -11,12 +11,6 @@ import { daoConfig } from '../helper/daoConfig';
 
 const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
-// const DAO_ADDRESS = "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc";
-// const DAO_ADDRESS_TESTNET = "migaloo14ke63efdjcjh2w6f4q7h4au5ccuktfw0t7ajtx8n6zu0wpr00a8skdv03n";
-// const OPHIR_DENOM = "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir";
-// const OPHIR_DENOM_TESNET = "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir";
-// const CONTRACT_ADDRESS = "migaloo1q46krtjvaek0r0qedxrknttjjwlr52fg7xewvrjcezl9u8jf0dksgg46qj";
-// const CONTRACT_ADDRESS_TESTNET = "migaloo14fma86yk4yalpvxnq7z0wgxx4st5zk4rrraczjfljm9qn52necdqnamsp3";
 const OPHIR_DECIMAL = 1000000;
 
 const Redeem = () => {
@@ -40,6 +34,7 @@ const Redeem = () => {
     const [rpc, setRPC] = useState(migalooTestnetRPC);
     const [isSending, setIsSending] = useState(false); // Add this state at the beginning of your component
     const [sendOphirAmount, setSendOphirAmount] = useState("100000");
+    const [simulationResponse, setSimulationResponse] = useState({});
 
 
     const handleConnectedWalletAddress = (address) => {
@@ -118,8 +113,8 @@ const Redeem = () => {
 
 
     const getSigner = async () => {
-        if (window.keplr.experimentalSuggestChain) {
-            await window.keplr.experimentalSuggestChain({
+        if (window.keplr?.experimentalSuggestChain) {
+            await window.keplr?.experimentalSuggestChain({
                 // Chain details
                 chainId: 'narwhal-2',
                 chainName: "Migaloo Testnet",
@@ -165,8 +160,8 @@ const Redeem = () => {
             // await window.keplr.experimentalSuggestToken(chainId, isTestnet ? OPHIR_DENOM_TESNET : OPHIR_DENOM, "OPHIR", "https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png", 6);
         }
         
-        await window.keplr.enable(chainId);
-        const offlineSigner = window.keplr.getOfflineSigner(chainId);
+        await window.keplr?.enable(chainId);
+        const offlineSigner = window.keplr?.getOfflineSigner(chainId);
         return offlineSigner;
     };
 
@@ -336,6 +331,7 @@ const Redeem = () => {
             const queryResponse = await client.queryContractSmart(contractAddress, message);
         
             console.log(queryResponse)
+            setSimulationResponse(queryResponse);
             // Process the query response as needed
             if (queryResponse && queryResponse.redemptions) {
                 const updatedRedemptionValues = queryResponse.redemptions.reduce((acc, redemption) => {
@@ -350,7 +346,7 @@ const Redeem = () => {
                 }, {});
             
                 // Debugging log to check the final accumulated values
-                console.log('Updated Redemption Values:', updatedRedemptionValues);
+                // console.log('Updated Redemption Values:', updatedRedemptionValues);
             
                 // Update the state with the accumulated values
                 setRedemptionValues(updatedRedemptionValues);
@@ -378,8 +374,8 @@ const Redeem = () => {
         // console.log(ophirPrices);
         Object.keys(redemptionValues).forEach(denom => {
             const priceInfo = ophirPrices[denom] || 0; // Default to a price of 0 if not found
-            console.log('Token Denom:', denom);
-            console.log('Price Info:', priceInfo);
+            // console.log('Token Denom:', denom);
+            // console.log('Price Info:', priceInfo);
             if (priceInfo !== 0) {
                 console.log(redemptionValues);
                 const value = redemptionValues[denom] * priceInfo;
@@ -430,6 +426,12 @@ const Redeem = () => {
             <h1 className={`text-lg sm:text-3xl font-bold h1-color pt-14 sm:pt-0 cursor-pointer text-center`} onClick={() => setIsTestnet(!isTestnet)}>{isTestnet ? "Redeem OPHIR (Testnet)" : "Redeem OPHIR"}</h1>
             <div className="redeemable-box max-w-4xl flex flex-col items-center">
                 <div className="text-lg sm:text-3xl font-bold mb-2 text-center cursor-pointer" onClick={() => setOphirAmount(ophirBalance)}>Ophir Balance: {ophirBalance.toLocaleString()}</div>
+                {simulationResponse && Object.keys(simulationResponse).length > 0 && (
+                    <div className="flex justify-between items-center mt-2">
+                        <span className="font-semibold">Circulating Supply: </span>
+                        <span> {simulationResponse.true_circulating_supply ? (simulationResponse.true_circulating_supply / 1000000).toLocaleString() : 'N/A'}</span>
+                    </div>
+                )}
                 {redemptionValues.redemptionPricePerOPHIR && (
                     <div className="text-md sm:text-xl mb-2">
                         Redemption Price: ${redemptionValues.redemptionPricePerOPHIR.toFixed(7)}
@@ -517,7 +519,33 @@ const Redeem = () => {
                                     `~$${totalValueInfo.totalValue.toFixed(2)}`}
                                 </span>
                             </div>
-
+                            {Object.keys(simulationResponse).length !== 0 && (
+                                <div className="text-xs sm:text-sm mt-4">
+                                    <div className="flex justify-between items-center">
+                                        <span className="font-semibold">Redemption Fee (%):</span>
+                                        <span>
+                                            {simulationResponse?.fee_amount ? (
+                                                `${(
+                                                    (Number(simulationResponse.fee_amount) /
+                                                    (Number(simulationResponse.balance_after_fee) + Number(simulationResponse.fee_amount))) *
+                                                    100
+                                                ).toFixed(2)}%`
+                                            ) : (
+                                                'N/A'
+                                            )}
+                                        </span>
+                                    </div>
+                                    <div className="flex justify-between items-center mt-2">
+                                        <span className="font-semibold">Redemption Fee ($OPHIR):</span>
+                                        <span>{simulationResponse?.fee_amount ? (Number(simulationResponse.fee_amount) / 1000000).toLocaleString() : 'N/A'}</span>
+                                    </div>
+                                    <div className="flex justify-between items-center mt-2">
+                                        <span className="font-semibold">Redeemed Amount:</span>
+                                        <span>{simulationResponse?.balance_after_fee ? (Number(simulationResponse.balance_after_fee) / 1000000).toLocaleString() : 'N/A'}</span>
+                                    </div>
+                                    
+                                </div>
+                            )}
                             {isTestnet && (
                                 <div className="flex justify-center w-full">
                                     <button className="redeem-button py-2 px-4 font-medium rounded hover:bg-yellow-500 transition duration-300 ease-in-out flex items-center justify-center" onClick={executeContractMessage} disabled={isLoading}>
@@ -535,7 +563,7 @@ const Redeem = () => {
                         
                     )}
                     {ophirAmount > 0 && Object.keys(redemptionValues).length <= 0 && (
-                        <div className="text-center mt-5 text-red-500">Not enough OPHIR to redeem</div>
+                        <div className="text-center mt-5 text-red-500">Not enough OPHIR to redeem anything of value from our treasury...</div>
                     )}
                     {connectedWalletAddress && ophirBalance <= 0 && (
                         <>
