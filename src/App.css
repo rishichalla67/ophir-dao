@@ -317,6 +317,12 @@ tbody .table-box:last-of-type{
   margin-right: 2rem;
 }
 
+.value-redeemsm{
+  color: var(--text-gold-lighter);
+  margin-left: 1rem;
+  margin-right: 0.25rem;
+}
+
 .redeem-button{
   background: linear-gradient(135deg, rgba(58, 52, 28, 1) 0%, rgb(212, 180, 62) 100%);
   box-shadow: 0 3px 0 0 rgba(255, 235, 183, 0.5);

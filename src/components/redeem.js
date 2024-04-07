@@ -429,7 +429,7 @@ const Redeem = () => {
         // or you pass the latest state as arguments here.
         const totalValueInfo = calculateTotalValue();
         setTotalValueInfo(totalValueInfo);
-      }, [redemptionValues]);
+      }, [ophirAmount, redemptionValues]);
 
     const calculateTotalValue = () => {
         let totalValue = 0;
@@ -591,16 +591,16 @@ const Redeem = () => {
                                 )}
                                 </tbody>
                             </table>
-                            <div className="redeem-assets text-center mt-4 text-sm sm:text-base">
-                                <span className='value-redeem px-2'>Total Value of Redeemed Assets:</span> 
-                                <span className='px-2'>{totalValueInfo.allDenomsUsed ? 
+                            <div className="redeem-assets text-center mt-2 text-sm sm:text-base">
+                                <span className='value-redeem px-2 text-xs sm:text-sm'>Total Value of Redeemed Assets:</span> 
+                                <span className='px-2 text-xs sm:text-sm'>{totalValueInfo.allDenomsUsed ? 
                                     `$${totalValueInfo.totalValue.toFixed(2)}` : 
                                     `~$${totalValueInfo.totalValue.toFixed(2)}`}
                                 </span>
-                                <div className="text-xs mt-1">
-                                    <span className='value-redeem px-2'>Relative Return vs. Current Market Sell ({ophirPrices['ophir']?.toFixed(4)}): </span> 
+                                <div className="value-redeemsm mt-1">
+                                    <span className='text-xxs sm:text-xs'>Relative Return vs. Current Market Sell ({ophirPrices['ophir']?.toFixed(4)}): </span> 
                                     {ophirPrices['ophir'] && ophirAmount ? (
-                                        <span className={`px-2 ${((totalValueInfo.totalValue - (ophirPrices['ophir'] * ophirAmount)) / (ophirPrices['ophir'] * ophirAmount) * 100) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                        <span className={`px-2 text-xxs sm:text-xs ${((totalValueInfo.totalValue - (ophirPrices['ophir'] * ophirAmount)) / (ophirPrices['ophir'] * ophirAmount) * 100) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                                             {`${((totalValueInfo.totalValue - (ophirPrices['ophir'] * ophirAmount)) / (ophirPrices['ophir'] * ophirAmount) * 100).toFixed(2)}%`}
                                         </span>
                                     ) : (
