@@ -82,4 +82,5 @@ export const tokenImages = {
     'weth': 'https://assets.coingecko.com/coins/images/32315/standard/weth_%281%29.png?1697365181',
     'wink': 'https://assets.coingecko.com/coins/images/31075/standard/WINK-Ticker-logo-color.png?1696529908',
     'wsteth': 'https://assets.coingecko.com/coins/images/32890/standard/WSTETH.png?1699776336',
+    'shark': 'https://app.osmosis.zone/_next/image?url=%2Ftokens%2Fgenerated%2Fshark.png&w=64&q=75'
 }
