@@ -176,19 +176,13 @@ const Redeem = () => {
                 showAlert("Please enter a valid OPHIR amount.", 'error');
                 return;
             }
-
+    
             const message = {
                 distribute_assets: {
                     sender: connectedWalletAddress,
                     amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString()
                 }
             };
-            // const message = {
-            //     update_config: {
-            //         dao_address: DAO_ADDRESS_TESTNET,
-            //         redeemable_denom: OPHIR_DENOM_TESNET
-            //     }
-            // };
             const signer = await getSigner();
     
             const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
@@ -196,7 +190,6 @@ const Redeem = () => {
                 denom: chainId === 'narwhal-2' ? daoConfig["OPHIR_DENOM_TESNET"] : daoConfig["OPHIR_DENOM"], 
                 amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString()
             }];
-            // const executeMsg = JSON.stringify(message);
             const fee = {
                 amount: [{ denom: "uwhale", amount: "5000" }],
                 gas: "500000",
@@ -205,12 +198,18 @@ const Redeem = () => {
             const result = await client.execute(connectedWalletAddress, contractAddress, message, fee, "Execute contract message", funds);
     
             console.log("Execute contract message result:", result);
-            showAlert("Message executed successfully!", 'success');
+            if (result.transactionHash) {
+                const baseTxnUrl = isTestnet ? "https://parallax-analytics.onrender.com/ophir/migaloo-testnet" : "https://inbloc.org/migaloo/transactions";
+                const txnUrl = `${baseTxnUrl}/${result.transactionHash}`;
+                showAlert(`Message executed successfully! Transaction Hash: ${result.transactionHash}`, 'success', `<a href="${txnUrl}" target="_blank">Message executed successfully! Transaction Hash: ${result.transactionHash}</a>`);
+            } else {
+                showAlert("Message executed successfully!", 'success');
+            }
             checkBalances();
         } catch (error) {
             console.error("Error executing contract message:", error);
             showAlert(`Error executing contract message. ${error.message}`, 'error');
-        }finally{
+        } finally {
             setIsLoading(false);
         }
     };
@@ -377,9 +376,9 @@ const Redeem = () => {
             // console.log('Token Denom:', denom);
             // console.log('Price Info:', priceInfo);
             if (priceInfo !== 0) {
-                console.log(redemptionValues);
+                // console.log(redemptionValues);
                 const value = redemptionValues[denom] * priceInfo;
-                console.log('Token Value:', value);
+                // console.log('Token Value:', value);
                 totalValue += value;
             } else {
                 allDenomsUsed = false;
