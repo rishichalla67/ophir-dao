@@ -8,6 +8,7 @@ import { CosmWasmClient  } from "@cosmjs/cosmwasm-stargate";
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import SnackbarContent from '@mui/material/SnackbarContent';
+import { tokenImages } from '../helper/tokenImages';
 
 const Modal = ({ isOpen, onClose, data }) => {
     if (!isOpen) return null;
@@ -345,30 +346,41 @@ const AnalyticsDashboard = () => {
                     <div className="p-3">
                         {/* <div className="text-3xl font-bold text-white mb-4">Ophir Treasury</div> */}
                         <div className="treasury-content overflow-x-auto">
-                            <table className="max-w-full mx-auto table-auto sm:w-full">
-                                <thead className="treasury-header text-black">
-                                    <tr>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Asset</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Balance</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Rewards</th>
-                                        <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Location</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="text-white text-xxs md:text-sm sm:text-lg">
-                                    {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
-                                        <tr className= {`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} key={key}>
-                                            <td className="text-left asset-padding py-4 px-1 sm:px-1" title={value?.originalKey} onClick={() => handleCellClick(value, key)}>{key}</td>
-                                            <td className="text-center py-4 px-1 sm:px-1" onClick={() => handleCellClick(value, key)}>{parseFloat(value.balance).toLocaleString()}</td>
-                                            <td className="text-center py-4 px-1 sm:px-1" onClick={() => handleCellClick(value, key)}>${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
-                                            <td className="text-center py-4 px-1 sm:px-1 cursor-pointer" onClick={() => handleRewardsClick(value.location)}>
+                        <table className="max-w-full mx-auto table-auto sm:w-full">
+                            <thead className="treasury-header text-black">
+                                <tr>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Asset</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Balance</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs hover:cursor-pointer" onClick={toggleSortOrder}>Value (USD)</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Rewards</th>
+                                    <th className="text-center py-1 px-1 uppercase font-semibold text-xxs sm:text-xs">Location</th>
+                                </tr>
+                            </thead>
+                            <tbody className="text-white text-xxs md:text-sm sm:text-lg">
+                                {Object.entries(sortAssetsByValue(ophirTreasury, priceData, sort)).filter(([key]) => key !== 'totalTreasuryValue' && key !== 'treasuryValueWithoutOphir' && key !== 'ophirRedemptionPrice').map(([key, value]) => (
+                                    <tr className={`... ${value.composition ? 'hover:cursor-pointer hover:bg-yellow-400 hover:text-black' : ''}`} key={key}>
+                                        <td className="text-left asset-padding py-4 px-1 sm:px-1" title={value?.originalKey} onClick={() => handleCellClick(value, key)}>
+                                            <div className="flex items-center">
+                                                {Array.isArray(tokenImages[key]) ? 
+                                                    tokenImages[key].map((imgUrl, index) => (
+                                                        <img key={index} src={imgUrl} alt={`${key}-${index}`} className="h-6 w-6 mr-2" />
+                                                    ))
+                                                    :
+                                                    <img src={tokenImages[key]} alt={key} className="h-6 w-6 mr-2" />
+                                                }
+                                                {key}
+                                            </div>
+                                        </td>
+                                        <td className="text-center py-4 px-1 sm:px-1" onClick={() => handleCellClick(value, key)}>{parseFloat(value.balance).toLocaleString()}</td>
+                                        <td className="text-center py-4 px-1 sm:px-1" onClick={() => handleCellClick(value, key)}>${!isNaN(value.balance * priceData[key]) ? formatNumber((value.balance * priceData[key]), 2) : 0}</td>
+                                        <td className="text-center py-4 px-1 sm:px-1 cursor-pointer" onClick={() => handleRewardsClick(value.location)}>
                                             {renderRewards(value)}
-                                            </td>
-                                            <td className="text-center py-2 px-1 sm:px-1" onClick={() => handleCellClick(value, key)}>{value.location}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                        </td>
+                                        <td className="text-center py-2 px-1 sm:px-1" onClick={() => handleCellClick(value, key)}>{value.location}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                         </div>
                         <div className="flex justify-center pb-2 pie-chart-container">
                             <CryptoPieChart data={formatDataForChart(ophirTreasury)} />
