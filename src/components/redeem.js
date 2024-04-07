@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
+import { CosmWasmClient  } from "@cosmjs/cosmwasm-stargate";
 import WalletConnect from './walletConnect';
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
@@ -8,6 +9,7 @@ import SnackbarContent from '@mui/material/SnackbarContent';
 import allowedAddresses from '../auth/security.json'; // Adjust the path as necessary
 import { tokenMappings } from '../helper/tokenMappings';
 import { daoConfig } from '../helper/daoConfig';
+import { tokenImages } from '../helper/tokenImages';
 
 const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
@@ -35,7 +37,7 @@ const Redeem = () => {
     const [isSending, setIsSending] = useState(false); // Add this state at the beginning of your component
     const [sendOphirAmount, setSendOphirAmount] = useState("100000");
     const [simulationResponse, setSimulationResponse] = useState({});
-
+    const [redemptionPrice, setRedemptionPrice] = useState(0);
 
     const handleConnectedWalletAddress = (address) => {
         setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
@@ -54,7 +56,7 @@ const Redeem = () => {
     useEffect(() => {
         fetch('https://parallax-analytics.onrender.com/ophir/prices')
             .then(response => response.json())
-            .then(data => setOphirPrices(data))
+            .then(data => {setOphirPrices(data); getRedemptionPrice()})
             .catch(error => console.error('Error fetching Ophir prices:', error));
     }, []);
 
@@ -63,6 +65,8 @@ const Redeem = () => {
             setOphirBalance(0)
         }
     }, [connectedWalletAddress]);
+
+
 
 
     useEffect(() => {
@@ -93,11 +97,18 @@ const Redeem = () => {
             setRPC(migalooTestnetRPC);
             setContractAddress(daoConfig["CONTRACT_ADDRESS_TESTNET"]);
             setOphirAmount('');
+            setRedemptionValues({});
+
+            getRedemptionPrice();
+
         }else{
             setChainId("migaloo-1");
             setRPC(migalooRPC);
             setContractAddress(daoConfig["CONTRACT_ADDRESS"]);
             setOphirAmount('');
+            setRedemptionValues({});
+
+            getRedemptionPrice();
         }
     }, [isTestnet]);
 
@@ -279,6 +290,60 @@ const Redeem = () => {
         }
     };
 
+    const calculateTotalAssetValueForRedemptions = (redemptionValues, prices) => {
+        let totalValue = 0;
+        let allDenomsUsed = true;
+        if (Object.keys(prices).length > 0) {
+            Object.keys(redemptionValues).forEach(denom => {
+                const priceInfo = prices[denom] || 0; // Default to a price of 0 if not found
+                if (priceInfo !== 0) {
+                    const value = redemptionValues[denom] * priceInfo;
+                    totalValue += value;
+                } else {
+                    allDenomsUsed = false;
+                }
+            });
+        }
+        console.log(totalValue)
+        return { totalValue, allDenomsUsed };
+    };
+
+    async function getRedemptionPrice () {
+        try {
+            setRedemptionPrice(0);
+            const message = {
+                get_redemption_calculation: {
+                    amount: "10000000000",
+                }
+            };
+    
+            const client = await CosmWasmClient.connect(rpc);
+
+            // Query the smart contract directly using CosmWasmClient.queryContractSmart
+            const queryResponse = await client.queryContractSmart(contractAddress, message);
+            let updatedRedemptionValues;
+            // Process the query response as needed
+            if (queryResponse && queryResponse.redemptions) {
+                updatedRedemptionValues = queryResponse.redemptions.reduce((acc, redemption) => {
+                    // Retrieve token information from the mappings or use default values
+                    const tokenInfo = tokenMappings[redemption.denom] || { symbol: redemption.denom, decimals: 6 };
+                    // Adjust the amount by the token's decimals
+                    const adjustedAmount = Number(redemption.amount) / Math.pow(10, tokenInfo.decimals);            
+                    // Accumulate the adjusted amounts by token symbol
+                    acc[tokenInfo.symbol] = adjustedAmount;
+            
+                    return acc;
+                }, {});
+        
+            }
+            const { totalValue, allDenomsUsed } = calculateTotalAssetValueForRedemptions(updatedRedemptionValues, ophirPrices);
+            setRedemptionPrice(totalValue/10000);
+        } catch (error) {
+            console.error('Error querying contract:', error);
+            showAlert(`Error querying contract. ${error.message}`, 'error');
+        }
+    };
+
     const sendOphir = async (recipientAddress) => {
         try {
             const signer = await getSigner();
@@ -342,17 +407,17 @@ const Redeem = () => {
             
                     return acc;
                 }, {});
-            
-                // Debugging log to check the final accumulated values
-                // console.log('Updated Redemption Values:', updatedRedemptionValues);
-            
                 // Update the state with the accumulated values
                 setRedemptionValues(updatedRedemptionValues);
+                
             }
     
             // Assuming calculateTotalValue uses the latest state directly or you pass the latest state as arguments
             const totalAmount = calculateTotalValue();
             setTotalValueInfo(totalAmount);
+            if (ophirPrices) {
+                getRedemptionPrice();
+            }
         } catch (error) {
             console.error('Error querying contract:', error);
             showAlert(`Error querying contract. ${error.message}`, 'error');
@@ -362,9 +427,9 @@ const Redeem = () => {
     useEffect(() => {
         // Assuming calculateTotalValue is modified to directly use state variables
         // or you pass the latest state as arguments here.
-        const totalValueInfo = calculateTotalValue(redemptionValues, ophirPrices);
+        const totalValueInfo = calculateTotalValue();
         setTotalValueInfo(totalValueInfo);
-      }, [ophirAmount, redemptionValues, ophirPrices]);
+      }, [redemptionValues]);
 
     const calculateTotalValue = () => {
         let totalValue = 0;
@@ -502,7 +567,23 @@ const Redeem = () => {
                                         .sort((a, b) => b.value - a.value) // Sort by value in descending order
                                         .map(({ asset, amount, value }) => (
                                             <tr key={asset}>
-                                                <td className="px-4 py-2 text-sm sm:text-base">{asset}</td>
+                                                {Array.isArray(tokenImages[asset]) ? 
+                                                    <div className="flex items-center">
+                                                        {tokenImages[asset].map((imgUrl, index) => {
+                                                            // Calculate size based on the number of images
+                                                            const sizeClass = `h-5 w-5 md:h-8 md:w-8`;
+                                                            return (
+                                                                <img key={index} src={imgUrl} alt={`${asset}-${index}`} className={`mr-1 ${sizeClass} sm:${sizeClass} md:${sizeClass} lg:${sizeClass}`} />
+                                                            );
+                                                        })}
+                                                        <span className="text-sm sm:text-base">{asset}</span>
+                                                    </div>
+                                                    :
+                                                    <div className="flex items-center py-1">
+                                                        <img src={tokenImages[asset]} alt={asset} className="h-5 w-5 sm:h-7 sm:w-7 md:h-9 md:w-9 mr-2" />
+                                                        <span className="text-sm sm:text-base">{asset}</span>
+                                                    </div>
+                                                }
                                                 <td className="px-4 py-2 text-sm sm:text-base">{amount.toFixed(asset === 'wBTC' ? 8 : 6)}</td>
                                                 <td className="px-4 py-2 text-sm sm:text-base">${value.toFixed(2)}</td> {/* Display the value with 2 or 10 decimal places based on asset type */}
                                             </tr>
@@ -517,7 +598,7 @@ const Redeem = () => {
                                     `~$${totalValueInfo.totalValue.toFixed(2)}`}
                                 </span>
                                 <div className="text-xs mt-1">
-                                    <span className='value-redeem px-2'>Return vs limit sell at current price ({ophirPrices['ophir'].toFixed(4)}): </span> 
+                                    <span className='value-redeem px-2'>Relative Return vs. Current Market Sell ({ophirPrices['ophir']?.toFixed(4)}): </span> 
                                     {ophirPrices['ophir'] && ophirAmount ? (
                                         <span className={`px-2 ${((totalValueInfo.totalValue - (ophirPrices['ophir'] * ophirAmount)) / (ophirPrices['ophir'] * ophirAmount) * 100) >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                                             {`${((totalValueInfo.totalValue - (ophirPrices['ophir'] * ophirAmount)) / (ophirPrices['ophir'] * ophirAmount) * 100).toFixed(2)}%`}
@@ -529,7 +610,13 @@ const Redeem = () => {
                             </div>
                             {Object.keys(simulationResponse).length !== 0  && (
                                 <div className="text-xs sm:text-sm mt-4">
-                                    <div className="flex justify-between items-center">
+                                    {redemptionPrice > 0 && (
+                                        <div className="flex justify-between items-center mt-2">
+                                            <span className="font-semibold">Redemption Price of OPHIR:</span>
+                                            <span>${redemptionPrice.toFixed(6)}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex justify-between items-center mt-2">
                                         <span className="font-semibold">Redemption Fee (%):</span>
                                         <span>
                                             {simulationResponse?.fee_amount ? (
