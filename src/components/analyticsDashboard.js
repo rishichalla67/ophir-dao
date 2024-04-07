@@ -9,6 +9,7 @@ import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import SnackbarContent from '@mui/material/SnackbarContent';
 import { tokenImages } from '../helper/tokenImages';
+import PriceDisplay from './priceDisplay';
 
 const Modal = ({ isOpen, onClose, data }) => {
     if (!isOpen) return null;
@@ -399,6 +400,8 @@ const AnalyticsDashboard = () => {
                         <Charts />
                     </div>
                 );
+            case 'prices':
+                return <PriceDisplay priceData={priceData} />;
             default:
                 return null;
         }
@@ -502,6 +505,12 @@ const AnalyticsDashboard = () => {
                             Charts
                         </button>
                     {/* )} */}
+                    {/* <button
+                        className={`text-xl font-bold mb-1 hover:cursor-pointer p-4 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'prices' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
+                        onClick={() => setActiveTab('prices')}
+                    >
+                        Prices
+                    </button> */}
                 </div>
                 {renderTabContent()}
                 <Modal isOpen={isModalOpen} onClose={toggleModal} data={modalData} />
