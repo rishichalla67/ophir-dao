@@ -86,6 +86,12 @@ const WasmDev = () => {
                 };
                 setJsonQueryValid(true);
                 break;
+            case 'GetDebugValues':
+                queryMsg = {
+                    get_debug_values: {}
+                  }
+                setJsonQueryValid(true);
+                break;
             case 'Custom':
                 queryMsg = queryMessage;
                 break;
@@ -439,6 +445,7 @@ const WasmDev = () => {
                         <option value="GetRedemptions">Get Redemptions</option>
                         <option value="GetRedemptionCalculation">Get Redemption Calculation</option>
                         <option value="GetTokenSupply">Get Token Supply</option>
+                        <option value="GetDebugValues">Get Debug Values</option>
                         <option value="Custom" disabled>Custom Query</option>
                     </select>
                     </div>
