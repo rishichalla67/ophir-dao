@@ -75,6 +75,7 @@ const AnalyticsDashboard = () => {
     const [windowWidth, setWindowWidth] = useState(window.innerWidth);
     const [redemptionPrice, setRedemptionPrice] = useState(0);
     const [alertInfo, setAlertInfo] = useState({ open: false, message: '', severity: 'info' });
+    const [runestoneData, setRunestoneData] = useState(null);
 
     useEffect(() => {
         const handleResize = () => {
@@ -220,6 +221,9 @@ const AnalyticsDashboard = () => {
                 prices: pricesResponse.data,
                 timestamp: now.getTime()
             };
+
+            const magicEdenResponse = await axios.get('https://api-mainnet.magiceden.io/v2/ord/btc/stat?collectionSymbol=runestone');
+            setRunestoneData(magicEdenResponse.data);
     
             localStorage.setItem(cacheKey, JSON.stringify(dataToCache));
     
@@ -403,7 +407,7 @@ const AnalyticsDashboard = () => {
             case 'prices':
                 return <PriceDisplay priceData={priceData} />;
             case 'nfts':
-                return <NFTGallery />;
+                return <NFTGallery prices={priceData} runestoneData={runestoneData}/>;
             default:
                 return null;
         }
