@@ -27,7 +27,7 @@ const NFTGallery = ({ prices, runestoneData }) => { // Accept prices as a prop
                 <p className="text-white text-base">Floor Price: {runestoneData?.floorPrice/100000000} BTC</p>
                 <p className="text-white text-base">Profit: ${(((runestoneData?.floorPrice/100000000)-0.09858926)*prices["wBTC"]).toFixed(2)}</p>
               
-                <p className="text-white text-base" onClick={(e) => handleHashClick(e, '7f64a1537ed6300ddf3d7c77a48173aebafebde897a59681f3a658fb363de6ff')}>
+                <p className="text-white text-base" onClick={(e) => handleHashClick(e, '7f64a1537ed6300ddf3d7c77a48173aebafebde897a59681f3a658fb363de6ff ')}>
                     Hash: 7f64a1...de6ff
                 </p>
                 </div>
