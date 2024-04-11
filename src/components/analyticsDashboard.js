@@ -498,25 +498,25 @@ const AnalyticsDashboard = () => {
                 </div>
                 <div className="flex justify-left space-x-4 p-4">
                     <button
-                        className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-2 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'treasury' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
+                        className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-1 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'treasury' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
                         onClick={() => setActiveTab('treasury')}
                     >
                         Treasury
                     </button>
                     <button
-                        className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-2 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'charts' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
+                        className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-1 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'charts' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
                         onClick={() => setActiveTab('charts')}                            
                     >
                         Charts
                     </button>
                     <button
-                        className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-2 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'nfts' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
+                        className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-1 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'nfts' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
                         onClick={() => setActiveTab('nfts')}
                     >
                         NFTs
                     </button>
                     <button
-                        className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-2 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'prices' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
+                        className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-1 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${activeTab === 'prices' ? 'bg-yellow-400 text-black' : 'bg-transparent text-white'}`}
                         onClick={() => setActiveTab('prices')}
                     >
                         Prices
