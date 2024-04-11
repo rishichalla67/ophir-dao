@@ -26,5 +26,6 @@ export const tokenMappings = {
     'factory/kujira16rujrka8vk3c7l7raa37km8eqcxv9z583p3c6e288q879rwp23ksy6efce/bOPHIR01': {symbol: "bOPHIR01", decimals: 6},
     'ibc/2C962DAB9F57FE0921435426AE75196009FAA1981BF86991203C8411F8980FDB': {symbol: "usdc", decimals: 6}, //axlusdc transfer/channel-253
     'ibc/B3504E092456BA618CC28AC671A71FB08C6CA0FD0BE7C8A5B5A3E2DD933CC9E4': {symbol: 'usdc', decimals: 6}, //axlUsdc transfer/channel-6 crypto-org-chain-mainnet-1 channel-56
-    'ibc/36A02FFC4E74DF4F64305130C3DFA1B06BEAC775648927AA44467C76A77AB8DB': {symbol: "whale", decimals: 6}
+    'ibc/36A02FFC4E74DF4F64305130C3DFA1B06BEAC775648927AA44467C76A77AB8DB': {symbol: "whale", decimals: 6},
+    'migaloo10nucfm2zqgzqmy7y7ls398t58pjt9cwjsvpy88y2nvamtl34rgmqt5em2v': {symbol: "usdc", decimals: 6}
   };

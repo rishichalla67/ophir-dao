@@ -11,6 +11,8 @@ import AnalyticsDashboard from "./components/analyticsDashboard";
 import Redeem from "./components/redeem";
 import SeekerRound from "./components/seekerRound";
 import WasmDev from "./components/wasmdev";
+import RestakeDashboard from "./components/restakeDashboard";
+
 
 function App() {
   return (
@@ -26,6 +28,7 @@ function App() {
           <Route path="10239457123823985" element={<Redeem />} />
           <Route path="seekers" element={<SeekerRound />} />
           <Route path="wasmdev" element={<WasmDev />} />
+          <Route path="restake" element={<RestakeDashboard />} />
         </Routes>
     </Router>
   );

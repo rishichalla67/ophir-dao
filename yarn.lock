@@ -1782,7 +1782,7 @@
   "resolved" "https://registry.npmjs.org/@emotion/hash/-/hash-0.9.1.tgz"
   "version" "0.9.1"
 
-"@emotion/is-prop-valid@^1.2.1":
+"@emotion/is-prop-valid@*", "@emotion/is-prop-valid@^1.2.1":
   "integrity" "sha512-uNsoYd37AFmaCdXlg6EYD1KaPOaRWRByMCYzbKUX4+hhMfrxdVSelShywL4JVaAeM/eHUOSprYBQls+/neX3pw=="
   "resolved" "https://registry.npmjs.org/@emotion/is-prop-valid/-/is-prop-valid-1.2.2.tgz"
   "version" "1.2.2"
@@ -6678,6 +6678,13 @@
   "integrity" "sha512-ZsDfxO51wGAXREY55a7la9LScWpwv9RxIrYABrlvOFBlH/ShPnrtsXeuUIfXKKOVicNxQ+o8JTbJvjS4M89yew=="
   "resolved" "https://registry.npmjs.org/fraction.js/-/fraction.js-4.3.7.tgz"
   "version" "4.3.7"
+
+"framer-motion@^11.0.28":
+  "integrity" "sha512-j/vNYTCH5MX5sY/3dwMs00z1+qAqKX3iIHF762bwqlU814ooD5dDbuj3pA0LmIT5YqyryCkXEb/q+zRblin0lw=="
+  "resolved" "https://registry.npmjs.org/framer-motion/-/framer-motion-11.0.28.tgz"
+  "version" "11.0.28"
+  dependencies:
+    "tslib" "^2.4.0"
 
 "fresh@0.5.2":
   "integrity" "sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q=="
@@ -11783,7 +11790,7 @@
   "resolved" "https://registry.npmjs.org/tslib/-/tslib-1.14.1.tgz"
   "version" "1.14.1"
 
-"tslib@^2.0.3", "tslib@^2.1.0":
+"tslib@^2.0.3", "tslib@^2.1.0", "tslib@^2.4.0":
   "integrity" "sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q=="
   "resolved" "https://registry.npmjs.org/tslib/-/tslib-2.6.2.tgz"
   "version" "2.6.2"
