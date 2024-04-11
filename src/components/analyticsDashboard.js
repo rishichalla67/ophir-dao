@@ -222,8 +222,8 @@ const AnalyticsDashboard = () => {
                 timestamp: now.getTime()
             };
 
-            const magicEdenResponse = await axios.get('https://api-mainnet.magiceden.io/v2/ord/btc/stat?collectionSymbol=runestone');
-            setRunestoneData(magicEdenResponse.data);
+            // const magicEdenResponse = await axios.get('https://api-mainnet.magiceden.io/v2/ord/btc/stat?collectionSymbol=runestone');
+            // setRunestoneData(magicEdenResponse.data);
     
             localStorage.setItem(cacheKey, JSON.stringify(dataToCache));
     
