@@ -11,6 +11,8 @@ import { daoConfig } from '../helper/daoConfig';
 
 const migalooRPC = 'https://migaloo-rpc.polkachu.com/';
 const migalooTestnetRPC = 'https://migaloo-testnet-rpc.polkachu.com:443';
+const terraRPC = 'https://terra-rpc.polkachu.com/';
+const osmosisRPC = 'https://osmosis-rpc.polkachu.com/';
 
 const OPHIR_DECIMAL = 1000000;
 
@@ -22,6 +24,7 @@ const WasmDev = () => {
     const [alertInfo, setAlertInfo] = useState({ open: false, message: '', severity: 'info' });
     const [queryType, setQueryType] = useState('');
     const [editableQueryMessage, setEditableQueryMessage] = useState(''); // New state for the editable JSON string
+    
     const [queryMessage, setQueryMessage] = useState('');
     const [codeId, setCodeId] = useState(null); // State variable to store the codeId
     const [jsonQueryValid, setJsonQueryValid] = useState(true); // Add a state to track JSON validity
@@ -37,6 +40,8 @@ const WasmDev = () => {
         staking_contract: chainId === 'narwhal-2' ? daoConfig["DAO_STAKING_CONTRACT_ADDRESS_TESTNET"] : daoConfig["DAO_STAKING_CONTRACT_ADDRESS"],
         vault_contract: daoConfig["DAO_VAULT_ADDRESS"]
     }; 
+    
+    const [instantiationMsg, setInstantiationMsg] = useState(JSON.stringify(initMsg, null, 2));
 
     const handleConnectedWalletAddress = (address) => {
         setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
@@ -106,21 +111,23 @@ const WasmDev = () => {
     const chainIdToRPC = {
         "migaloo-1": migalooRPC,
         "narwhal-2": migalooTestnetRPC,
+        "phoenix-1": terraRPC,
+        "osmosis-1": osmosisRPC
     };
 
     const handleNetworkChange = (event) => {
-        const isTestnet = event.target.checked;
-        const selectedChainId = isTestnet ? "narwhal-2" : "migaloo-1";
+        const selectedChainId = event.target.value;
         const selectedRPC = chainIdToRPC[selectedChainId];
         setChainId(selectedChainId);
         setRPC(selectedRPC);
+        // Adjust contract address based on the selected chain
         if (selectedChainId === "narwhal-2") {
             setContractAddress(daoConfig["CONTRACT_ADDRESS_TESTNET"]);
-        } else if (selectedChainId === "migaloo-1") {
+        } else {
+            // Assuming you have mainnet addresses for migaloo-1 and phoenix-1
             setContractAddress(daoConfig["CONTRACT_ADDRESS"]);
         }
     };
-
     
     const getSigner = async () => {
         await window.keplr.enable(chainId);
@@ -128,9 +135,11 @@ const WasmDev = () => {
         return offlineSigner;
     };
     const uploadContract = async (file, signer) => {
-        if (!connectedWalletAddress) {
+        const account = await signer.getAccounts();
+        if (!connectedWalletAddress || !account) {
             showAlert("Wallet not connected. Please connect your wallet before uploading a contract.", 'error');
         }
+        
         setIsUploadingContract(true)
         try {
             // Fetch the WASM file from the provided URL
@@ -146,16 +155,10 @@ const WasmDev = () => {
                 signer
             );
     
-            const fee = {
-                amount: [{
-                    denom: "uwhale",
-                    amount: "5000",
-                }],
-                gas: "1750000",
-            };
+            const fee = calculateFee(chainId)
             // Upload the contract code
             const result = await signingClient.upload(
-                connectedWalletAddress,
+                account[0].address,
                 wasmCode,
                 fee,
                 "WASM upload"
@@ -171,11 +174,13 @@ const WasmDev = () => {
             const codeId = result.logs[0].events.find((event) => event.type === "store_code").attributes.find((attr) => attr.key === "code_id").value;
             setCodeId(codeId);
             showAlert("WASM uploaded successfully! Attempting to instantiate now...", 'success');
-            instantiateContract(Number(codeId), signer)
+            // instantiateContract(Number(codeId), signer)
             return codeId;
         } catch (error) {
             showAlert(`Error in uploadContract: ${error.message}`, 'error');
             throw error;
+        }finally{
+            setIsUploadingContract(false)
         }
     };
     const handleFileChange = async (event) => {
@@ -186,6 +191,7 @@ const WasmDev = () => {
         }
         try {
             const signer = await getSigner(); // Assuming getSigner is a function that retrieves the signer
+            console.log(signer)
             const codeId = await uploadContract(file, signer);
             showAlert(`Upload successful, codeId: ${codeId}`, 'success');
         } catch (error) {
@@ -193,9 +199,32 @@ const WasmDev = () => {
             showAlert(`Error uploading contract: ${error.message}`, 'error');
         }
     };
+    const calculateFee = (chainId) => {
+        let denom = "uwhale"; // Default denom
+        let gas = "1750000"; // Default gas
     
+        if (chainId === "phoenix-1") {
+            denom = "uluna";
+            gas = "2000000"; // Adjusted gas for phoenix-1
+        } else if (chainId === "migaloo-1" || chainId === "narwhal-2") {
+            // Keep the default values for denom and gas
+        } else if (chainId === "osmosis-1") {
+            denom = "uosmo";
+            gas = "2000000"; // Adjusted gas for osmosis-1
+        }
+    
+        return {
+            amount: [{
+                denom: denom,
+                amount: "5000",
+            }],
+            gas: gas,
+        };
+    };
     const instantiateContract = async (codeId, signer) => {
         try {
+            const account = await signer.getAccounts();
+
             // Ensure the signer is available
             if (!signer) {
                 showAlert("Signer is not available", 'error');
@@ -209,19 +238,13 @@ const WasmDev = () => {
             const initFunds = []; // Initial funds to be sent to the contract, if any
     
             // Define the fee for the instantiate transaction
-            const fee = {
-                amount: [{
-                    denom: "uwhale",
-                    amount: "5000",
-                }],
-                gas: "1750000", // Adjust gas value as needed
-            };
+            const fee = calculateFee(chainId)
     
             // Instantiate the contract
             const instantiateResponse = await client.instantiate(
-                connectedWalletAddress, // Ensure to get the address from the signer
+                account[0].address, // Ensure to get the address from the signer
                 codeId,
-                initMsg,
+                instantiationMsg,
                 label,
                 fee,
                 { admin, amount: initFunds }
@@ -242,22 +265,50 @@ const WasmDev = () => {
         } catch (error) {
             showAlert(`Error in instantiateContract: ${error.message}`, 'error');
             throw error;
-        }finally{
-            setIsUploadingContract(false)
         }
     };
     
     const handleQueryContract = async () => {
         try {
-            
             const formattedJsonString = JSON.stringify(queryMessage, null, 1); // This adds spaces in the JSON string
             const encodedQuery = Buffer.from(formattedJsonString).toString('base64');
-            let baseURL = chainId === 'narwhal-2' ? 'https://migaloo-testnet-api.polkachu.com' : 'https://migaloo-api.polkachu.com';
+            let baseURL;
+            switch (chainId) {
+                case 'narwhal-2':
+                    baseURL = 'https://migaloo-testnet-api.polkachu.com';
+                    break;
+                case 'terra-1':
+                    baseURL = 'https://terra-api.polkachu.com';
+                    break;
+                case 'osmosis-1':
+                    baseURL = 'https://osmosis-api.polkachu.com';
+                    break;
+                default:
+                    baseURL = 'https://migaloo-api.polkachu.com';
+            }
+            let contractAddressPrefix;
+            switch (chainId) {
+                case 'narwhal-2':
+                    contractAddressPrefix = 'migaloo';
+                    break;
+                case 'terra-1':
+                    contractAddressPrefix = 'terra';
+                    break;
+                case 'osmosis-1':
+                    contractAddressPrefix = 'osmo';
+                    break;
+                default:
+                    contractAddressPrefix = 'migaloo';
+            }
+            if (!contractAddress.startsWith(contractAddressPrefix)) {
+                throw new Error(`Contract address does not start with the correct prefix for the chain: ${contractAddressPrefix}`);
+            }
             const queryUrl = `${baseURL}/cosmwasm/wasm/v1/contract/${contractAddress}/smart/${encodedQuery}`;
             const response = await fetch(queryUrl);
             const queryResponse = await response.json();
             setRedeemContractQueryResponse(queryResponse);
             console.log('Query response:', queryResponse);
+            showAlert("Query successful!", 'success');
         } catch (error) {
             console.error('Error querying contract:', error);
             showAlert(`Error querying contract. ${error.message}`, 'error');
@@ -354,18 +405,18 @@ const WasmDev = () => {
                 </Snackbar>
                 <div className="w-full flex flex-col items-center space-y-6">
                 <div className="flex items-center space-x-4">
-                    <label htmlFor="networkToggle" className="text-white">Select Network:</label>
-                    <FormControlLabel
-                    control={
-                        <Switch
-                        checked={chainId === "narwhal-2"}
+                    <label htmlFor="networkSelect" className="text-white">Select Network:</label>
+                    <select
+                        id="networkSelect"
+                        value={chainId}
                         onChange={handleNetworkChange}
-                        name="networkToggle"
-                        color="primary"
-                        />
-                    }
-                    label={chainId === "narwhal-2" ? "Testnet (narwhal-2)" : "Mainnet (migaloo-1)"}
-                    />
+                        className="bg-slate-700 text-white border border-yellow-400 rounded p-2"
+                    >
+                        <option value="migaloo-1">Migaloo-1</option>
+                        <option value="narwhal-2">Narwhal-2 (Testnet)</option>
+                        <option value="phoenix-1">Phoenix-1</option>
+                        <option value="osmosis-1">Osmosis-1</option>
+                    </select>
                 </div>
                 <div className="w-full bg-slate-800 rounded-lg p-6">
                     <h3 className="text-xl text-yellow-400 mb-4">WASM Upload</h3>
@@ -375,22 +426,38 @@ const WasmDev = () => {
                 </div>
                 {!isUploadingContract && (
                     <div className="w-full bg-slate-800 rounded-lg p-6">
-                    <h3 className="text-xl text-yellow-400 mb-4">WASM Instantiation</h3>
-                    <div className="flex justify-center mb-4">
-                        <input 
-                        id="codeId" 
-                        type="number" 
-                        className="text-xl bg-slate-700 text-white border border-yellow-400 rounded p-2 text-center" 
-                        placeholder="Enter Code ID" 
-                        value={codeId}
-                        onChange={(e) => setCodeId(Number(e.target.value))}
-                        />
-                    </div>
-                    <div className="flex justify-center">
-                        <button className="py-2 px-6 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition duration-300" onClick={handleInstantiateContract}>
-                        Instantiate Contract
-                        </button>
-                    </div>
+                        <h3 className="text-xl text-yellow-400 mb-4">WASM Instantiation</h3>
+                        <div className="flex flex-col items-center space-y-4">
+                            <div className="w-full">
+                                <label htmlFor="codeId" className="block text-white mb-2">Code ID:</label>
+                                <input 
+                                    id="codeId" 
+                                    type="number" 
+                                    className="w-full bg-slate-700 text-white border border-yellow-400 rounded p-2 text-center" 
+                                    placeholder="Enter Code ID" 
+                                    value={codeId}
+                                    onChange={(e) => setCodeId(Number(e.target.value))}
+                                />
+                            </div>
+                            <div className="w-full">
+                                <label htmlFor="instantiationMsg" className="block text-white mb-2">Instantiation Message:</label>
+                                <textarea 
+                                    id="instantiationMsg" 
+                                    className=" w-full text-sm h-32 bg-slate-700 text-white border border-yellow-400 rounded p-2"
+                                    placeholder="Enter Instantiation Message in JSON format"
+                                    value={instantiationMsg}
+                                    onChange={(e) => setInstantiationMsg(e.target.value)}
+                                ></textarea>
+                            </div>
+                            <div className="flex justify-center w-full">
+                                <button 
+                                    className="py-2 px-6 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition duration-300" 
+                                    onClick={() => handleInstantiateContract(codeId, instantiationMsg)}
+                                >
+                                    Instantiate Contract
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
                 <div className="w-full bg-slate-800 rounded-lg p-6">
