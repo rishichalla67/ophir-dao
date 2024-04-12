@@ -1,5 +1,7 @@
 import React, { useState, useEffect, Suspense } from 'react';
 import { CosmWasmClient  } from "@cosmjs/cosmwasm-stargate";
+import { StargateClient } from "@cosmjs/stargate";
+
 import Alert from '@mui/material/Alert';
 import Snackbar from '@mui/material/Snackbar';
 import SnackbarContent from '@mui/material/SnackbarContent';
@@ -10,11 +12,9 @@ import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 
 
-
-
-
 const ERIS_GAUGE_CONTRACT_ADDRESS = 'migaloo1m7nt0zxuf3jvj2k8h9kmgkxjmepxz3k9t2c9ce8xwj94csg0epvq5j6z3w';
 const ERIS_WHITELIST_CONTRACT_ADDRESS = 'migaloo190qz7q5fu4079svf890h4h3f8u46ty6cxnlt78eh486k9qm995hquuv9kd';
+const OPHIR_DAO_TREASURY_ADDRESS = 'migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc'
 
 const RestakeDashboard = () => {
     const [gaugeVoteResponse, setGaugeVoteResponse] = useState(null);
@@ -100,6 +100,7 @@ const RestakeDashboard = () => {
 
       getGaugeVotes();
       getWhitelistAssets();
+      queryAddressBalances(OPHIR_DAO_TREASURY_ADDRESS);
     }, []);
 
     const refreshData = () => {
@@ -140,6 +141,14 @@ const RestakeDashboard = () => {
             });
         }
     };
+
+    const queryAddressBalances = async (address) => {
+        const client = await StargateClient.connect(rpc);
+        const balances = await client.getAllBalances(address);
+        console.log(balances);
+        return balances;
+    };
+
 
     const chartData = {
         labels: [],
