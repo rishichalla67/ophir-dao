@@ -18,6 +18,7 @@ const OPHIR_DAO_TREASURY_ADDRESS = 'migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxj
 
 const RestakeDashboard = () => {
     const [gaugeVoteResponse, setGaugeVoteResponse] = useState(null);
+    const [ophirGaugeStats, setOphirGaugeStats] = useState(null);
     const [whitelistResponse, setWhitelistResponse] = useState(null);
     const [connectedWalletAddress, setConnectedWalletAddress] = useState('');
     const [isLedgerConnected, setIsLedgerConnected] = useState(false);
@@ -101,6 +102,7 @@ const RestakeDashboard = () => {
       getGaugeVotes();
       getWhitelistAssets();
       queryAddressBalances(OPHIR_DAO_TREASURY_ADDRESS);
+      getOphirGaugeStats();
     }, []);
 
     const refreshData = () => {
@@ -115,6 +117,23 @@ const RestakeDashboard = () => {
             const result = await client.queryContractSmart(ERIS_GAUGE_CONTRACT_ADDRESS, queryMsg);
             console.log(result)
             setGaugeVoteResponse(result);
+        } catch (error) {
+            console.error('Error fetching data:', error);
+            setAlertInfo({
+                open: true,
+                message: `Error fetching gauge votes: ${error.message}`,
+                severity: 'error',
+            });
+        }
+    };
+
+    const getOphirGaugeStats= async () => {
+        try {
+            const client = await CosmWasmClient.connect(rpc);
+            const queryMsg = { user_info: { user: "migaloo10gj7p9tz9ncjk7fm7tmlax7q6pyljfrawjxjfs09a7e7g933sj0q7yeadc"} };
+            const result = await client.queryContractSmart(ERIS_GAUGE_CONTRACT_ADDRESS, queryMsg);
+            console.log(result)
+            setOphirGaugeStats(result);
         } catch (error) {
             console.error('Error fetching data:', error);
             setAlertInfo({
@@ -172,12 +191,12 @@ const RestakeDashboard = () => {
     }
 
     return (
-        <div className="global-bg mt-4 text-white min-h-screen flex flex-col items-center w-full" style={{ paddingTop: '10dvh' }}>
+        <div className="global-bg mt-4 text-white min-h-screen flex flex-col items-center w-full px-4" style={{ paddingTop: '10dvh' }}>
             <Snackbar open={alertInfo.open} autoHideDuration={6000} onClose={() => setAlertInfo({ ...alertInfo, open: false })}
                     anchorOrigin={{ vertical: 'top', horizontal: 'center' }}>
                     {alertInfo.htmlContent ? (
                         <SnackbarContent
-                            style={{color: 'black', backgroundColor: alertInfo.severity === 'error' ? '#ffcccc' : '#ccffcc' }} // Adjusted colors to be less harsh
+                            style={{color: 'black', backgroundColor: alertInfo.severity === 'error' ? '#ffcccc' : '#ccffcc' }}
                             message={<span dangerouslySetInnerHTML={{ __html: alertInfo.htmlContent }} />}
                         />
                     ) : (
@@ -185,7 +204,7 @@ const RestakeDashboard = () => {
                             {alertInfo.message}
                         </Alert>
                     )}
-                </Snackbar>
+            </Snackbar>
             <div className="absolute top-14 right-0 m-4 mr-2 sm:mr-4">
                 <WalletConnect 
                     handleConnectedWalletAddress={handleConnectedWalletAddress} 
@@ -193,88 +212,100 @@ const RestakeDashboard = () => {
                 />
             </div>
             {gaugeVoteResponse && (
-                <motion.div 
-                className="global-bg mt-4 text-white min-h-screen flex flex-col items-center w-full"
-                style={{ paddingTop: '10vh' }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.5 }}
-            >
-                <motion.div 
-                    className="mt-8 w-full max-w-2xl bg-gray-800 p-6 rounded-lg shadow-lg relative"
-                    layout
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ delay: 0.2 }}
-                >
-                    <h2 className="text-2xl font-bold mb-4 flex justify-between items-center">
-                        Restake Dashboard
-                        <div className="tooltip" data-tip="Refresh Data">
-                            <motion.img
-                                src="https://cdn0.iconfinder.com/data/icons/modifiers-add-on-2-flat/48/Mod_Add-On_2-19-512.png"
-                                alt="Refresh"
-                                className={`cursor-pointer w-6 h-6 text-yellow-400 ${isRefreshing ? 'opacity-50' : 'opacity-100'}`} // Adjust opacity based on isRefreshing state
-                                whileHover={{ rotate: isRefreshing ? 0 : 180 }} // Prevent rotation when refreshing
-                                whileTap={{ scale: isRefreshing ? 1 : 0.9 }} // Prevent scale when refreshing
-                                onClick={refreshDataWithCooldown}
-                                style={{ pointerEvents: isRefreshing ? 'none' : 'auto' }} // Disable pointer events when refreshing
-                            />
-                        </div>
-                    </h2>
-                    <p className="text-lg font-semibold">Global Votes:</p>
-                    <motion.ul 
-                        className="list-disc pl-8 mt-4 space-y-2"
-                        layout
-                    >
-                        {Object.entries(gaugeVoteResponse.global_votes).map(([key, value], index) => {
-                            const newKey = key.split(':')[1];
-                            const token = tokenMappings[newKey];
-                            const formattedValue = token ? (value / (10 ** token.decimals)).toFixed(2) : value;
-                            return (
-                                <motion.li 
-                                    key={key} 
-                                    className="flex justify-between items-center py-2 border-b border-white/20" // Added border-bottom here
-                                    layout
-                                    initial={{ x: -10, opacity: 0 }}
-                                    animate={{ x: 0, opacity: 1 }}
-                                    transition={{ delay: index * 0.1 }}
-                                >
-                                    <span className="font-medium">{token ? token.symbol : newKey}:</span>
-                                    <span className="font-light">{formattedValue} RSTK</span>
-                                </motion.li>
-                            );
-                        })}
-                    </motion.ul>
-                    <p className="text-right font-light text-sm">
-                        Last Updated: <span>{new Date(gaugeVoteResponse.update_time_s * 1000).toLocaleString([], { timeZoneName: 'short' })}</span>
-                    </p>
-                </motion.div>
-                <motion.div className="w-full max-w-2xl my-8">
-                        <Bar data={chartData} options={{ maintainAspectRatio: false }} />
-                </motion.div>
-            </motion.div>
-            )}
-            {/* {whitelistResponse && (
-                <div className="mt-8 text-white">
-                    <h2 className="text-2xl font-bold mb-4">Whitelisted Tokens</h2>
-                    <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
-                        <p className="text-lg font-semibold">Tokens:</p>
-                        <ul className="list-disc pl-8 mt-4">
-                        {whitelistResponse["migaloo-1"].map((token, index) => {
-                            const [type, address] = Object.entries(token)[0];
-                            const formattedAddress = address.split('/').pop(); // Extract the last part of the address
-                            return (
-                                <li key={index} className="mt-2">
-                                <span className="font-medium">{type.toUpperCase()} Token:</span> <span className="font-light">{formattedAddress}</span>
-                                </li>
-                            );
-                            })}
-                        </ul>
+                <div className="w-full max-w-6xl">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {/* Ophir Stats */}
+                        {ophirGaugeStats && (
+                            <div className="bg-gray-800 mt-10 md:mt-0 p-6 rounded-lg shadow-lg col-span-1">
+                                <h2 className="text-2xl font-bold mb-4 text-yellow-400">Ophir Stats</h2>
+                                {/* Ophir Stats Content */}
+                                <div className="space-y-4 mt-4">
+                                    <p>Voting Power: <span className="font-light">{(parseInt(ophirGaugeStats.user.voting_power/1000000)/1000000 * 100).toLocaleString()}%</span></p>
+                                    <p>Votes:</p>
+                                    <div className="pl-4">
+                                        {ophirGaugeStats.user.votes.map(([asset, amount], index) => (
+                                            <p key={index}>
+                                                <span className="font-medium">{tokenMappings[asset.split(':')[1]]?.symbol}:</span> <span className="font-light">{amount.toLocaleString()} RSTK</span>
+                                            </p>
+                                        ))}
+                                    </div>
+                                </div>
+                                <p className="text-lg font-semibold mt-4">Staked:</p>
+                                <p className="font-light">{(parseInt(ophirGaugeStats.staked, 10)/1000000).toLocaleString()} RSTK</p>
+                            </div>
+                        )}
+                        {/* Global Votes */}
+                        
+                    {/* Chart */}
+                    <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full col-span-1 md:col-span-2 lg:col-span-3">
+                        <h2 className="text-2xl font-bold mb-4 text-white">Global Votes on Asset Yields</h2>
+                        <Bar 
+                            data={{
+                                ...chartData,
+                                datasets: chartData.datasets.map(dataset => ({
+                                    ...dataset,
+                                    backgroundColor: 'rgba(255, 184, 0, 1)', // Tailwind yellow-400
+                                }))
+                            }} 
+                            options={{ 
+                                maintainAspectRatio: true,
+                                plugins: {
+                                    tooltip: {
+                                        callbacks: {
+                                            label: function(context) {
+                                                let label = context.dataset.label || '';
+                                                if (label) {
+                                                    label += ': ';
+                                                }
+                                                if (context.parsed.y !== null) {
+                                                    label += context.parsed.y.toLocaleString() + ' RSTK';
+                                                }
+                                                return label;
+                                            }
+                                        }
+                                    }
+                                },
+                                scales: {
+                                    y: {
+                                        ticks: {
+                                            color: "#ffffff", // White text for ticks
+                                            font: function(context) {
+                                                let width = window.innerWidth;
+                                                if (width < 600) {
+                                                    return { size: 12 }; // Smaller screens
+                                                } else if (width < 960) {
+                                                    return { size: 14 }; // Medium screens
+                                                } else {
+                                                    return { size: 16 }; // Larger screens
+                                                }
+                                            },
+                                        }
+                                    },
+                                    x: {
+                                        ticks: {
+                                            color: "#ffffff", // White text for ticks
+                                            // Dynamically adjust font size based on screen width
+                                            font: function(context) {
+                                                let width = window.innerWidth;
+                                                if (width < 600) {
+                                                    return { size: 12 }; // Smaller screens
+                                                } else if (width < 960) {
+                                                    return { size: 14 }; // Medium screens
+                                                } else {
+                                                    return { size: 16 }; // Larger screens
+                                                }
+                                            },
+                                        }
+                                    }
+                                }
+                            }} 
+                        />
                     </div>
                 </div>
-            )} */}
-        </div>
-    );
+            </div>
+        )}
+    </div>
+);
 };
 
 export default RestakeDashboard;
