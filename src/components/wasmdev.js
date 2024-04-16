@@ -234,7 +234,7 @@ const WasmDev = () => {
             
             const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
             const admin = undefined; // Set admin address if needed, else undefined
-            const label = `MyContract-${Math.random()}`; // Unique label for the contract instance
+            const label = `Instantiate WASM ${codeId}`; // Unique label for the contract instance
             const initFunds = []; // Initial funds to be sent to the contract, if any
     
             // Define the fee for the instantiate transaction
@@ -243,7 +243,7 @@ const WasmDev = () => {
             // Instantiate the contract
             const instantiateResponse = await client.instantiate(
                 account[0].address, // Ensure to get the address from the signer
-                codeId,
+                Number(codeId),
                 instantiationMsg,
                 label,
                 fee,
