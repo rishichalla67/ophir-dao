@@ -39,7 +39,7 @@ const WasmDev = () => {
         redeemable_denom: chainId === 'narwhal-2' ? daoConfig["OPHIR_DENOM_TESNET"] : daoConfig["OPHIR_DENOM"], // Replace with your actual redeemable denom
         staking_contract: chainId === 'narwhal-2' ? daoConfig["DAO_STAKING_CONTRACT_ADDRESS_TESTNET"] : daoConfig["DAO_STAKING_CONTRACT_ADDRESS"],
         vault_contract: daoConfig["DAO_VAULT_ADDRESS"],
-        redemption_fee: 0.015
+        redemption_fee: "0.015"
     }; 
     
     const [instantiationMsg, setInstantiationMsg] = useState(JSON.stringify(initMsg, null, 2));
@@ -206,7 +206,7 @@ const WasmDev = () => {
     };
     const calculateFee = (chainId) => {
         let denom = "uwhale"; // Default denom
-        let gas = "1750000"; // Default gas
+        let gas = "2250000"; // Default gas
     
         if (chainId === "phoenix-1") {
             denom = "uluna";
@@ -248,8 +248,8 @@ const WasmDev = () => {
             // Instantiate the contract
             const instantiateResponse = await client.instantiate(
                 account[0].address, // Ensure to get the address from the signer
-                Number(codeId),
-                instantiationMsg,
+                +codeId,
+                JSON.parse(instantiationMsg),
                 label,
                 fee,
                 { admin, amount: initFunds }
@@ -474,13 +474,8 @@ const WasmDev = () => {
                         placeholder="Enter Contract Address" 
                         value={contractAddress}
                         onChange={(e) => {
-                        const value = e.target.value;
-                        const pattern = /^migaloo[a-z0-9]{39}$/;
-                        if (pattern.test(value) || value === "") {
+                            const value = e.target.value;
                             setContractAddress(value);
-                        } else {
-                            showAlert("Invalid contract address format.", 'error');
-                        }
                         }}
                     />
                     </div>
