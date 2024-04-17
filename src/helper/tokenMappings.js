@@ -28,6 +28,8 @@ export const tokenMappings = {
     'ibc/B3504E092456BA618CC28AC671A71FB08C6CA0FD0BE7C8A5B5A3E2DD933CC9E4': {symbol: 'usdc', decimals: 6}, //axlUsdc transfer/channel-6 crypto-org-chain-mainnet-1 channel-56
     'ibc/36A02FFC4E74DF4F64305130C3DFA1B06BEAC775648927AA44467C76A77AB8DB': {symbol: "whale", decimals: 6},
     'migaloo10nucfm2zqgzqmy7y7ls398t58pjt9cwjsvpy88y2nvamtl34rgmqt5em2v': {symbol: "usdc", decimals: 6},
-    'ibc/E54A0C1E4A2A79FD4F92765F68E38939867C3DA36E2EA6BBB2CE81C43F4C8ADC': {symbol: "bWHALEt", decimals: 6}
+    'ibc/E54A0C1E4A2A79FD4F92765F68E38939867C3DA36E2EA6BBB2CE81C43F4C8ADC': {symbol: "bWHALEt", decimals: 6},
+    'ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4': {symbol: "akt", decimals: 6}
+
   };
 
