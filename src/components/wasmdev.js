@@ -60,6 +60,10 @@ const WasmDev = () => {
     }, [queryMessage]);
 
     useEffect(() => {
+        setInstantiationMsg(JSON.stringify(initMsg, null, 2));
+    }, [chainId]);
+
+    useEffect(() => {
         let queryMsg;
         switch (queryType) {
             case 'GetConfig':
