@@ -184,7 +184,7 @@ const RestakeDashboard = () => {
         Object.entries(gaugeVoteResponse.global_votes).forEach(([key, value]) => {
             const newKey = key.split(':')[1];
             const token = tokenMappings[newKey];
-            const formattedValue = token ? value / (10 ** token.decimals) : value;
+            const formattedValue = token ? value / (10 ** token.decimals) : value/1000000;
             chartData.labels.push(token ? token.symbol : newKey);
             chartData.datasets[0].data.push(formattedValue);
         });
