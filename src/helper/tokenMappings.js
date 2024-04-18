@@ -30,6 +30,7 @@ export const tokenMappings = {
     'migaloo10nucfm2zqgzqmy7y7ls398t58pjt9cwjsvpy88y2nvamtl34rgmqt5em2v': {symbol: "mUSDC", decimals: 6},
     'ibc/E54A0C1E4A2A79FD4F92765F68E38939867C3DA36E2EA6BBB2CE81C43F4C8ADC': {symbol: "bWHALEt", decimals: 6},
     'ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4': {symbol: "akt", decimals: 6},
-    'factory/migaloo1r9x8fz4alekzr78k42rpmr9unpa7egsldpqeynmwl2nfvzexue9sn8l5rg/gash': {symbol: "gash", decimals: 6}
+    'factory/migaloo1r9x8fz4alekzr78k42rpmr9unpa7egsldpqeynmwl2nfvzexue9sn8l5rg/gash': {symbol: "gASH", decimals: 6},
+    'factory/terra1dndhtdr2v7ca8rrn67chlqw3cl3xhm3m2uxls62vghcg3fsh5tpss5xmcu/MOAR': {symbol: "MOAR", decimals: 6}
   };
 
