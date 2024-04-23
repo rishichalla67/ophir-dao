@@ -31,6 +31,7 @@ export const tokenMappings = {
     'ibc/E54A0C1E4A2A79FD4F92765F68E38939867C3DA36E2EA6BBB2CE81C43F4C8ADC': {symbol: "bWHALEt", decimals: 6},
     'ibc/1480B8FD20AD5FCAE81EA87584D269547DD4D436843C1D20F15E00EB64743EF4': {symbol: "akt", decimals: 6},
     'factory/migaloo1r9x8fz4alekzr78k42rpmr9unpa7egsldpqeynmwl2nfvzexue9sn8l5rg/gash': {symbol: "gASH", decimals: 6},
-    'ibc/DAB7EEB14B61CA588F013729604B01017A5FE0E860E1CCBAA5A1A5D9763737D6': {symbol: "MOAR", decimals: 6}
+    'ibc/DAB7EEB14B61CA588F013729604B01017A5FE0E860E1CCBAA5A1A5D9763737D6': {symbol: "MOAR", decimals: 6},
+    'factory/migaloo1eqntnl6tzcj9h86psg4y4h6hh05g2h9nj8e09l/urac': {symbol: "rac", decimals: 6}
   };
 
