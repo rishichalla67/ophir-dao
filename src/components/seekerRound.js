@@ -84,17 +84,21 @@ const SeekerRound = () => {
     }
 
     const checkBalance = async (address) => {
-        const baseUrl = "https://migaloo-lcd.erisprotocol.com"; // Replace with the actual REST API base URL for Migaloo
-        const response = await fetch(`${baseUrl}/cosmos/bank/v1beta1/balances/${address}`);
-        const data = await response.json();
+        const rpcEndpoint = "https://migaloo-rpc.polkachu.com"; // Replace with the actual RPC endpoint for Migaloo
+        try {
+            const client = await SigningStargateClient.connect(rpcEndpoint);
+            const balances = await client.getAllBalances(address);
+            const usdcBalance = balances.find(balance => balance.denom === USDC_DENOM);
     
-        // Assuming the API returns a list of balance objects, each with denom and amount
-        const usdcBalance = data.balances?.find(balance => balance.denom === USDC_DENOM);
-    
-        if (usdcBalance) {
-            return usdcBalance.amount/1000000;
-        } else {
-            showAlert("No USDC balance found.", "error");
+            if (usdcBalance) {
+                return parseFloat(usdcBalance.amount) / 1000000; // Assuming the amount is in micro units
+            } else {
+                showAlert("No USDC balance found.", "error");
+                return 0;
+            }
+        } catch (error) {
+            console.error("Failed to fetch balances:", error);
+            showAlert("Failed to fetch balances. Please try again later.", "error");
             return 0;
         }
     };
