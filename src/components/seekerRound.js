@@ -116,11 +116,11 @@ const SeekerRound = () => {
             setIsLoading(false);
             return;
         }
-        // if (usdcBalance < amountNum) {
-        //     showAlert("Your USDC balance is less than the amount entered.", "error");
-        //     setIsLoading(false);
-        //     return;
-        // }
+        if (usdcBalance < amountNum) {
+            showAlert("Your USDC balance is less than the amount entered.", "error");
+            setIsLoading(false);
+            return;
+        }
         const fee = {
             amount: [{
                 denom: "uwhale",
