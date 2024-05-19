@@ -351,7 +351,7 @@ const Charts = () => {
                         <div className="border pt-3 pb-3 rounded-lg shadow-md ">
                             {countdown !== "Refreshing soon..." && (
                                 <div className="text-white text-center text-xxs sm:text-sm mb-2">
-                                    Snapshots of treasury assets are taken every 45 minutes. <br/> Next snapshot in {countdown}.
+                                    Snapshots of treasury assets are taken every 4 hours. <br/> Next snapshot in {countdown}.
                                 </div>
                             )}
                             <CustomSelect
