@@ -84,5 +84,6 @@ export const tokenImages = {
     'weth': 'https://assets.coingecko.com/coins/images/32315/standard/weth_%281%29.png?1697365181',
     'wink': 'https://assets.coingecko.com/coins/images/31075/standard/WINK-Ticker-logo-color.png?1696529908',
     'wsteth': 'https://assets.coingecko.com/coins/images/32890/standard/WSTETH.png?1699776336',
-    'shark': 'https://www.sharkprotocol.bet/_next/image?url=%2Fimages%2Fshark-denom.png&w=256&q=75'
+    'shark': 'https://www.sharkprotocol.bet/_next/image?url=%2Fimages%2Fshark-denom.png&w=256&q=75',
+    'rune': 'https://blog.mexc.com/wp-content/uploads/2022/09/1_KkoJRE6ICrE70mNegVeY_Q.png'
 }
