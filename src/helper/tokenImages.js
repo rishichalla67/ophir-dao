@@ -88,6 +88,6 @@ export const tokenImages = {
     'rune': 'https://blog.mexc.com/wp-content/uploads/2022/09/1_KkoJRE6ICrE70mNegVeY_Q.png',
     'bhuahua': 'https://assets.coingecko.com/coins/images/34621/standard/bHUAHUA.png?1711563031',
     'dog': 'https://assets.coingecko.com/coins/images/37383/standard/dog.png?1714215910',
-    'ampBTC': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQwR9VdzqIPbtS95y3sUDO9n-LKb8gosxl8eA&s',
+    'ampBTC': 'https://i.ibb.co/NmGYH4v/ampbtc.jpg',
     'moar': 'https://i.ibb.co/Jk1FqRD/IMG-2486.png'
 }
