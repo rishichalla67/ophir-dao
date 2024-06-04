@@ -87,5 +87,7 @@ export const tokenImages = {
     'shark': 'https://www.sharkprotocol.bet/_next/image?url=%2Fimages%2Fshark-denom.png&w=256&q=75',
     'rune': 'https://blog.mexc.com/wp-content/uploads/2022/09/1_KkoJRE6ICrE70mNegVeY_Q.png',
     'bhuahua': 'https://assets.coingecko.com/coins/images/34621/standard/bHUAHUA.png?1711563031',
-    'dog': 'https://assets.coingecko.com/coins/images/37383/standard/dog.png?1714215910'
+    'dog': 'https://assets.coingecko.com/coins/images/37383/standard/dog.png?1714215910',
+    'ampBTC': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiFtGAlTt81Nfm7eKGa9OF0dWx8gNtnwschA&s',
+    'moar': 'https://i.ibb.co/Jk1FqRD/IMG-2486.png'
 }

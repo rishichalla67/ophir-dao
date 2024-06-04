@@ -34,5 +34,7 @@ export const tokenMappings = {
     'ibc/DAB7EEB14B61CA588F013729604B01017A5FE0E860E1CCBAA5A1A5D9763737D6': {symbol: "MOAR", decimals: 6},
     'factory/migaloo1eqntnl6tzcj9h86psg4y4h6hh05g2h9nj8e09l/urac': {symbol: "rac", decimals: 6},
     'ibc/6A368710043EEB6A499E805196E2552EF36926CBBC4F6FA4F4076411AC21A8ED': {symbol: "xusk", decimals: 6},
+    'factory/migaloo1pll95yfcnxd5pkkrcsad63l929m4ehk4c46fpqqp3c2d488ca0csc220d0/ampBTC': {symbol: 'ampBTC', decimals: 8},
+    'ibc/DAB7EEB14B61CA588F013729604B01017A5FE0E860E1CCBAA5A1A5D9763737D6': {symbol: "moar", decimals: 6}
   };
 
