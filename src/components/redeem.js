@@ -239,7 +239,10 @@ const Redeem = () => {
         },
       };
       const redeemMessage = {
-        redeem_assets: {},
+        redeem_assets: {
+          sender: connectedWalletAddress,
+          amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
+        },
       };
       const signer = await getSigner();
 
@@ -261,9 +264,9 @@ const Redeem = () => {
       const result = await client.execute(
         connectedWalletAddress,
         contractAddress,
-        updateRedemptionAmount,
+        redeemMessage,
         fee,
-        "Execute update redemption amount contract message",
+        "Execute redeem assets contract message",
         funds
       );
 
