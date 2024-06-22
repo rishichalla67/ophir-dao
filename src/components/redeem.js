@@ -46,6 +46,7 @@ const Redeem = () => {
   const [isSending, setIsSending] = useState(false); // Add this state at the beginning of your component
   const [sendOphirAmount, setSendOphirAmount] = useState("100000");
   const [simulationResponse, setSimulationResponse] = useState({});
+  const [debugValues, setDebugValues] = useState({});
   const [redemptionPrice, setRedemptionPrice] = useState(0);
 
   const handleConnectedWalletAddress = (address) => {
@@ -107,7 +108,7 @@ const Redeem = () => {
       setContractAddress(daoConfig["CONTRACT_ADDRESS_TESTNET"]);
       setOphirAmount("");
       setRedemptionValues({});
-
+      getDebugValues();
       getRedemptionPrice();
     } else {
       setChainId("migaloo-1");
@@ -115,7 +116,7 @@ const Redeem = () => {
       setContractAddress(daoConfig["CONTRACT_ADDRESS"]);
       setOphirAmount("");
       setRedemptionValues({});
-
+      getDebugValues();
       getRedemptionPrice();
     }
   }, [isTestnet]);
@@ -187,21 +188,6 @@ const Redeem = () => {
     return offlineSigner;
   };
 
-  function toUint128(bigIntValue) {
-    // Convert BigInt to hex string
-    const hex = bigIntValue.toString(16);
-
-    // Pad the hex string to ensure it has exactly 32 hex characters (16 bytes)
-    const paddedHex = hex.padStart(32, "0");
-
-    // Convert hex string to a byte array
-    const byteArray = [];
-    for (let i = 0; i < paddedHex.length; i += 2) {
-      byteArray.push(parseInt(paddedHex.substr(i, 2), 16));
-    }
-
-    return byteArray;
-  }
 
   const executeContractMessage = async () => {
     setIsLoading(true);
@@ -215,29 +201,6 @@ const Redeem = () => {
         return;
       }
 
-      const updateRedemptionAmount = {
-        // update_config: {
-        //   owner: connectedWalletAddress,
-        //   dao_address: isTestnet
-        //     ? daoConfig["DAO_ADDRESS_TESTNET"]
-        //     : daoConfig["DAO_ADDRESS"],
-        //   redeemable_denom: isTestnet
-        //     ? daoConfig["OPHIR_DENOM_TESNET"]
-        //     : daoConfig["OPHIR_DENOM"],
-        //   staking_contract: isTestnet
-        //     ? daoConfig["DAO_STAKING_CONTRACT_ADDRESS_TESTNET"]
-        //     : daoConfig["DAO_STAKING_CONTRACT_ADDRESS"],
-        //   vault_contract: daoConfig["DAO_VAULT_ADDRESS"],
-        //   redemption_fee: simulationResponse?.fee_amount,
-        // },
-        // redeem_assets: {
-        // },
-        update_redemption_volume: {
-          redemption_amount: (
-            BigInt(Number(ophirAmount)) * OPHIR_DECIMAL
-          ).toString(),
-        },
-      };
       const redeemMessage = {
         redeem_assets: {
           sender: connectedWalletAddress,
@@ -269,18 +232,6 @@ const Redeem = () => {
         "Execute redeem assets contract message",
         funds
       );
-
-      //   let result = {};
-      //   if (firstResult.transactionHash) {
-      //     result = await client.execute(
-      //       connectedWalletAddress,
-      //       contractAddress,
-      //       redeemMessage,
-      //       fee,
-      //       `Execute redeem assets contract message: Link hash - ${firstResult.transactionHash}`,
-      //       funds
-      //     );
-      //   }
 
       if (result.transactionHash) {
         const baseTxnUrl = isTestnet
@@ -493,6 +444,29 @@ const Redeem = () => {
     } catch (error) {
       console.error("Error sending OPHIR:", error);
       showAlert(`Error sending OPHIR. ${error.message}`, "error");
+    }
+  };
+  
+  const getDebugValues = async () => {
+    try {
+      const message = {
+        get_debug_values: {},
+      };
+
+      const signer = await getSigner();
+      const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
+
+      const queryResponse = await client.queryContractSmart(
+        contractAddress,
+        message
+      );
+
+      console.log("WASM RPC:", rpc);
+      console.log("WASM Query Response:", queryResponse);
+      setDebugValues(queryResponse);
+    } catch (error) {
+      console.error("Error performing WASM query:", error);
+      showAlert(`Error performing WASM query. ${error.message}`, "error");
     }
   };
 
@@ -980,6 +954,32 @@ const Redeem = () => {
             </div>
           </div>
         )}
+        {debugValues && 
+          <div className="debug-info bg-gray-800 p-4 rounded-lg shadow-lg mt-4">
+            <h2 className="text-lg font-bold text-white mb-2">Redemption Statistics</h2>
+            <div className="text-white text-sm relative group">
+              <strong title="The average ratio over a specified period">Average Ratio:</strong> {debugValues?.average_ratio?.length > 4 ? Number(debugValues?.average_ratio).toLocaleString() : debugValues?.average_ratio}
+            </div>
+            <div className="text-white text-sm relative group">
+              <strong title="The daily ratio value">Daily Ratio:</strong> {debugValues?.daily_ratio?.length > 4 ? Number(debugValues?.daily_ratio).toLocaleString() : debugValues?.daily_ratio}
+            </div>
+            <div className="text-white text-sm relative group">
+              <strong title="The total circulating supply over the last 14 days">Circulating Supply (14d):</strong> {debugValues?.circulating_supply_14d?.length > 4 ? Number(debugValues?.circulating_supply_14d).toLocaleString() : debugValues?.circulating_supply_14d}
+            </div>
+            <div className="text-white text-sm relative group">
+              <strong title="Total volume of redemptions in the last 14 days">Redemption Volume (14d):</strong> {debugValues?.redemption_volume_14d?.length > 4 ? Number(debugValues?.redemption_volume_14d).toLocaleString() : debugValues?.redemption_volume_14d}
+            </div>
+            <div className="text-white text-sm relative group">
+              <strong title="Aggregate volume of daily transactions">Aggregate Daily Volume:</strong> {debugValues?.aggregate_daily_volume?.length > 4 ? Number(debugValues?.aggregate_daily_volume).toLocaleString() : debugValues?.aggregate_daily_volume}
+            </div>
+            <div className="text-white text-sm relative group">
+              <strong title="Percentage of the total supply that is staked">Percentage Staked:</strong> {debugValues?.pct_staked?.length > 4 ? Number(debugValues?.pct_staked).toLocaleString() : debugValues?.pct_staked}%
+            </div>
+            <div className="text-white text-sm relative group">
+              <strong title="The current fee rate applied to transactions">Fee Rate:</strong> {debugValues?.fee_rate?.length > 4 ? Number(debugValues?.fee_rate).toLocaleString() : debugValues?.fee_rate}%
+            </div>
+          </div>
+        }
         {isAddressAllowed && (
           <div className="mt-4">
             <div className="flex flex-col items-center">
