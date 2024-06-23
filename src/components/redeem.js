@@ -48,7 +48,7 @@ const Redeem = () => {
   const [simulationResponse, setSimulationResponse] = useState({});
   const [debugValues, setDebugValues] = useState({});
   const [redemptionPrice, setRedemptionPrice] = useState(0);
-  const [redemptionStatistics, setRedemptionStatistics] = useState({})
+  const [redemptionStatistics, setRedemptionStatistics] = useState({});
 
   const handleConnectedWalletAddress = (address) => {
     setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
@@ -236,7 +236,7 @@ const Redeem = () => {
 
       if (result.transactionHash) {
         const baseTxnUrl = isTestnet
-          ? "https://parallax-analytics.onrender.com/ophir/migaloo-testnet"
+          ? "https://ping.pfc.zone/narwhal-testnet/tx"
           : "https://inbloc.org/migaloo/transactions";
         const txnUrl = `${baseTxnUrl}/${result.transactionHash}`;
         showAlert(
@@ -474,19 +474,23 @@ const Redeem = () => {
       );
 
       const supplyData = {
-        true_circulating_supply: (tokenSupplyResponse.true_circulating_supply / OPHIR_DECIMAL).toFixed(2),
-        percentage_staked: ((tokenSupplyResponse.staking_contract_balance / tokenSupplyResponse.total_supply)*100).toFixed(2),
+        true_circulating_supply: (
+          tokenSupplyResponse.true_circulating_supply / OPHIR_DECIMAL
+        ).toFixed(2),
+        percentage_staked: (
+          (tokenSupplyResponse.staking_contract_balance /
+            tokenSupplyResponse.total_supply) *
+          100
+        ).toFixed(2),
         daily_ratio: queryResponse.daily_ratio,
         average_daily_ratio: queryResponse.aggregate_daily_volume,
         average_circulating_supply: queryResponse.circulating_supply_14d,
         average_redemption_volume: queryResponse.redemption_volume_14d,
         agg_daily_volume: queryResponse.aggregate_daily_volume,
         fee_rate: queryResponse.fee_rate,
-
       };
       setRedemptionStatistics(supplyData);
       console.log("Token Supply Response:", tokenSupplyResponse);
-
     } catch (error) {
       console.error("Error performing WASM query:", error);
       showAlert(`Error performing WASM query. ${error.message}`, "error");
@@ -987,7 +991,9 @@ const Redeem = () => {
                 True Circulating Supply:
               </strong>{" "}
               {redemptionStatistics?.true_circulating_supply?.length > 4
-                ? Number(redemptionStatistics?.true_circulating_supply).toLocaleString()
+                ? Number(
+                    redemptionStatistics?.true_circulating_supply
+                  ).toLocaleString()
                 : redemptionStatistics?.true_circulating_supply}
             </div>
             <div className="text-white text-sm relative group">
@@ -995,7 +1001,9 @@ const Redeem = () => {
                 Average Daily Ratio:
               </strong>{" "}
               {redemptionStatistics?.average_daily_ratio?.length > 4
-                ? Number(redemptionStatistics?.average_daily_ratio).toLocaleString()
+                ? Number(
+                    redemptionStatistics?.average_daily_ratio
+                  ).toLocaleString()
                 : redemptionStatistics?.average_daily_ratio}
             </div>
             <div className="text-white text-sm relative group">
@@ -1011,7 +1019,9 @@ const Redeem = () => {
                 Average Circulating Supply:
               </strong>{" "}
               {redemptionStatistics?.average_circulating_supply?.length > 4
-                ? Number(redemptionStatistics?.average_circulating_supply).toLocaleString()
+                ? Number(
+                    redemptionStatistics?.average_circulating_supply
+                  ).toLocaleString()
                 : redemptionStatistics?.average_circulating_supply}
             </div>
             <div className="text-white text-sm relative group">
@@ -1019,7 +1029,9 @@ const Redeem = () => {
                 Average Redemption Volume:
               </strong>{" "}
               {redemptionStatistics?.average_redemption_volume?.length > 4
-                ? Number(redemptionStatistics?.average_redemption_volume).toLocaleString()
+                ? Number(
+                    redemptionStatistics?.average_redemption_volume
+                  ).toLocaleString()
                 : redemptionStatistics?.average_redemption_volume}
             </div>
             <div className="text-white text-sm relative group">
@@ -1027,7 +1039,9 @@ const Redeem = () => {
                 Aggregate Daily Volume:
               </strong>{" "}
               {redemptionStatistics?.agg_daily_volume?.length > 4
-                ? Number(redemptionStatistics?.agg_daily_volume).toLocaleString()
+                ? Number(
+                    redemptionStatistics?.agg_daily_volume
+                  ).toLocaleString()
                 : redemptionStatistics?.agg_daily_volume}
             </div>
             <div className="text-white text-sm relative group">
@@ -1035,7 +1049,9 @@ const Redeem = () => {
                 Percentage Staked:
               </strong>{" "}
               {redemptionStatistics?.percentage_staked?.length > 4
-                ? Number(redemptionStatistics?.percentage_staked).toLocaleString()
+                ? Number(
+                    redemptionStatistics?.percentage_staked
+                  ).toLocaleString()
                 : redemptionStatistics?.percentage_staked}
               %
             </div>

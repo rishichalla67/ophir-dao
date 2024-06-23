@@ -18,5 +18,5 @@ export const daoConfig = {
   CONTRACT_ADDRESS:
     "migaloo1gj6vzlgtsqekumy4g9f2zgqq4eqwgxh4ldl0j0aykc26d0xh9f7sm9kdk5",
   CONTRACT_ADDRESS_TESTNET:
-    "migaloo13sz0uqlk4ef7flc4zxk2ya45r9cks8z9g3n9c70cs875mellfy5sx7xt34",
+    "migaloo1puv4lhspafgaagx2nv6upy4fah0xw7z73tgrdqsrszxjvek7n62qt6p5kr",
 };
