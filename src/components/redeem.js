@@ -238,6 +238,7 @@ const Redeem = () => {
         funds
       );
 
+      console.log(result);
       if (result.transactionHash) {
         const baseTxnUrl = isTestnet
           ? "https://ping.pfc.zone/narwhal-testnet/tx"
