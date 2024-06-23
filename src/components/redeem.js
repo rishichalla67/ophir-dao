@@ -188,7 +188,6 @@ const Redeem = () => {
     return offlineSigner;
   };
 
-
   const executeContractMessage = async () => {
     setIsLoading(true);
     try {
@@ -446,7 +445,7 @@ const Redeem = () => {
       showAlert(`Error sending OPHIR. ${error.message}`, "error");
     }
   };
-  
+
   const getDebugValues = async () => {
     try {
       const message = {
@@ -954,32 +953,71 @@ const Redeem = () => {
             </div>
           </div>
         )}
-        {debugValues && 
+        {debugValues && (
           <div className="debug-info bg-gray-800 p-4 rounded-lg shadow-lg mt-4">
-            <h2 className="text-lg font-bold text-white mb-2">Redemption Statistics</h2>
+            <h2 className="text-lg font-bold text-white mb-2">
+              Redemption Statistics
+            </h2>
             <div className="text-white text-sm relative group">
-              <strong title="The average ratio over a specified period">Average Ratio:</strong> {debugValues?.average_ratio?.length > 4 ? Number(debugValues?.average_ratio).toLocaleString() : debugValues?.average_ratio}
+              <strong title="Average redemption volume (14d) / true circulating supply">
+                Average Daily Ratio:
+              </strong>{" "}
+              {debugValues?.average_ratio?.length > 4
+                ? Number(debugValues?.average_ratio).toLocaleString()
+                : debugValues?.average_ratio}
             </div>
             <div className="text-white text-sm relative group">
-              <strong title="The daily ratio value">Daily Ratio:</strong> {debugValues?.daily_ratio?.length > 4 ? Number(debugValues?.daily_ratio).toLocaleString() : debugValues?.daily_ratio}
+              <strong title="User requested redemption amount / true circulating supply">
+                Daily Ratio:
+              </strong>{" "}
+              {debugValues?.daily_ratio?.length > 4
+                ? Number(debugValues?.daily_ratio).toLocaleString()
+                : debugValues?.daily_ratio}
             </div>
             <div className="text-white text-sm relative group">
-              <strong title="The total circulating supply over the last 14 days">Circulating Supply (14d):</strong> {debugValues?.circulating_supply_14d?.length > 4 ? Number(debugValues?.circulating_supply_14d).toLocaleString() : debugValues?.circulating_supply_14d}
+              <strong title="Average Circulating Supply over the last 14 days">
+                Average Circulating Supply:
+              </strong>{" "}
+              {debugValues?.circulating_supply_14d?.length > 4
+                ? Number(debugValues?.circulating_supply_14d).toLocaleString()
+                : debugValues?.circulating_supply_14d}
             </div>
             <div className="text-white text-sm relative group">
-              <strong title="Total volume of redemptions in the last 14 days">Redemption Volume (14d):</strong> {debugValues?.redemption_volume_14d?.length > 4 ? Number(debugValues?.redemption_volume_14d).toLocaleString() : debugValues?.redemption_volume_14d}
+              <strong title="Average Redemption Volume over the past 14 days">
+                Average Redemption Volume:
+              </strong>{" "}
+              {debugValues?.redemption_volume_14d?.length > 4
+                ? Number(debugValues?.redemption_volume_14d).toLocaleString()
+                : debugValues?.redemption_volume_14d}
             </div>
             <div className="text-white text-sm relative group">
-              <strong title="Aggregate volume of daily transactions">Aggregate Daily Volume:</strong> {debugValues?.aggregate_daily_volume?.length > 4 ? Number(debugValues?.aggregate_daily_volume).toLocaleString() : debugValues?.aggregate_daily_volume}
+              <strong title="Total daily redemption volume">
+                Aggregate Daily Volume:
+              </strong>{" "}
+              {debugValues?.aggregate_daily_volume?.length > 4
+                ? Number(debugValues?.aggregate_daily_volume).toLocaleString()
+                : debugValues?.aggregate_daily_volume}
             </div>
             <div className="text-white text-sm relative group">
-              <strong title="Percentage of the total supply that is staked">Percentage Staked:</strong> {debugValues?.pct_staked?.length > 4 ? Number(debugValues?.pct_staked).toLocaleString() : debugValues?.pct_staked}%
+              <strong title="Amount of $OPHIR staked via DAODAO">
+                Percentage Staked:
+              </strong>{" "}
+              {debugValues?.pct_staked?.length > 4
+                ? Number(debugValues?.pct_staked).toLocaleString()
+                : debugValues?.pct_staked}
+              %
             </div>
             <div className="text-white text-sm relative group">
-              <strong title="The current fee rate applied to transactions">Fee Rate:</strong> {debugValues?.fee_rate?.length > 4 ? Number(debugValues?.fee_rate).toLocaleString() : debugValues?.fee_rate}%
+              <strong title="Current redemption fee rate based on all metrics">
+                Fee Rate:
+              </strong>{" "}
+              {debugValues?.fee_rate?.length > 4
+                ? Number(debugValues?.fee_rate).toLocaleString()
+                : debugValues?.fee_rate}
+              %
             </div>
           </div>
-        }
+        )}
         {isAddressAllowed && (
           <div className="mt-4">
             <div className="flex flex-col items-center">
