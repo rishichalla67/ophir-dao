@@ -485,7 +485,7 @@ const Redeem = () => {
         daily_ratio: queryResponse.daily_ratio,
         average_daily_ratio: queryResponse.aggregate_daily_volume,
         average_circulating_supply: queryResponse.circulating_supply_14d,
-        average_redemption_volume: queryResponse.redemption_volume_14d,
+        average_redemption_volume: (simulationResponse?.redemption_volume_14d  / OPHIR_DECIMAL).toFixed(2),
         agg_daily_volume: queryResponse.aggregate_daily_volume,
         fee_rate: queryResponse.fee_rate,
       };
