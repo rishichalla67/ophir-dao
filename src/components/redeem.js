@@ -48,6 +48,7 @@ const Redeem = () => {
   const [simulationResponse, setSimulationResponse] = useState({});
   const [debugValues, setDebugValues] = useState({});
   const [redemptionPrice, setRedemptionPrice] = useState(0);
+  const [redemptionStatistics, setRedemptionStatistics] = useState({})
 
   const handleConnectedWalletAddress = (address) => {
     setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
@@ -83,6 +84,7 @@ const Redeem = () => {
     if (connectedWalletAddress) {
       checkBalances();
       checkDAOBalance();
+      getDebugValues();
       if (ophirAmount) {
         handleQueryContract();
       }
@@ -460,9 +462,31 @@ const Redeem = () => {
         message
       );
 
-      console.log("WASM RPC:", rpc);
-      console.log("WASM Query Response:", queryResponse);
       setDebugValues(queryResponse);
+
+      const tokenSupplyMessage = {
+        get_token_supply: {},
+      };
+
+      const tokenSupplyResponse = await client.queryContractSmart(
+        contractAddress,
+        tokenSupplyMessage
+      );
+
+      const supplyData = {
+        true_circulating_supply: (tokenSupplyResponse.true_circulating_supply / OPHIR_DECIMAL).toFixed(2),
+        percentage_staked: ((tokenSupplyResponse.staking_contract_balance / tokenSupplyResponse.total_supply)*100).toFixed(2),
+        daily_ratio: queryResponse.daily_ratio,
+        average_daily_ratio: queryResponse.aggregate_daily_volume,
+        average_circulating_supply: queryResponse.circulating_supply_14d,
+        average_redemption_volume: queryResponse.redemption_volume_14d,
+        agg_daily_volume: queryResponse.aggregate_daily_volume,
+        fee_rate: queryResponse.fee_rate,
+
+      };
+      setRedemptionStatistics(supplyData);
+      console.log("Token Supply Response:", tokenSupplyResponse);
+
     } catch (error) {
       console.error("Error performing WASM query:", error);
       showAlert(`Error performing WASM query. ${error.message}`, "error");
@@ -953,67 +977,75 @@ const Redeem = () => {
             </div>
           </div>
         )}
-        {debugValues && (
+        {redemptionStatistics && (
           <div className="debug-info bg-gray-800 p-4 rounded-lg shadow-lg mt-4">
             <h2 className="text-lg font-bold text-white mb-2">
               Redemption Statistics
             </h2>
             <div className="text-white text-sm relative group">
               <strong title="Average redemption volume (14d) / true circulating supply">
+                True Circulating Supply:
+              </strong>{" "}
+              {redemptionStatistics?.true_circulating_supply?.length > 4
+                ? Number(redemptionStatistics?.true_circulating_supply).toLocaleString()
+                : redemptionStatistics?.true_circulating_supply}
+            </div>
+            <div className="text-white text-sm relative group">
+              <strong title="Average redemption volume (14d) / true circulating supply">
                 Average Daily Ratio:
               </strong>{" "}
-              {debugValues?.average_ratio?.length > 4
-                ? Number(debugValues?.average_ratio).toLocaleString()
-                : debugValues?.average_ratio}
+              {redemptionStatistics?.average_daily_ratio?.length > 4
+                ? Number(redemptionStatistics?.average_daily_ratio).toLocaleString()
+                : redemptionStatistics?.average_daily_ratio}
             </div>
             <div className="text-white text-sm relative group">
               <strong title="User requested redemption amount / true circulating supply">
                 Daily Ratio:
               </strong>{" "}
-              {debugValues?.daily_ratio?.length > 4
-                ? Number(debugValues?.daily_ratio).toLocaleString()
-                : debugValues?.daily_ratio}
+              {redemptionStatistics?.daily_ratio?.length > 4
+                ? Number(redemptionStatistics?.daily_ratio).toLocaleString()
+                : redemptionStatistics?.daily_ratio}
             </div>
             <div className="text-white text-sm relative group">
               <strong title="Average Circulating Supply over the last 14 days">
                 Average Circulating Supply:
               </strong>{" "}
-              {debugValues?.circulating_supply_14d?.length > 4
-                ? Number(debugValues?.circulating_supply_14d).toLocaleString()
-                : debugValues?.circulating_supply_14d}
+              {redemptionStatistics?.average_circulating_supply?.length > 4
+                ? Number(redemptionStatistics?.average_circulating_supply).toLocaleString()
+                : redemptionStatistics?.average_circulating_supply}
             </div>
             <div className="text-white text-sm relative group">
               <strong title="Average Redemption Volume over the past 14 days">
                 Average Redemption Volume:
               </strong>{" "}
-              {debugValues?.redemption_volume_14d?.length > 4
-                ? Number(debugValues?.redemption_volume_14d).toLocaleString()
-                : debugValues?.redemption_volume_14d}
+              {redemptionStatistics?.average_redemption_volume?.length > 4
+                ? Number(redemptionStatistics?.average_redemption_volume).toLocaleString()
+                : redemptionStatistics?.average_redemption_volume}
             </div>
             <div className="text-white text-sm relative group">
               <strong title="Total daily redemption volume">
                 Aggregate Daily Volume:
               </strong>{" "}
-              {debugValues?.aggregate_daily_volume?.length > 4
-                ? Number(debugValues?.aggregate_daily_volume).toLocaleString()
-                : debugValues?.aggregate_daily_volume}
+              {redemptionStatistics?.agg_daily_volume?.length > 4
+                ? Number(redemptionStatistics?.agg_daily_volume).toLocaleString()
+                : redemptionStatistics?.agg_daily_volume}
             </div>
             <div className="text-white text-sm relative group">
               <strong title="Amount of $OPHIR staked via DAODAO">
                 Percentage Staked:
               </strong>{" "}
-              {debugValues?.pct_staked?.length > 4
-                ? Number(debugValues?.pct_staked).toLocaleString()
-                : debugValues?.pct_staked}
+              {redemptionStatistics?.percentage_staked?.length > 4
+                ? Number(redemptionStatistics?.percentage_staked).toLocaleString()
+                : redemptionStatistics?.percentage_staked}
               %
             </div>
             <div className="text-white text-sm relative group">
               <strong title="Current redemption fee rate based on all metrics">
                 Fee Rate:
               </strong>{" "}
-              {debugValues?.fee_rate?.length > 4
-                ? Number(debugValues?.fee_rate).toLocaleString()
-                : debugValues?.fee_rate}
+              {redemptionStatistics?.fee_rate?.length > 4
+                ? Number(redemptionStatistics?.fee_rate).toLocaleString()
+                : redemptionStatistics?.fee_rate}
               %
             </div>
           </div>
