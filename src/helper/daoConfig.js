@@ -13,10 +13,15 @@ export const daoConfig = {
     "migaloo1d6kqpt8p8c49zegvyn4v3jeqgwskdsp03m7hkcqf54eavexz8k3qjrp98r",
   DAO_VAULT_ADDRESS:
     "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu",
+  DAO_VAULT_ADDRESS_TESTNET:
+    "migaloo14gu2xfk4m3x64nfkv9cvvjgmv2ymwhps7fwemk29x32k2qhdrmdsp9y2wu",
+  DAO_MINE_ADDRESS:
+    "migaloo1dpchsx70fe6gu9ljtnknsvd2dx9u7ztrxz9dr6ypfkj4fvv0re6qkdrwkh",
+  DAO_MINE_ADDRESS_TESTNET: "migaloo17ephyl7pxx7hrauhu6guf62z7nrtszj23wwdt8",
 
   // Contract Addresses
   CONTRACT_ADDRESS:
     "migaloo16g5rp56zfxs584p2staqas34r5r9dj060twckf0n8nw2zy94lvuq5rz388",
   CONTRACT_ADDRESS_TESTNET:
-    "migaloo18r0aj6n2cyj04f843ll95mu6wv9symanq923e9j05v2m7q8cnzeq45mf43",
+    "migaloo1u96lyxal5mdk7vdm0q2hz3fd24lyruathf4xhhtaxswvze0kfpms08luut",
 };

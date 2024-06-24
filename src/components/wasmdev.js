@@ -44,16 +44,23 @@ const WasmDev = () => {
     dao_address:
       chainId === "narwhal-2"
         ? daoConfig["DAO_ADDRESS_TESTNET"]
-        : daoConfig["DAO_ADDRESS"], // Use DAO_ADDRESS_TESTNET if chainId is 'narwhal-2'
+        : daoConfig["DAO_ADDRESS"],
     redeemable_denom:
       chainId === "narwhal-2"
         ? daoConfig["OPHIR_DENOM_TESNET"]
-        : daoConfig["OPHIR_DENOM"], // Replace with your actual redeemable denom
+        : daoConfig["OPHIR_DENOM"],
     staking_contract:
       chainId === "narwhal-2"
         ? daoConfig["DAO_STAKING_CONTRACT_ADDRESS_TESTNET"]
         : daoConfig["DAO_STAKING_CONTRACT_ADDRESS"],
-    vault_contract: daoConfig["DAO_VAULT_ADDRESS"],
+    vault_contract:
+      chainId === "narwhal-2"
+        ? daoConfig["DAO_VAULT_ADDRESS_TESTNET"]
+        : daoConfig["DAO_VAULT_ADDRESS"],
+    mine_contract:
+      chainId === "narwhal-2"
+        ? daoConfig["DAO_MINE_ADDRESS_TESTNET"]
+        : daoConfig["DAO_MINE_ADDRESS"],
     redemption_fee: "0.015",
   };
 
