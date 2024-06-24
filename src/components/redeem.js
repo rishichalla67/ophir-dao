@@ -903,6 +903,23 @@ const Redeem = () => {
                     </span>
                   </div>
                   <div className="flex justify-between items-center mt-2">
+                    <span
+                      className="font-semibold"
+                      title="gross redeemed amount / true circulating supply"
+                    >
+                      Redemption Ratio:
+                    </span>
+                    <span>
+                      {ophirAmount &&
+                      redemptionStatistics?.true_circulating_supply
+                        ? `${(
+                            Number(ophirAmount) /
+                            redemptionStatistics.true_circulating_supply
+                          ).toFixed(5)}`
+                        : "N/A"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
                     <span className="font-semibold">
                       Percent of Circ. Supply:
                     </span>
