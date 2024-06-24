@@ -66,7 +66,7 @@ const Redeem = () => {
 
   useEffect(() => {
     getDebugValues();
-  }, [simulationResponse, isTestnet, ophirAmount]);
+  }, [simulationResponse, isTestnet]);
 
   useEffect(() => {
     fetch("https://parallax-analytics.onrender.com/ophir/prices")
@@ -487,12 +487,14 @@ const Redeem = () => {
             tokenSupplyResponse.total_supply) *
           100
         ).toFixed(2),
-        daily_ratio: queryResponse.daily_ratio,
+        daily_ratio: (
+          (ophirAmount * OPHIR_DECIMAL) /
+          tokenSupplyResponse.true_circulating_supply
+        ).toFixed(4),
         average_daily_ratio: (
           simulationResponse?.redemption_volume_14d /
           tokenSupplyResponse?.true_circulating_supply
         ).toFixed(4),
-
         average_circulating_supply: queryResponse.circulating_supply_14d,
         average_redemption_volume: (
           simulationResponse?.redemption_volume_14d / OPHIR_DECIMAL
