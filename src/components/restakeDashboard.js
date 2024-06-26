@@ -7,7 +7,6 @@ import Snackbar from "@mui/material/Snackbar";
 import SnackbarContent from "@mui/material/SnackbarContent";
 import WalletConnect from "./walletConnect";
 import { tokenMappings } from "../helper/tokenMappings";
-import { motion } from "framer-motion";
 import { Bar } from "react-chartjs-2";
 import "chart.js/auto";
 
