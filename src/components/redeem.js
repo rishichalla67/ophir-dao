@@ -927,8 +927,8 @@ const Redeem = () => {
                       {simulationResponse?.balance_after_fee &&
                       simulationResponse?.true_circulating_supply
                         ? `${(
-                            (simulationResponse.balance_after_fee /
-                              simulationResponse.true_circulating_supply) *
+                            (Number(simulationResponse.balance_after_fee) /
+                              Number(simulationResponse.true_circulating_supply)) *
                             100
                           ).toFixed(2)}%`
                         : "N/A"}
