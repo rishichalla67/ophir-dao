@@ -108,8 +108,8 @@ const WasmDev = () => {
         break;
       case "GetRedemptionCalculation":
         queryMsg = {
-          get_redemption_calculation: {
-            amount: "10000",
+          get_simulate_calculation: {
+            amount: "1000000000000", // 1 million
           },
         };
         setJsonQueryValid(true);

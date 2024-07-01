@@ -365,7 +365,7 @@ const Redeem = () => {
     try {
       setRedemptionPrice(0);
       const message = {
-        get_redemption_calculation: {
+        get_simulate_calculation: {
           amount: "10000000000",
         },
       };
@@ -513,7 +513,7 @@ const Redeem = () => {
   const handleQueryContract = async () => {
     try {
       const message = {
-        get_redemption_calculation: {
+        get_simulate_calculation: {
           amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
         },
       };
@@ -936,23 +936,99 @@ const Redeem = () => {
                   </div>
                   <div className="mt-4">
                     <details className="bg-slate-800 p-4 rounded-lg text-white">
-                      <summary className="font-bold text-sm cursor-pointer">Debug</summary>
+                      <summary className="font-bold text-sm cursor-pointer">
+                        Debug
+                      </summary>
                       <div className="text-sm mt-2">
                         <div className="font-semibold">State Before:</div>
                         <ul>
-                          <li>Circulating Supply: {(Number(simulationResponse.state_before.circulating_supply)/1000000).toLocaleString()}</li>
-                          <li>DAO Balance: {(Number(simulationResponse.state_before.dao_balance)/1000000).toLocaleString()}</li>
-                          <li>Total Supply: {(Number(simulationResponse.state_before.total_supply)/1000000).toLocaleString()}</li>
-                          <li>Staked Amount: {(Number(simulationResponse.state_before.staked_amount)/1000000).toLocaleString()}</li>
-                          <li>Percentage Staked: {(Number(simulationResponse.state_before.pct_staked) * 100).toFixed(2)}%</li>
+                          <li>
+                            Circulating Supply:{" "}
+                            {(
+                              Number(
+                                simulationResponse.state_before
+                                  .circulating_supply
+                              ) / 1000000
+                            ).toLocaleString()}
+                          </li>
+                          <li>
+                            DAO Balance:{" "}
+                            {(
+                              Number(
+                                simulationResponse.state_before.dao_balance
+                              ) / 1000000
+                            ).toLocaleString()}
+                          </li>
+                          <li>
+                            Total Supply:{" "}
+                            {(
+                              Number(
+                                simulationResponse.state_before.total_supply
+                              ) / 1000000
+                            ).toLocaleString()}
+                          </li>
+                          <li>
+                            Staked Amount:{" "}
+                            {(
+                              Number(
+                                simulationResponse.state_before.staked_amount
+                              ) / 1000000
+                            ).toLocaleString()}
+                          </li>
+                          <li>
+                            Percentage Staked:{" "}
+                            {(
+                              Number(
+                                simulationResponse.state_before.pct_staked
+                              ) * 100
+                            ).toFixed(2)}
+                            %
+                          </li>
                         </ul>
                         <div className="font-semibold mt-2">State After:</div>
                         <ul>
-                          <li>Circulating Supply: {(Number(simulationResponse.state_after.circulating_supply)/1000000).toLocaleString()}</li>
-                          <li>DAO Balance: {(Number(simulationResponse.state_after.dao_balance)/1000000).toLocaleString()}</li>
-                          <li>Total Supply: {(Number(simulationResponse.state_after.total_supply)/1000000).toLocaleString()}</li>
-                          <li>Staked Amount: {(Number(simulationResponse.state_after.staked_amount)/1000000).toLocaleString()}</li>
-                          <li>Percentage Staked: {(Number(simulationResponse.state_after.pct_staked) * 100).toFixed(2)}%</li>
+                          <li>
+                            Circulating Supply:{" "}
+                            {(
+                              Number(
+                                simulationResponse.state_after
+                                  .circulating_supply
+                              ) / 1000000
+                            ).toLocaleString()}
+                          </li>
+                          <li>
+                            DAO Balance:{" "}
+                            {(
+                              Number(
+                                simulationResponse.state_after.dao_balance
+                              ) / 1000000
+                            ).toLocaleString()}
+                          </li>
+                          <li>
+                            Total Supply:{" "}
+                            {(
+                              Number(
+                                simulationResponse.state_after.total_supply
+                              ) / 1000000
+                            ).toLocaleString()}
+                          </li>
+                          <li>
+                            Staked Amount:{" "}
+                            {(
+                              Number(
+                                simulationResponse.state_after.staked_amount
+                              ) / 1000000
+                            ).toLocaleString()}
+                          </li>
+                          <li>
+                            Percentage Staked:{" "}
+                            {(
+                              Number(
+                                simulationResponse.state_after.pct_staked
+                              ) * 100
+                            ).toFixed(2)}
+                            %
+                          </li>
                         </ul>
                       </div>
                     </details>
