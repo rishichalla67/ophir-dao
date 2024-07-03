@@ -772,7 +772,7 @@ const WasmDev = () => {
               <textarea
                 id="jsonExecute"
                 value={editableExecuteMessage}
-                className={`w-full h-32 bg-slate-700 text-white rounded p-2 ${
+                className={`w-full h-32 text-sm bg-slate-700 text-white rounded p-2 ${
                   jsonExecuteValid
                     ? executeMessage === ""
                       ? "border border-yellow-400"
@@ -819,7 +819,7 @@ const WasmDev = () => {
           </div>
           {Object.keys(redeemContractExecutionResponse).length !== 0 && (
             <div className="w-full bg-slate-800 rounded-lg p-6">
-              <h3 className="text-lg text-yellow-400 mb-4">
+              <h3 className="text-xl text-yellow-400 mb-4">
                 Contract Execute Response:
               </h3>
               <pre className="text-white text-sm overflow-auto whitespace-pre-wrap">
