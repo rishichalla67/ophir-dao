@@ -21,17 +21,23 @@ const WasmDev = () => {
   const [isLedgerConnected, setIsLedgerConnected] = useState(false);
   const [redeemContractQueryResponse, setRedeemContractQueryResponse] =
     useState({});
+
+  const [redeemContractExecutionResponse, setRedeemContractExecutionResponse] =
+    useState({});
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     message: "",
     severity: "info",
   });
   const [queryType, setQueryType] = useState("");
+  const [executeType, setExecuteType] = useState("");
   const [editableQueryMessage, setEditableQueryMessage] = useState(""); // New state for the editable JSON string
-
+  const [editableExecuteMessage, setEditableExecuteMessage] = useState(""); // New state for the editable JSON string
   const [queryMessage, setQueryMessage] = useState("");
+  const [executeMessage, setExecuteMessage] = useState("");
   const [codeId, setCodeId] = useState(null); // State variable to store the codeId
   const [jsonQueryValid, setJsonQueryValid] = useState(true); // Add a state to track JSON validity
+  const [jsonExecuteValid, setJsonExecuteValid] = useState(true); // Add a state to track JSON validity
   const [isUploadingContract, setIsUploadingContract] = useState(false);
   const [chainId, setChainId] = useState("narwhal-2");
   // const [isTestnet, setIsTestnet] = useState(true); // Default to Testnet
@@ -82,6 +88,11 @@ const WasmDev = () => {
     // Initialize editableQueryMessage with the stringified version of queryMessage when the component mounts or queryMessage changes
     setEditableQueryMessage(JSON.stringify(queryMessage, null, 2));
   }, [queryMessage]);
+
+  useEffect(() => {
+    // Initialize editableExecuteMessage with the stringified version of executeMessage when the component mounts or queryMessage changes
+    setEditableExecuteMessage(JSON.stringify(executeMessage, null, 2));
+  }, [executeMessage, connectedWalletAddress]);
 
   useEffect(() => {
     setInstantiationMsg(JSON.stringify(initMsg, null, 2));
@@ -136,6 +147,29 @@ const WasmDev = () => {
     setQueryMessage(queryMsg);
     // }
   }, [queryType]);
+
+  useEffect(() => {
+    let executeMsg;
+    switch (executeType) {
+      case "ExecuteRedemption":
+        executeMsg = {
+          redeem_assets: {
+            sender: connectedWalletAddress,
+            amount: "1000000", // 1 OPHIR
+          },
+        };
+        setJsonExecuteValid(true);
+        break;
+      case "Custom":
+        executeMsg = executeMessage;
+        break;
+      default:
+        executeMsg = {};
+        break;
+    }
+    setExecuteMessage(executeMsg);
+    // }
+  }, [executeType, connectedWalletAddress]);
 
   const chainIdToRPC = {
     "migaloo-1": migalooRPC,
@@ -312,6 +346,89 @@ const WasmDev = () => {
     } catch (error) {
       showAlert(`Error in instantiateContract: ${error.message}`, "error");
       throw error;
+    }
+  };
+
+  const handleExecutionContract = async () => {
+    try {
+      if (!window.keplr) {
+        showAlert("Keplr wallet is not installed.", "error");
+        return;
+      }
+      let baseURL;
+      switch (chainId) {
+        case "narwhal-2":
+          baseURL = "https://migaloo-testnet-api.polkachu.com";
+          break;
+        case "terra-1":
+          baseURL = "https://terra-api.polkachu.com";
+          break;
+        case "osmosis-1":
+          baseURL = "https://osmosis-api.polkachu.com";
+          break;
+        default:
+          baseURL = "https://migaloo-api.polkachu.com";
+      }
+      let contractAddressPrefix;
+      switch (chainId) {
+        case "narwhal-2":
+          contractAddressPrefix = "migaloo";
+          break;
+        case "terra-1":
+          contractAddressPrefix = "terra";
+          break;
+        case "osmosis-1":
+          contractAddressPrefix = "osmo";
+          break;
+        default:
+          contractAddressPrefix = "migaloo";
+      }
+      if (!contractAddress.startsWith(contractAddressPrefix)) {
+        throw new Error(
+          `Contract address does not start with the correct prefix for the chain: ${contractAddressPrefix}`
+        );
+      }
+
+      const signer = await getSigner();
+
+      const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
+      const funds = [
+        {
+          denom:
+            chainId === "narwhal-2"
+              ? daoConfig["OPHIR_DENOM_TESNET"]
+              : daoConfig["OPHIR_DENOM"],
+          amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
+        },
+      ];
+      const fee = {
+        amount: [{ denom: "uwhale", amount: "5000" }],
+        gas: "500000",
+      };
+
+      const result = await client.execute(
+        connectedWalletAddress,
+        contractAddress,
+        executeMessage,
+        fee,
+        "Execute redeem assets contract message",
+        funds
+      );
+      setRedeemContractExecutionResponse(result);
+      if (result.transactionHash) {
+        const baseTxnUrl = "https://ping.pfc.zone/narwhal-testnet/tx";
+        const txnUrl = `${baseTxnUrl}/${result.transactionHash}`;
+        showAlert(
+          `Message executed successfully! Transaction Hash: ${result.transactionHash}`,
+          "success",
+          `<a href="${txnUrl}" target="_blank">Message executed successfully! Transaction Hash: ${result.transactionHash}</a>`
+        );
+      } else {
+        showAlert("Message executed successfully!", "success");
+      }
+    } catch (error) {
+      console.error("Error executing message:", error);
+      showAlert(`Error executing message. ${error.message}`, "error");
     }
   };
 
@@ -641,14 +758,72 @@ const WasmDev = () => {
                 Query Contract
               </button>
             </div>
+            {Object.keys(redeemContractQueryResponse).length !== 0 && (
+              <div className="w-full bg-slate-800 rounded-lg p-6">
+                <h3 className="text-xl text-yellow-400 mb-4">
+                  Contract Query Response:
+                </h3>
+                <pre className="text-white text-sm overflow-auto whitespace-pre-wrap">
+                  {JSON.stringify(redeemContractQueryResponse, null, 2)}
+                </pre>
+              </div>
+            )}
+            <div className="mb-4 pt-4">
+              <textarea
+                id="jsonExecute"
+                value={editableExecuteMessage}
+                className={`w-full h-32 bg-slate-700 text-white rounded p-2 ${
+                  jsonExecuteValid
+                    ? executeMessage === ""
+                      ? "border border-yellow-400"
+                      : "border border-green-400"
+                    : "border border-red-500"
+                }`}
+                placeholder="Enter JSON Message"
+                onChange={(e) => {
+                  const newValueExecute = e.target.value;
+                  setEditableExecuteMessage(newValueExecute);
+                  try {
+                    const jsonExecute = JSON.parse(e.target.value);
+                    setExecuteMessage(jsonExecute);
+                    setExecuteType("Custom");
+                    setJsonExecuteValid(true);
+                  } catch (error) {
+                    setJsonExecuteValid(false);
+                  }
+                }}
+              ></textarea>
+            </div>
+            <div className="mb-4">
+              <select
+                id="executeSelect"
+                value={executeType}
+                className="w-full bg-slate-700 text-white border border-yellow-400 rounded p-2"
+                onChange={(e) => setExecuteType(e.target.value)}
+              >
+                <option value="">Select a Execution Message</option>
+                <option value="ExecuteRedemption">Redeem Assets</option>
+                <option value="Custom" disabled>
+                  Custom Execution Message
+                </option>
+              </select>
+            </div>
+            <div className="flex justify-center">
+              <button
+                className="py-2 px-6 bg-yellow-400 text-black font-bold rounded-lg hover:bg-yellow-500 transition duration-300"
+                onClick={handleExecutionContract}
+              >
+                Execute Message
+              </button>
+            </div>
           </div>
-          {Object.keys(redeemContractQueryResponse).length !== 0 && (
+          {Object.keys(redeemContractExecutionResponse).length !== 0 && (
             <div className="w-full bg-slate-800 rounded-lg p-6">
               <h3 className="text-xl text-yellow-400 mb-4">
-                Contract Query Response:
+                Contract Execute Response:
               </h3>
               <pre className="text-white text-sm overflow-auto whitespace-pre-wrap">
-                {JSON.stringify(redeemContractQueryResponse, null, 2)}
+                {JSON.stringify(redeemContractExecutionResponse, null, 2)}
               </pre>
             </div>
           )}
