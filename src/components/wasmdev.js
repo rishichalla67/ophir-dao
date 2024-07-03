@@ -148,6 +148,7 @@ const WasmDev = () => {
     // }
   }, [queryType]);
 
+
   useEffect(() => {
     let executeMsg;
     switch (executeType) {
@@ -155,7 +156,7 @@ const WasmDev = () => {
         executeMsg = {
           redeem_assets: {
             sender: connectedWalletAddress,
-            amount: "1000000", // 1 OPHIR
+            amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(), // 1 OPHIR
           },
         };
         setJsonExecuteValid(true);
@@ -355,19 +356,19 @@ const WasmDev = () => {
         showAlert("Keplr wallet is not installed.", "error");
         return;
       }
-      let baseURL;
+      let baseRPC;
       switch (chainId) {
         case "narwhal-2":
-          baseURL = "https://migaloo-testnet-api.polkachu.com";
+          baseRPC = "https://migaloo-testnet-rpc.polkachu.com";
           break;
         case "terra-1":
-          baseURL = "https://terra-api.polkachu.com";
+          baseRPC = "https://terra-rpc.polkachu.com";
           break;
         case "osmosis-1":
-          baseURL = "https://osmosis-api.polkachu.com";
+          baseRPC = "https://osmosis-rpc.polkachu.com";
           break;
         default:
-          baseURL = "https://migaloo-api.polkachu.com";
+          baseRPC = "https://migaloo-rpc.polkachu.com";
       }
       let contractAddressPrefix;
       switch (chainId) {
@@ -406,14 +407,18 @@ const WasmDev = () => {
         gas: "500000",
       };
 
+      const replacer = (key, value) =>
+        typeof value === "bigint" ? value.toString() : value;
+  
       const result = await client.execute(
         connectedWalletAddress,
         contractAddress,
-        executeMessage,
+        JSON.parse(JSON.stringify(executeMessage, replacer)),
         fee,
         "Execute redeem assets contract message",
         funds
       );
+      console.log("Result: ", result)
       setRedeemContractExecutionResponse(result);
       if (result.transactionHash) {
         const baseTxnUrl = "https://ping.pfc.zone/narwhal-testnet/tx";
@@ -768,7 +773,24 @@ const WasmDev = () => {
                 </pre>
               </div>
             )}
+            <hr style={{ margin: "20px 0" }} />
             <div className="mb-4 pt-4">
+              <div className="flex align-items justify-center pb-2">
+                <input
+                  id="ophirAmount"
+                  type="text"
+                  inputMode="decimal" // Allows mobile users to open numeric keyboard
+                  pattern="[0-9,]*" // Ensures only numbers and commas can be input
+                  className="input-bg mt-2 text-xl text-white p-2 text-center"
+                  placeholder="Enter OPHIR amount"
+                  value={ophirAmount.toLocaleString()} // Format the value with commas
+                  onChange={(e) => {
+                    // Allow only numbers and commas to be input
+                    const value = e.target.value.replace(/[^\d,]/g, "").replace(/,/g, "");
+                    setOphirAmount(value ? Number(value) : "");
+                  }}
+                />
+              </div>
               <textarea
                 id="jsonExecute"
                 value={editableExecuteMessage}
@@ -817,7 +839,7 @@ const WasmDev = () => {
               </button>
             </div>
           </div>
-          {Object.keys(redeemContractExecutionResponse).length !== 0 && (
+          {/* {Object.keys(redeemContractExecutionResponse).length !== 0 && (
             <div className="w-full bg-slate-800 rounded-lg p-6">
               <h3 className="text-xl text-yellow-400 mb-4">
                 Contract Execute Response:
@@ -826,7 +848,7 @@ const WasmDev = () => {
                 {JSON.stringify(redeemContractExecutionResponse, null, 2)}
               </pre>
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
