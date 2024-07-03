@@ -170,7 +170,7 @@ const WasmDev = () => {
     }
     setExecuteMessage(executeMsg);
     // }
-  }, [executeType, connectedWalletAddress]);
+  }, [executeType, connectedWalletAddress, ophirAmount]);
 
   const chainIdToRPC = {
     "migaloo-1": migalooRPC,
