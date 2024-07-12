@@ -61,6 +61,12 @@ const Nav = () => {
           >
             Analytics Dashboard
           </a>
+          <a
+            href="/govern"
+            className="text-white text-lg py-2 hover:text-yellow-400 rounded"
+          >
+            Governance
+          </a>
           {/* <a href="/redeem" className="text-white text-lg py-2 hover:text-yellow-400 rounded">
             Redeem $OPHIR
           </a> */}
