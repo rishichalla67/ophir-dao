@@ -215,6 +215,7 @@ const Govern = () => {
       checkBalance(connectedWalletAddress).then((balance) => {
         setOphirBalance(balance); // Update the balance state when the promise resolves
       });
+      getStakedOphirBalance();
     } catch (error) {
       console.error("Error executing contract message:", error);
       showAlert(`Error executing contract message. ${error.message}`, "error");
