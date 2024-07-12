@@ -13,6 +13,7 @@ import SeekerRound from "./components/seekerRound";
 import WasmDev from "./components/wasmdev";
 import RestakeDashboard from "./components/restakeDashboard";
 import Swap from "./components/swap";
+import Govern from "./components/govern";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         <Route path="wasmdev" element={<WasmDev />} />
         <Route path="restake" element={<RestakeDashboard />} />
         <Route path="swap" element={<Swap />} />
+        <Route path="govern" element={<Govern />} />
       </Routes>
     </Router>
   );
