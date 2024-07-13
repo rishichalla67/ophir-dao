@@ -261,23 +261,24 @@ const Govern = () => {
           </Alert>
         )}
       </Snackbar>
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md">
-        <h1 className="text-gray-900 text-2xl mb-4">Governance</h1>
-        <p className="text-gray-900 mb-2">
+      <div className="govern-container bg-white p-8 rounded-lg shadow-lg max-w-md">
+        <h1 className="h1-govern text-white text-2xl mb-7">Stake OPHIR</h1>
+        <p className="text-govern mb-2">
           Staked OPHIR: {stakedOphirBalance.toLocaleString()}
         </p>
         <p
-          className="text-gray-900 mb-4"
+          className="text-govern mb-4"
           onClick={() => setOphirAmount(ophirBalance)}
         >
           OPHIR Balance: {ophirBalance.toFixed(6).toLocaleString()}
         </p>
+        <div className="ophiramount-container">
         <input
           id="ophirAmount"
           type="text"
           inputMode="decimal" // Allows mobile users to open numeric keyboard
           pattern="[0-9]*" // Ensures only numbers can be input
-          className="border border-gray-300 p-2 rounded w-full mb-4"
+          className="border border-gray-300 p-2 rounded w-full mb-5"
           placeholder="Enter OPHIR amount"
           value={ophirAmount}
           onChange={(e) => {
@@ -286,16 +287,17 @@ const Govern = () => {
             setOphirAmount(value ? Number(value) : "");
           }}
         />
+        </div>
         <div className="flex justify-center">
           <button
-            className="bg-yellow-600 text-white p-2 rounded w-full"
+            className="stake-button text-white p-2 rounded w-full"
             onClick={executeContractMessage}
             disabled={isLoading}
           >
             {isLoading ? (
               <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
             ) : (
-              <span>Stake</span>
+              <span>Stake OPHIR</span>
             )}
           </button>
         </div>

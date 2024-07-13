@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense } from "react";
+import React, { useState, useEffect, Suspense, } from "react";
 import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import { StargateClient } from "@cosmjs/stargate";
 
@@ -296,15 +296,15 @@ const RestakeDashboard = () => {
       </div>
       {gaugeVoteResponse && (
         <div className="w-full max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="content-container">
             {/* Ophir Stats */}
             {ophirGaugeStats && (
-              <div className="bg-gray-800 mt-10 md:mt-0 p-6 rounded-lg shadow-lg col-span-1">
+              <div className="ophir-stats-container mt-10 md:mt-0 p-6 rounded-lg shadow-lg">
                 <h2 className="text-2xl font-bold mb-4 text-yellow-400">
                   Ophir Stats
                 </h2>
                 {/* Ophir Stats Content */}
-                <div className="space-y-4 mt-4">
+                <div className="ophir-add-container space-y-4 mt-4">
                   <p>
                     Voting Power:{" "}
                     <span className="font-light">
@@ -361,7 +361,7 @@ const RestakeDashboard = () => {
             {/* Global Votes */}
 
             {/* Chart */}
-            <div className="bg-gray-800 p-6 rounded-lg shadow-lg w-full col-span-1 md:col-span-2 lg:col-span-3">
+            <div className="global-vote-container p-6 rounded-lg w-full">
               <h2 className="text-2xl font-bold mb-4 text-white">
                 Global Votes on Asset Yields
               </h2>

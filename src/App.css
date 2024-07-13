@@ -336,6 +336,66 @@ tbody .table-box:last-of-type{
   box-shadow: 0 5px 0 0 rgba(255, 235, 183, 0.5);
 }
 
+/*restake page*/
+
+.ophir-stats-container{
+  width: 100%;
+  background-color: var(--main-black);
+  margin: 2rem 0 2rem 0;
+}
+
+.ophir-add-container {
+  word-wrap: break-word;
+  white-space: normal;
+}
+
+.global-vote-container {
+  background-color: var(--main-black);
+  box-shadow: 0 4px 60px -15px var(--drop-shadow-gold);
+}
+
+/* governance page*/
+
+.govern-container {
+  background-color: var(--main-black);
+  box-shadow: 0 4px 60px -15px var(--drop-shadow-gold);
+  min-width: 30vw;
+  width: 80vw;
+  height: fit-content;
+}
+
+.ophiramount-container {
+  width: 100%;
+  display: flex;
+}
+
+#ophirAmount {
+  margin-top: 2.5rem;
+
+}
+
+.stake-button{
+  background: linear-gradient(135deg, rgba(58, 52, 28, 1) 0%, rgb(212, 180, 62) 100%);
+  box-shadow: 0 3px 0 0 rgba(255, 235, 183, 0.5);
+  transition: all 300ms ease-in-out;
+  width: 25%;
+  min-width: 110px;
+}
+
+.stake-button:hover{
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 0 rgba(255, 235, 183, 0.5),
+              0 5px 15px -5px var(--drop-shadow-gold);
+
+}
+
+.text-govern {
+  color: var(--faded-white);
+}
+
+.h1-govern {
+  font-weight: 500;
+}
 
 
 @media screen and (min-width: 1300px) {
@@ -351,6 +411,6 @@ tbody .table-box:last-of-type{
   .pie-chart-container{
     height: 450px;
   }
-  
+
 
 }
