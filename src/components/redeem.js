@@ -33,6 +33,7 @@ const Redeem = () => {
   });
   const [allBalances, setAllBalances] = useState({});
   const [allBalancesTestnet, setAllBalancesTestnet] = useState({});
+  const [tokenSupplyStats, setTokenSupplyStats] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [daoBalance, setDaoBalance] = useState("");
   const [recipientAddress, setRecipientAddress] = useState("");
@@ -62,6 +63,7 @@ const Redeem = () => {
 
   useEffect(() => {
     checkDAOBalance();
+    getTokenStats();
   }, [rpc, isLoading]);
 
   useEffect(() => {
@@ -365,7 +367,7 @@ const Redeem = () => {
     try {
       setRedemptionPrice(0);
       const message = {
-        get_simulate_calculation: {
+        get_redemptions: {
           amount: "10000000000",
         },
       };
@@ -513,7 +515,7 @@ const Redeem = () => {
   const handleQueryContract = async () => {
     try {
       const message = {
-        get_simulate_calculation: {
+        get_redemptions: {
           amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
         },
       };
@@ -558,6 +560,34 @@ const Redeem = () => {
       if (ophirPrices) {
         getRedemptionPrice();
       }
+    } catch (error) {
+      console.error("Error querying contract:", error);
+      showAlert(`Error querying contract. ${error.message}`, "error");
+    }
+  };
+
+  const getTokenStats = async () => {
+    const message = {
+      get_token_supply: {},
+    };
+    const data = await queryContract(message);
+    setTokenSupplyStats(data);
+  };
+
+  const queryContract = async (message) => {
+    try {
+      const signer = getSigner();
+      const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
+
+      // Query the smart contract directly using SigningCosmWasmClient.queryContractSmart
+      const queryResponse = await client.queryContractSmart(
+        contractAddress,
+        message
+      );
+
+      console.log(queryResponse);
+
+      return queryResponse;
     } catch (error) {
       console.error("Error querying contract:", error);
       showAlert(`Error querying contract. ${error.message}`, "error");
@@ -631,6 +661,16 @@ const Redeem = () => {
     );
   }
 
+  const handleInputChange = (e) => {
+    // Allow only numbers and a single decimal point
+    let value = e.target.value.replace(/[^\d.]/g, "");
+    setOphirAmount(value ? Number(value) : "");
+  };
+
+  const formatNumberWithCommas = (number) => {
+    return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
   return (
     <div
       className="global-bg mt-4 text-white min-h-screen flex flex-col items-center w-full"
@@ -659,9 +699,9 @@ const Redeem = () => {
           <div className="flex justify-between items-center mt-2">
             <span className="font-semibold">Circulating Supply:&nbsp;</span>
             <span>
-              {simulationResponse.true_circulating_supply
+              {tokenSupplyStats.true_circulating_supply
                 ? (
-                    simulationResponse.true_circulating_supply / 1000000
+                    tokenSupplyStats.true_circulating_supply / 1000000
                   ).toLocaleString()
                 : "N/A"}
             </span>
@@ -710,12 +750,8 @@ const Redeem = () => {
             pattern="[0-9]*" // Ensures only numbers can be input
             className="input-bg mt-2 text-xl text-white p-2 text-center"
             placeholder="Enter OPHIR amount"
-            value={ophirAmount}
-            onChange={(e) => {
-              // Allow only numbers to be input
-              const value = e.target.value.replace(/[^\d.]/g, "");
-              setOphirAmount(value ? Number(value) : "");
-            }}
+            value={ophirAmount ? formatNumberWithCommas(ophirAmount) : ""}
+            onChange={handleInputChange}
           />
           {ophirAmount > 0 && Object.keys(redemptionValues).length > 0 && (
             <div className="mt-4 overflow-x-auto">
@@ -869,12 +905,9 @@ const Redeem = () => {
                   <div className="flex justify-between items-center mt-2">
                     <span className="font-semibold">Redemption Fee (%):</span>
                     <span>
-                      {simulationResponse?.fee_amount
+                      {simulationResponse?.fee_rate
                         ? `${(
-                            (Number(simulationResponse.fee_amount) /
-                              (Number(simulationResponse.balance_after_fee) +
-                                Number(simulationResponse.fee_amount))) *
-                            100
+                            Number(simulationResponse.fee_rate) * 100
                           ).toFixed(2)}%`
                         : "N/A"}
                     </span>
@@ -894,10 +927,10 @@ const Redeem = () => {
                   <div className="flex justify-between items-center mt-2">
                     <span className="font-semibold">Redeemed OPHIR:</span>
                     <span>
-                      {simulationResponse?.balance_after_fee
+                      {simulationResponse?.fee_amount
                         ? (
-                            Number(simulationResponse.balance_after_fee) /
-                            1000000
+                            ophirAmount -
+                            Number(simulationResponse.fee_amount) / 1000000
                           ).toLocaleString()
                         : "N/A"}
                     </span>
@@ -919,7 +952,7 @@ const Redeem = () => {
                         : "N/A"}
                     </span>
                   </div>
-                  <div className="flex justify-between items-center mt-2">
+                  {/* <div className="flex justify-between items-center mt-2">
                     <span className="font-semibold">
                       Percent of Circ. Supply:
                     </span>
@@ -933,8 +966,8 @@ const Redeem = () => {
                           ).toFixed(2)}%`
                         : "N/A"}
                     </span>
-                  </div>
-                  <div className="mt-4">
+                  </div> */}
+                  {/* <div className="mt-4">
                     <details className="bg-slate-800 p-4 rounded-lg text-white">
                       <summary className="font-bold text-sm cursor-pointer">
                         Debug
@@ -1032,26 +1065,27 @@ const Redeem = () => {
                         </ul>
                       </div>
                     </details>
+                  </div> */}
+                </div>
+              )}
+              {isTestnet &&
+                ophirAmount < tokenSupplyStats?.dao_contract_balance && (
+                  <div className="flex justify-center w-full">
+                    <button
+                      className="redeem-button py-2 px-4 font-medium rounded hover:bg-yellow-500 transition duration-300 ease-in-out flex items-center justify-center"
+                      onClick={executeContractMessage}
+                      disabled={isLoading}
+                    >
+                      <div className="flex items-center justify-center">
+                        {isLoading ? (
+                          <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                        ) : (
+                          <span>Redeem OPHIR</span>
+                        )}
+                      </div>
+                    </button>
                   </div>
-                </div>
-              )}
-              {isTestnet && simulationResponse?.dao_has_enough_balance && (
-                <div className="flex justify-center w-full">
-                  <button
-                    className="redeem-button py-2 px-4 font-medium rounded hover:bg-yellow-500 transition duration-300 ease-in-out flex items-center justify-center"
-                    onClick={executeContractMessage}
-                    disabled={isLoading}
-                  >
-                    <div className="flex items-center justify-center">
-                      {isLoading ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-                      ) : (
-                        <span>Redeem OPHIR</span>
-                      )}
-                    </div>
-                  </button>
-                </div>
-              )}
+                )}
             </div>
           )}
           {ophirAmount > 0 && Object.keys(redemptionValues).length <= 0 && (
@@ -1129,11 +1163,9 @@ const Redeem = () => {
               <strong title="Average redemption volume (14d) / true circulating supply">
                 Average Daily Ratio:
               </strong>{" "}
-              {redemptionStatistics?.average_daily_ratio?.length > 4
-                ? Number(
-                    redemptionStatistics?.average_daily_ratio
-                  ).toLocaleString()
-                : redemptionStatistics?.average_daily_ratio}
+              {redemptionStatistics?.average_ratio?.length > 4
+                ? Number(redemptionStatistics?.average_ratio).toLocaleString()
+                : redemptionStatistics?.average_ratio}
             </div>
             <div className="text-white text-sm relative group">
               <strong title="User requested redemption amount / true circulating supply">
@@ -1149,7 +1181,8 @@ const Redeem = () => {
               </strong>{" "}
               {redemptionStatistics?.average_circulating_supply?.length > 4
                 ? Number(
-                    redemptionStatistics?.average_circulating_supply
+                    redemptionStatistics?.average_circulating_supply /
+                      OPHIR_DECIMAL
                   ).toLocaleString()
                 : redemptionStatistics?.average_circulating_supply}
             </div>
@@ -1157,11 +1190,11 @@ const Redeem = () => {
               <strong title="Average Redemption Volume over the past 14 days">
                 Average Redemption Volume:
               </strong>{" "}
-              {redemptionStatistics?.average_redemption_volume?.length > 4
+              {redemptionStatistics?.redemption_volume_14d?.length > 4
                 ? Number(
-                    redemptionStatistics?.average_redemption_volume
+                    redemptionStatistics?.redemption_volume_14d
                   ).toLocaleString()
-                : redemptionStatistics?.average_redemption_volume}
+                : redemptionStatistics?.redemption_volume_14d}
             </div>
             <div className="text-white text-sm relative group">
               <strong title="Total daily redemption volume">
