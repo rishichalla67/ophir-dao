@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
-import { CosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import WalletConnect from "./walletConnect";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
@@ -29,6 +28,8 @@ const Govern = () => {
     message: "",
     severity: "info",
   });
+  const [activeTab, setActiveTab] = useState("stake"); // State for active tab
+
   const OPHIR_DECIMAL = 1000000;
 
   useEffect(() => {
@@ -38,13 +39,16 @@ const Govern = () => {
       });
       getStakedOphirBalance();
     }
-  });
+  }, [connectedWalletAddress]);
+
   const handleConnectedWalletAddress = (address) => {
     setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
   };
+
   const handleLedgerConnection = (bool) => {
     setIsLedgerConnected(bool); // Update the state with data received from WalletConnect
   };
+
   const showAlert = (message, severity = "info", htmlContent = null) => {
     setAlertInfo({ open: true, message, severity, htmlContent });
   };
@@ -162,7 +166,7 @@ const Govern = () => {
     }
   };
 
-  const executeContractMessage = async () => {
+  const executeStakeContractMessage = async () => {
     setIsLoading(true);
     try {
       if (!window.keplr) {
@@ -197,6 +201,70 @@ const Govern = () => {
         message,
         fee,
         "Stake OPHIR in DAODAO",
+        funds
+      );
+
+      console.log(result);
+      if (result.transactionHash) {
+        const baseTxnUrl = "https://inbloc.org/migaloo/transactions";
+        const txnUrl = `${baseTxnUrl}/${result.transactionHash}`;
+        showAlert(
+          `Message executed successfully! Transaction Hash: ${result.transactionHash}`,
+          "success",
+          `<a href="${txnUrl}" target="_blank">Message executed successfully! Transaction Hash: ${result.transactionHash}</a>`
+        );
+      } else {
+        showAlert("Message executed successfully!", "success");
+      }
+      checkBalance(connectedWalletAddress).then((balance) => {
+        setOphirBalance(balance); // Update the balance state when the promise resolves
+      });
+      getStakedOphirBalance();
+    } catch (error) {
+      console.error("Error executing contract message:", error);
+      showAlert(`Error executing contract message. ${error.message}`, "error");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const executeUnstakeContractMessage = async () => {
+    setIsLoading(true);
+    try {
+      if (!window.keplr) {
+        showAlert("Keplr wallet is not installed.", "error");
+        return;
+      }
+      if (!ophirAmount || ophirAmount <= 0) {
+        showAlert("Please enter a valid OPHIR amount.", "error");
+        return;
+      }
+
+      const message = {
+        unstake: {
+          amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
+        },
+      };
+      const signer = await getSigner();
+
+      const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
+      const funds = [
+        {
+          denom: daoConfig["OPHIR_DENOM"],
+          amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
+        },
+      ];
+      const fee = {
+        amount: [{ denom: "uwhale", amount: "5000" }],
+        gas: "500000",
+      };
+
+      const result = await client.execute(
+        connectedWalletAddress,
+        contractAddress,
+        message,
+        fee,
+        "Unstake OPHIR in DAODAO",
         funds
       );
 
@@ -262,45 +330,135 @@ const Govern = () => {
         )}
       </Snackbar>
       <div className="govern-container bg-white p-8 rounded-lg shadow-lg max-w-md">
-        <h1 className="h1-govern text-white text-2xl mb-7">Stake OPHIR</h1>
-        <p className="text-govern mb-2">
-          Staked OPHIR: {stakedOphirBalance.toLocaleString()}
-        </p>
-        <p
-          className="text-govern mb-4"
-          onClick={() => setOphirAmount(ophirBalance)}
-        >
-          OPHIR Balance: {ophirBalance.toFixed(6).toLocaleString()}
-        </p>
-        <div className="ophiramount-container">
-        <input
-          id="ophirAmount"
-          type="text"
-          inputMode="decimal" // Allows mobile users to open numeric keyboard
-          pattern="[0-9]*" // Ensures only numbers can be input
-          className="border border-gray-300 p-2 rounded w-full mb-5"
-          placeholder="Enter OPHIR amount"
-          value={ophirAmount}
-          onChange={(e) => {
-            // Allow only numbers to be input
-            const value = e.target.value.replace(/[^\d.]/g, "");
-            setOphirAmount(value ? Number(value) : "");
-          }}
-        />
-        </div>
-        <div className="flex justify-center">
+        <h1 className="h1-govern text-white text-2xl mb-7">OPHIR Governance</h1>
+        <div className="flex justify-around mb-5">
           <button
-            className="stake-button text-white p-2 rounded w-full"
-            onClick={executeContractMessage}
-            disabled={isLoading}
+            className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-1 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${
+              activeTab === "stake"
+                ? "bg-yellow-400 text-black"
+                : "bg-transparent text-white"
+            }`}
+            onClick={() => setActiveTab("stake")}
           >
-            {isLoading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
-            ) : (
-              <span>Stake OPHIR</span>
-            )}
+            Stake
+          </button>
+          <button
+            className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-1 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${
+              activeTab === "unstake"
+                ? "bg-yellow-400 text-black"
+                : "bg-transparent text-white"
+            }`}
+            onClick={() => setActiveTab("unstake")}
+          >
+            Unstake
+          </button>
+          <button
+            className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-1 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${
+              activeTab === "rewards"
+                ? "bg-yellow-400 text-black"
+                : "bg-transparent text-white"
+            }`}
+            onClick={() => setActiveTab("rewards")}
+          >
+            Rewards
           </button>
         </div>
+        {activeTab === "stake" && (
+          <div>
+            <p className="text-govern mb-2">
+              Staked OPHIR: {stakedOphirBalance.toLocaleString()}
+            </p>
+            <p className="text-govern">
+              OPHIR Balance:{" "}
+              <a
+                className="hover:cursor-pointer"
+                onClick={() => setOphirAmount(ophirBalance)}
+              >
+                {ophirBalance.toFixed(6).toLocaleString()}
+              </a>
+            </p>
+            <div className="ophiramount-container">
+              <input
+                id="ophirAmount"
+                type="text"
+                inputMode="decimal" // Allows mobile users to open numeric keyboard
+                pattern="[0-9]*" // Ensures only numbers can be input
+                className="border border-gray-300 p-2 rounded w-full mb-5"
+                placeholder="Enter OPHIR amount"
+                value={ophirAmount}
+                onChange={(e) => {
+                  // Allow only numbers to be input
+                  const value = e.target.value.replace(/[^\d.]/g, "");
+                  setOphirAmount(value ? Number(value) : "");
+                }}
+              />
+            </div>
+            <div className="flex justify-center">
+              <button
+                className="stake-button text-white p-2 rounded w-full"
+                onClick={executeStakeContractMessage}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                ) : (
+                  <span>Stake OPHIR</span>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+        {activeTab === "unstake" && (
+          <div>
+            <p className="text-govern mb-2">
+              Staked OPHIR:{" "}
+              <a
+                className="hover:cursor-pointer"
+                onClick={() => setOphirAmount(stakedOphirBalance)}
+              >
+                {stakedOphirBalance.toLocaleString()}
+              </a>
+            </p>
+            <p className="text-govern">
+              OPHIR Balance: {ophirBalance.toFixed(6).toLocaleString()}
+            </p>
+            <div className="ophiramount-container">
+              <input
+                id="ophirAmount"
+                type="text"
+                inputMode="decimal" // Allows mobile users to open numeric keyboard
+                pattern="[0-9]*" // Ensures only numbers can be input
+                className="border border-gray-300 p-2 rounded w-full mb-5"
+                placeholder="Enter OPHIR amount"
+                value={ophirAmount}
+                onChange={(e) => {
+                  // Allow only numbers to be input
+                  const value = e.target.value.replace(/[^\d.]/g, "");
+                  setOphirAmount(value ? Number(value) : "");
+                }}
+              />
+            </div>
+            <div className="flex justify-center">
+              <button
+                className="stake-button text-white text-sm p-2 rounded w-full"
+                onClick={executeUnstakeContractMessage}
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
+                ) : (
+                  <span>Unstake OPHIR</span>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+        {activeTab === "rewards" && (
+          <div>
+            <h2 className="h2-govern text-white text-xl mb-7">Rewards</h2>
+            {/* Rewards content goes here */}
+          </div>
+        )}
       </div>
     </div>
   );
