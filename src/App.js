@@ -26,7 +26,7 @@ function App() {
         {/* <Route path="/" element={<Home />} /> Update Route with element prop */}
         <Route path="/" element={<LandingPage />} />
         <Route path="/analytics" element={<AnalyticsDashboard />} />
-        <Route path="10239457123823985" element={<Redeem />} />
+        <Route path="redeem" element={<Redeem />} />
         <Route path="seekers" element={<SeekerRound />} />
         <Route path="wasmdev" element={<WasmDev />} />
         <Route path="restake" element={<RestakeDashboard />} />

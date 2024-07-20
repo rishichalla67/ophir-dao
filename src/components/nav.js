@@ -67,6 +67,7 @@ const Nav = () => {
           >
             Governance
           </a>
+
           {/* <a href="/redeem" className="text-white text-lg py-2 hover:text-yellow-400 rounded">
             Redeem $OPHIR
           </a> */}
@@ -82,6 +83,12 @@ const Nav = () => {
               className="w-6 h-6 mr-2"
             />
             Dao Dao
+          </a>
+          <a
+            href="/redeem"
+            className="text-white text-lg py-2 hover:text-yellow-400 rounded"
+          >
+            Redeem $OPHIR
           </a>
           <div className="text-white text-lg py-2 rounded group cursor-pointer">
             <div
