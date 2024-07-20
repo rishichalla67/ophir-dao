@@ -13,6 +13,8 @@ const Govern = () => {
 
   const [ophirBalance, setOphirBalance] = useState(0);
   const [stakedOphirBalance, setStakedOphirBalance] = useState(0);
+  const [ophirStakers, setOphirStakers] = useState({});
+  const [copied, setCopied] = useState(false);
   const [ophirAmount, setOphirAmount] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [rpc, setRPC] = useState(migalooRPC);
@@ -33,6 +35,10 @@ const Govern = () => {
   const OPHIR_DECIMAL = 1000000;
 
   useEffect(() => {
+    getStakers();
+  }, []);
+
+  useEffect(() => {
     if (connectedWalletAddress) {
       checkBalance(connectedWalletAddress).then((balance) => {
         setOphirBalance(balance); // Update the balance state when the promise resolves
@@ -47,6 +53,16 @@ const Govern = () => {
 
   const handleLedgerConnection = (bool) => {
     setIsLedgerConnected(bool); // Update the state with data received from WalletConnect
+  };
+
+  const truncateAddress = (address) =>
+    `${address.slice(0, 6)}...${address.slice(-6)}`;
+
+  const handleCopy = (address) => {
+    navigator.clipboard.writeText(address).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000); // Reset copied state after 2 seconds
+    });
   };
 
   const showAlert = (message, severity = "info", htmlContent = null) => {
@@ -133,6 +149,52 @@ const Govern = () => {
     } else {
       console.log("Ophir Balance: 0");
       return 0;
+    }
+  };
+
+  const getStakers = async () => {
+    try {
+      let stakers = [];
+      let limit = 100;
+      let startAfter = null;
+
+      const signer = getSigner();
+      const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
+
+      while (true) {
+        const message = {
+          list_stakers: {
+            limit,
+            start_after: startAfter,
+          },
+        };
+
+        // Query the smart contract directly using SigningCosmWasmClient.queryContractSmart
+        const queryResponse = await client.queryContractSmart(
+          contractAddress,
+          message
+        );
+
+        stakers = stakers.concat(queryResponse.stakers);
+
+        // If the response contains less than the limit, we have retrieved all stakers
+        if (queryResponse.stakers.length < limit) {
+          break;
+        }
+
+        // Update startAfter with the last staker in the current response
+        startAfter =
+          queryResponse.stakers[queryResponse.stakers.length - 1].address;
+      }
+
+      stakers.sort((a, b) => Number(b.balance) - Number(a.balance));
+
+      console.log(stakers);
+
+      setOphirStakers({ stakers });
+    } catch (error) {
+      console.error("Error querying contract:", error);
+      showAlert(`Error querying contract. ${error.message}`, "error");
     }
   };
 
@@ -329,39 +391,24 @@ const Govern = () => {
           </Alert>
         )}
       </Snackbar>
-      <div className="govern-container bg-white p-8 rounded-lg shadow-lg max-w-md">
-        <h1 className="h1-govern text-white text-2xl mb-7">OPHIR Governance</h1>
+      <div className="govern-container bg-white p-6 rounded-lg shadow-lg min-w-lg max-w-md mt-10">
+        <h1 className="h1-govern text-white text-2xl mb-7 ">
+          OPHIR Governance
+        </h1>
         <div className="flex justify-around mb-5">
-          <button
-            className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-1 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${
-              activeTab === "stake"
-                ? "bg-yellow-400 text-black"
-                : "bg-transparent text-white"
-            }`}
-            onClick={() => setActiveTab("stake")}
-          >
-            Stake
-          </button>
-          <button
-            className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-1 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${
-              activeTab === "unstake"
-                ? "bg-yellow-400 text-black"
-                : "bg-transparent text-white"
-            }`}
-            onClick={() => setActiveTab("unstake")}
-          >
-            Unstake
-          </button>
-          <button
-            className={`text-base md:text-lg lg:text-xl font-bold mb-1 hover:cursor-pointer px-1 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${
-              activeTab === "rewards"
-                ? "bg-yellow-400 text-black"
-                : "bg-transparent text-white"
-            }`}
-            onClick={() => setActiveTab("rewards")}
-          >
-            Rewards
-          </button>
+          {["stake", "unstake", "rewards", "info"].map((tab) => (
+            <button
+              key={tab}
+              className={`text-sm md:text-base lg:text-lg font-bold mb-1 hover:cursor-pointer px-2 md:px-3 lg:px-4 py-1 md:py-2 lg:py-3 rounded-full border-2 border-gold shadow-lg transform transition duration-300 ease-in-out hover:scale-105 ${
+                activeTab === tab
+                  ? "bg-yellow-400 text-black"
+                  : "bg-transparent text-white"
+              }`}
+              onClick={() => setActiveTab(tab)}
+            >
+              {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            </button>
+          ))}
         </div>
         {activeTab === "stake" && (
           <div>
@@ -457,6 +504,50 @@ const Govern = () => {
           <div>
             <h2 className="h2-govern text-white text-xl mb-7">Rewards</h2>
             {/* Rewards content goes here */}
+          </div>
+        )}
+        {activeTab === "info" && (
+          <div>
+            <h2 className="h2-govern text-white text-xl md:text-2xl lg:text-3xl mb-7">
+              Stakers
+            </h2>
+            {Object.keys(ophirStakers).length > 0 && (
+              <div className="overflow-x-auto">
+                <div className="max-h-96 overflow-y-auto no-scrollbar">
+                  <table className="min-w-full text-white border border-gray-300 text-sm md:text-base">
+                    <thead>
+                      <tr className="w-full bg-yellow-400 text-black">
+                        <th className="px-2 md:px-4 py-2 border">Address</th>
+                        <th className="px-2 md:px-4 py-2 border">Balance</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {ophirStakers.stakers.map((staker, index) => (
+                        <tr key={index} className="text-center">
+                          <td
+                            className="px-2 md:px-4 py-2 border cursor-pointer"
+                            onClick={() =>
+                              navigator.clipboard.writeText(staker.address)
+                            }
+                            title="Click to copy address"
+                          >
+                            {truncateAddress(staker.address)}
+                          </td>
+                          <td className="px-2 md:px-4 py-2 border">
+                            {(
+                              Number(staker.balance) / OPHIR_DECIMAL
+                            ).toLocaleString(undefined, {
+                              minimumFractionDigits: 2,
+                              maximumFractionDigits: 2,
+                            })}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
