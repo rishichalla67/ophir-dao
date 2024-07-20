@@ -208,12 +208,20 @@ const Redeem = () => {
         return;
       }
 
+      // const redeemMessage = {
+      //   redeem_assets: {
+      //     sender: connectedWalletAddress,
+      //     amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
+      //   },
+      // };
+
       const redeemMessage = {
         redeem_assets: {
-          sender: connectedWalletAddress,
-          amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
+          max_fee_rate: null, // You can set this if you want to specify a max fee rate
+          emergency_exit: null, // You can set this to true for emergency exits
         },
       };
+
       const signer = await getSigner();
 
       const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
