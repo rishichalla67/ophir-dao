@@ -310,12 +310,7 @@ const Govern = () => {
       const signer = await getSigner();
 
       const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
-      const funds = [
-        {
-          denom: daoConfig["OPHIR_DENOM"],
-          amount: (Number(ophirAmount) * OPHIR_DECIMAL).toString(),
-        },
-      ];
+      const funds = [];
       const fee = {
         amount: [{ denom: "uwhale", amount: "5000" }],
         gas: "500000",
