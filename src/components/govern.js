@@ -444,7 +444,7 @@ const Govern = () => {
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
                 ) : (
-                  <span>Stake OPHIR</span>
+                  <span>Stake</span>
                 )}
               </button>
             </div>
@@ -489,7 +489,7 @@ const Govern = () => {
                 {isLoading ? (
                   <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-white"></div>
                 ) : (
-                  <span>Unstake OPHIR</span>
+                  <span>Unstake</span>
                 )}
               </button>
             </div>
