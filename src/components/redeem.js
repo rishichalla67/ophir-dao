@@ -50,6 +50,17 @@ const Redeem = () => {
   const [debugValues, setDebugValues] = useState({});
   const [redemptionPrice, setRedemptionPrice] = useState(0);
   const [redemptionStatistics, setRedemptionStatistics] = useState({});
+  const [ackFee, setAckFee] = useState(false);
+  const [isChecked, setIsChecked] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const openModal = () => {
+    setIsModalOpen(true);
+  };
+
+  const closeModal = () => {
+    setIsModalOpen(false);
+  };
 
   const handleConnectedWalletAddress = (address) => {
     setConnectedWalletAddress(address); // Update the state with data received from WalletConnect
@@ -133,6 +144,8 @@ const Redeem = () => {
     const debounceTimer = setTimeout(() => {
       if (ophirAmount) {
         handleQueryContract();
+        setIsChecked(false);
+        setAckFee(false);
       }
     }, 100); // 100ms debounce time
 
@@ -268,6 +281,7 @@ const Redeem = () => {
       showAlert(`Error executing contract message. ${error.message}`, "error");
     } finally {
       setIsLoading(false);
+      closeModal();
     }
   };
 
@@ -518,6 +532,11 @@ const Redeem = () => {
       console.error("Error performing WASM query:", error);
       showAlert(`Error performing WASM query. ${error.message}`, "error");
     }
+  };
+
+  const handleCheckboxChange = (event) => {
+    setIsChecked(event.target.checked);
+    setAckFee(event.target.checked);
   };
 
   const handleQueryContract = async () => {
@@ -960,123 +979,28 @@ const Redeem = () => {
                         : "N/A"}
                     </span>
                   </div>
-                  {/* <div className="flex justify-between items-center mt-2">
-                    <span className="font-semibold">
-                      Percent of Circ. Supply:
-                    </span>
-                    <span>
-                      {simulationResponse?.balance_after_fee &&
-                      simulationResponse?.true_circulating_supply
-                        ? `${(
-                            (simulationResponse.balance_after_fee /
-                              simulationResponse.true_circulating_supply) *
-                            100
-                          ).toFixed(2)}%`
-                        : "N/A"}
-                    </span>
-                  </div> */}
-                  {/* <div className="mt-4">
-                    <details className="bg-slate-800 p-4 rounded-lg text-white">
-                      <summary className="font-bold text-sm cursor-pointer">
-                        Debug
-                      </summary>
-                      <div className="text-sm mt-2">
-                        <div className="font-semibold">State Before:</div>
-                        <ul>
-                          <li>
-                            Circulating Supply:{" "}
-                            {(
-                              Number(
-                                simulationResponse.state_before
-                                  .circulating_supply
-                              ) / 1000000
-                            ).toLocaleString()}
-                          </li>
-                          <li>
-                            DAO Balance:{" "}
-                            {(
-                              Number(
-                                simulationResponse.state_before.dao_balance
-                              ) / 1000000
-                            ).toLocaleString()}
-                          </li>
-                          <li>
-                            Total Supply:{" "}
-                            {(
-                              Number(
-                                simulationResponse.state_before.total_supply
-                              ) / 1000000
-                            ).toLocaleString()}
-                          </li>
-                          <li>
-                            Staked Amount:{" "}
-                            {(
-                              Number(
-                                simulationResponse.state_before.staked_amount
-                              ) / 1000000
-                            ).toLocaleString()}
-                          </li>
-                          <li>
-                            Percentage Staked:{" "}
-                            {(
-                              Number(
-                                simulationResponse.state_before.pct_staked
-                              ) * 100
-                            ).toFixed(2)}
-                            %
-                          </li>
-                        </ul>
-                        <div className="font-semibold mt-2">State After:</div>
-                        <ul>
-                          <li>
-                            Circulating Supply:{" "}
-                            {(
-                              Number(
-                                simulationResponse.state_after
-                                  .circulating_supply
-                              ) / 1000000
-                            ).toLocaleString()}
-                          </li>
-                          <li>
-                            DAO Balance:{" "}
-                            {(
-                              Number(
-                                simulationResponse.state_after.dao_balance
-                              ) / 1000000
-                            ).toLocaleString()}
-                          </li>
-                          <li>
-                            Total Supply:{" "}
-                            {(
-                              Number(
-                                simulationResponse.state_after.total_supply
-                              ) / 1000000
-                            ).toLocaleString()}
-                          </li>
-                          <li>
-                            Staked Amount:{" "}
-                            {(
-                              Number(
-                                simulationResponse.state_after.staked_amount
-                              ) / 1000000
-                            ).toLocaleString()}
-                          </li>
-                          <li>
-                            Percentage Staked:{" "}
-                            {(
-                              Number(
-                                simulationResponse.state_after.pct_staked
-                              ) * 100
-                            ).toFixed(2)}
-                            %
-                          </li>
-                        </ul>
-                      </div>
-                    </details>
-                  </div> */}
+                  <div className="pt-4">
+                    <div className="mt-2 text-red-600 bg-red-100 p-2 rounded-md ">
+                      <input
+                        type="checkbox"
+                        id="ackFeeCheckbox"
+                        checked={isChecked}
+                        onChange={handleCheckboxChange}
+                        className="form-checkbox h-5 w-5 text-red-600 border-red-600 focus:ring-red-500 align-middle"
+                      />
+                      <label
+                        htmlFor="ackFeeCheckbox"
+                        className="text-gray-800 pl-2"
+                      >
+                        I acknowledge the fee is{" "}
+                        {(simulationResponse.fee_rate * 100).toFixed(2)}%
+                      </label>
+                    </div>
+                  </div>
                 </div>
               )}
               {isTestnet &&
+                ackFee &&
                 ophirAmount < tokenSupplyStats?.dao_contract_balance && (
                   <div className="flex justify-center w-full">
                     <button
@@ -1152,7 +1076,7 @@ const Redeem = () => {
             </div>
           </div>
         )}
-        {redemptionStatistics && (
+        {isAddressAllowed && redemptionStatistics && (
           <div className="debug-info bg-gray-800 p-4 rounded-lg shadow-lg mt-4">
             <h2 className="text-lg font-bold text-white mb-2">
               Redemption Statistics
