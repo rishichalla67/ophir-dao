@@ -53,6 +53,7 @@ const Redeem = () => {
   const [ackFee, setAckFee] = useState(false);
   const [isChecked, setIsChecked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [bgColorClass, setBgColorClass] = useState("bg-green-100");
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -151,6 +152,34 @@ const Redeem = () => {
 
     return () => clearTimeout(debounceTimer); // Clear the timeout if the component unmounts or the value changes
   }, [ophirAmount, isTestnet]);
+
+  useEffect(() => {
+    feeBoxColor();
+  }, [simulationResponse?.fee_rate]);
+
+  const feeBoxColor = () => {
+    if (
+      simulationResponse.fee_rate >= 0 &&
+      simulationResponse.fee_rate < 0.075
+    ) {
+      setBgColorClass("bg-green-100"); // Light orange (amber)
+    } else if (
+      simulationResponse.fee_rate >= 0.075 &&
+      simulationResponse.fee_rate < 0.3
+    ) {
+      setBgColorClass("bg-amber-300"); // Light orange (amber)
+    } else if (
+      simulationResponse.fee_rate >= 0.3 &&
+      simulationResponse.fee_rate < 0.6
+    ) {
+      setBgColorClass("bg-red-100"); // Light red
+    } else if (
+      simulationResponse.fee_rate >= 0.6 &&
+      simulationResponse.fee_rate < 1
+    ) {
+      setBgColorClass("bg-red-500 text-white font-bold animate-pulse"); // Alarming red with pulse effect
+    }
+  };
 
   const getSigner = async () => {
     if (window.keplr?.experimentalSuggestChain) {
@@ -921,80 +950,86 @@ const Redeem = () => {
               </div>
               {Object.keys(simulationResponse).length !== 0 && (
                 <div className="text-xs sm:text-sm mt-4">
-                  {redemptionPrice > 0 && (
-                    <div className="flex justify-between items-center mt-2">
-                      <span className="font-semibold">
-                        Redemption Price of OPHIR:
-                      </span>
-                      <span>${redemptionPrice.toFixed(6)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="font-semibold">Redemption Fee (%):</span>
-                    <span>
-                      {simulationResponse?.fee_rate
-                        ? `${(
-                            Number(simulationResponse.fee_rate) * 100
-                          ).toFixed(2)}%`
-                        : "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="font-semibold">
-                      Redemption Fee (OPHIR):
-                    </span>
-                    <span>
-                      {simulationResponse?.fee_amount
-                        ? (
-                            Number(simulationResponse.fee_amount) / 1000000
-                          ).toLocaleString()
-                        : "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span className="font-semibold">Redeemed OPHIR:</span>
-                    <span>
-                      {simulationResponse?.fee_amount
-                        ? (
-                            ophirAmount -
-                            Number(simulationResponse.fee_amount) / 1000000
-                          ).toLocaleString()
-                        : "N/A"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center mt-2">
-                    <span
-                      className="font-semibold"
-                      title="gross redeemed amount / true circulating supply"
-                    >
-                      Redemption Ratio:
-                    </span>
-                    <span>
-                      {ophirAmount &&
-                      redemptionStatistics?.true_circulating_supply
-                        ? `${(
-                            Number(ophirAmount) /
-                            redemptionStatistics.true_circulating_supply
-                          ).toFixed(5)}`
-                        : "N/A"}
-                    </span>
-                  </div>
                   <div className="pt-4">
-                    <div className="mt-2 text-red-600 bg-red-100 p-2 rounded-md ">
-                      <input
-                        type="checkbox"
-                        id="ackFeeCheckbox"
-                        checked={isChecked}
-                        onChange={handleCheckboxChange}
-                        className="form-checkbox h-5 w-5 text-red-600 border-red-600 focus:ring-red-500 align-middle"
-                      />
-                      <label
-                        htmlFor="ackFeeCheckbox"
-                        className="text-gray-800 pl-2"
-                      >
-                        I acknowledge the fee is{" "}
-                        {(simulationResponse.fee_rate * 100).toFixed(2)}%
-                      </label>
+                    <div
+                      className={`mt-2 text-black ${bgColorClass} p-2 rounded-md`}
+                    >
+                      {redemptionPrice > 0 && (
+                        <div className="flex justify-between items-center mt-2">
+                          <span className="font-semibold">
+                            Redemption Price of OPHIR:
+                          </span>
+                          <span>${redemptionPrice.toFixed(6)}</span>
+                        </div>
+                      )}
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="font-semibold">
+                          Redemption Fee (%):
+                        </span>
+                        <span>
+                          {simulationResponse?.fee_rate
+                            ? `${(
+                                Number(simulationResponse.fee_rate) * 100
+                              ).toFixed(2)}%`
+                            : "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="font-semibold">
+                          Redemption Fee (OPHIR):
+                        </span>
+                        <span>
+                          {simulationResponse?.fee_amount
+                            ? (
+                                Number(simulationResponse.fee_amount) / 1000000
+                              ).toLocaleString()
+                            : "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mt-2">
+                        <span className="font-semibold">Redeemed OPHIR:</span>
+                        <span>
+                          {simulationResponse?.fee_amount
+                            ? (
+                                ophirAmount -
+                                Number(simulationResponse.fee_amount) / 1000000
+                              ).toLocaleString()
+                            : "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-center mt-2 pb-2">
+                        <span
+                          className="font-semibold"
+                          title="gross redeemed amount / true circulating supply"
+                        >
+                          Redemption Ratio:
+                        </span>
+                        <span>
+                          {ophirAmount &&
+                          redemptionStatistics?.true_circulating_supply
+                            ? `${(
+                                Number(ophirAmount) /
+                                redemptionStatistics.true_circulating_supply
+                              ).toFixed(5)}`
+                            : "N/A"}
+                        </span>
+                      </div>
+                      <div className="flex justify-center items-center mt-2">
+                        <input
+                          type="checkbox"
+                          id="ackFeeCheckbox"
+                          checked={isChecked}
+                          onChange={handleCheckboxChange}
+                          className="form-checkbox h-5 w-5 text-red-600 border-red-600 focus:ring-red-500"
+                        />
+                        <label
+                          htmlFor="ackFeeCheckbox"
+                          className="text-gray-800 pl-2"
+                        >
+                          I acknowledge the fee is{" "}
+                          {(simulationResponse.fee_rate * 100).toFixed(2)}%
+                        </label>
+                      </div>
                     </div>
                   </div>
                 </div>
