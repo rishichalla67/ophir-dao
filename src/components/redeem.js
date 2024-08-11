@@ -172,7 +172,7 @@ const Redeem = () => {
       simulationResponse.fee_rate >= 0.3 &&
       simulationResponse.fee_rate < 0.6
     ) {
-      setBgColorClass("bg-red-100"); // Light red
+      setBgColorClass("bg-red-300"); // Light red
     } else if (
       simulationResponse.fee_rate >= 0.6 &&
       simulationResponse.fee_rate < 1
@@ -286,7 +286,11 @@ const Redeem = () => {
         contractAddress,
         redeemMessage,
         fee,
-        "Execute redeem assets contract message",
+        `Fee amount in OPHIR: ${
+          simulationResponse.fee_amount
+        } | Fee rate as percentage: ${(
+          simulationResponse.fee_rate * 100
+        ).toFixed(2)}%`,
         funds
       );
 
