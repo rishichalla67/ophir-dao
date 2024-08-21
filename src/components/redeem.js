@@ -274,10 +274,7 @@ const Redeem = () => {
       // };
 
       const redeemMessage = {
-        redeem_assets: {
-          max_fee_rate: null, // You can set this if you want to specify a max fee rate
-          emergency_exit: null, // You can set this to true for emergency exits
-        },
+        redeem_assets: {},
       };
 
       const signer = await getSigner();
