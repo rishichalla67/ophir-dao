@@ -250,6 +250,22 @@ const Redeem = () => {
         return;
       }
 
+      if (connectedWalletAddress === "") {
+        showAlert(
+          "Woah, slow down! You need to connect your wallet first...",
+          "error"
+        );
+        return;
+      }
+
+      if (ophirAmount > ophirBalance) {
+        showAlert(
+          "You don't have enough OPHIR... back to the mines!!",
+          "error"
+        );
+        return;
+      }
+
       // const redeemMessage = {
       //   redeem_assets: {
       //     sender: connectedWalletAddress,
