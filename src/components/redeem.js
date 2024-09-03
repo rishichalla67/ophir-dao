@@ -1134,7 +1134,7 @@ const Redeem = () => {
             </div>
           </div>
         )}
-        {isAddressAllowed && (
+        {isAddressAllowed && isTestnet && (
           <div className="mt-4">
             <div className="flex flex-col items-center">
               <input
