@@ -38,12 +38,12 @@ const Redeem = () => {
   const [daoBalance, setDaoBalance] = useState("");
   const [recipientAddress, setRecipientAddress] = useState("");
   const isAddressAllowed = allowedAddresses.includes(connectedWalletAddress);
-  const [chainId, setChainId] = useState("narwhal-2");
-  const [isTestnet, setIsTestnet] = useState(true);
+  const [chainId, setChainId] = useState("migaloo-1");
+  const [isTestnet, setIsTestnet] = useState(false);
   const [contractAddress, setContractAddress] = useState(
-    daoConfig["CONTRACT_ADDRESS_TESTNET"]
+    daoConfig["CONTRACT_ADDRESS"]
   );
-  const [rpc, setRPC] = useState(migalooTestnetRPC);
+  const [rpc, setRPC] = useState(migalooRPC);
   const [isSending, setIsSending] = useState(false); // Add this state at the beginning of your component
   const [sendOphirAmount, setSendOphirAmount] = useState("100000");
   const [simulationResponse, setSimulationResponse] = useState({});
@@ -644,6 +644,7 @@ const Redeem = () => {
       get_token_supply: {},
     };
     const data = await queryContract(message);
+    console.log(data)
     setTokenSupplyStats(data);
   };
 
@@ -1051,9 +1052,8 @@ const Redeem = () => {
                   </div>
                 </div>
               )}
-              {isTestnet &&
-                ackFee &&
-                ophirAmount < tokenSupplyStats?.dao_contract_balance && (
+              {ackFee &&
+                (isTestnet ? ophirAmount < tokenSupplyStats?.dao_contract_balance : ophirAmount < tokenSupplyStats?.vault_contract_balance) && (
                   <div className="flex justify-center w-full">
                     <button
                       className="redeem-button py-2 px-4 font-medium rounded hover:bg-yellow-500 transition duration-300 ease-in-out flex items-center justify-center"
