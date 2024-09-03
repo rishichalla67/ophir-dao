@@ -51,6 +51,8 @@ export const tokenMappings = {
     { symbol: "ash", decimals: 6 },
   "factory/migaloo1p5adwk3nl9pfmjjx6fu9mzn4xfjry4l2x086yq8u8sahfv6cmuyspryvyu/uLP":
     { symbol: "ophirWhaleLp", decimals: 6 },
+  "factory/migaloo154k8ta3n0eduqrkr657f0kaj8yc89rczjpznxwnrnfvdlnjkxkjq0mv55f/uLP":
+    { symbol: "ophirWbtcLp", decimals: 6 },
   "factory/migaloo1axtz4y7jyvdkkrflknv9dcut94xr5k8m6wete4rdrw4fuptk896su44x2z/uLP":
     { symbol: "whalewBtcLp", decimals: 6 },
   "factory/migaloo1xv4ql6t6r8zawlqn2tyxqsrvjpmjfm6kvdfvytaueqe3qvcwyr7shtx0hj/uLP":
@@ -125,6 +127,18 @@ export const tokenMappings = {
   },
   "ibc/87011191A408E791269307E8EC1D506737C6B48AE539C1CBCB40E70A7F35185B": {
     symbol: "usdc",
+    decimals: 6,
+  },
+  "ibc/BEFB9AB13AB43157A0AF6214AD4B1F565AC0CA0C1760B8337BE7B9E2996F7752": {
+    symbol: "ampOsmo",
+    decimals: 6,
+  },
+  "ibc/EC48B819FC1D955ED1708A8E8E230B37217CC6D953448D3B4BCCF5B29BD1FCF9": {
+    symbol: "bOsmo",
+    decimals: 6,
+  },
+  "ibc/F7EC3CE77AB008AE3EFCFEDBA1CD07E7306AAA0A8800FADD4B2F1725C0DADB6B": {
+    symbol: "lab",
     decimals: 6,
   },
 };

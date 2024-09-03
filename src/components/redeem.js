@@ -883,7 +883,7 @@ const Redeem = () => {
                           const value = amount * price; // Calculate the value by multiplying the amount by the price
                           return { asset, amount, value }; // Return an object with asset, amount, and value
                         })
-                        .filter(({ value }) => value > 0.01) // Filter out any values that are 0.01
+                        .filter(({ value }) => value > 0.001) // Filter out any values that are 0.01
                         .sort((a, b) => b.value - a.value) // Sort by value in descending order
                         .map(({ asset, amount, value }) => (
                           <tr key={asset}>

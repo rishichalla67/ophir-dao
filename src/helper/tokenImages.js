@@ -29,6 +29,10 @@ export const tokenImages = {
     "https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png",
     "https://assets.coingecko.com/coins/images/21628/standard/whale.png?1696520988",
   ],
+  ophirWbtcLp: [
+    "https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png",
+    "https://assets.coingecko.com/coins/images/7598/standard/wrapped_bitcoin_wbtc.png?1696507857",
+  ],
   whalewBtcLp: [
     "https://assets.coingecko.com/coins/images/21628/standard/whale.png?1696520988",
     "https://assets.coingecko.com/coins/images/7598/standard/wrapped_bitcoin_wbtc.png?1696507857",
@@ -46,6 +50,8 @@ export const tokenImages = {
     "https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694",
   usdc: "https://assets.coingecko.com/coins/images/6319/standard/usdc.png?1696506694",
   bluna:
+    "https://assets.coingecko.com/coins/images/34613/standard/bLUNA.png?1711563039",
+  bLuna:
     "https://assets.coingecko.com/coins/images/34613/standard/bLUNA.png?1711563039",
   ampLuna:
     "https://assets.coingecko.com/coins/images/29381/standard/ampLuna.png?1696528328",
@@ -122,8 +128,12 @@ export const tokenImages = {
   bhuahua:
     "https://assets.coingecko.com/coins/images/34621/standard/bHUAHUA.png?1711563031",
   dog: "https://assets.coingecko.com/coins/images/37383/standard/dog.png?1714215910",
-  ampBTC: "https://i.ibb.co/NmGYH4v/ampbtc.jpg",
+  ampBTC: "https://pngimg.com/uploads/bitcoin/bitcoin_PNG7.png",
   moar: "https://i.ibb.co/Jk1FqRD/IMG-2486.png",
   rakoff:
     "https://raw.githubusercontent.com/cosmos/chain-registry/master/terra/images/rakoff.png",
+  ampOsmo:
+    "https://assets.coingecko.com/coins/images/36524/standard/ampOSMO.png?1711700382",
+  bOsmo:
+    "https://assets.coingecko.com/coins/images/37082/standard/bOSMO.png?1713251122",
 };
