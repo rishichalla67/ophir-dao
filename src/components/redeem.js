@@ -393,7 +393,7 @@ const Redeem = () => {
 
     // Query all balances for the address
     const balances = await client.getAllBalances(
-      isTestnet ? daoConfig["DAO_ADDRESS_TESTNET"] : daoConfig["DAO_ADDRESS"]
+      isTestnet ? daoConfig["DAO_ADDRESS_TESTNET"] : daoConfig["DAO_VAULT_ADDRESS"]
     );
     // console.log(balances)
     // setAllBalancesTestnet(balances);
@@ -1052,7 +1052,13 @@ const Redeem = () => {
                   </div>
                 </div>
               )}
-              {ackFee &&
+              {ackFee && (connectedWalletAddress === "") &&
+                (isTestnet ? ophirAmount < tokenSupplyStats?.dao_contract_balance : ophirAmount < tokenSupplyStats?.vault_contract_balance) && (
+                  <div className="flex justify-center w-full pt-2 text-red-700">
+                    Please connect your wallet...
+                  </div>
+                )}
+              {ackFee && (connectedWalletAddress !== "") &&
                 (isTestnet ? ophirAmount < tokenSupplyStats?.dao_contract_balance : ophirAmount < tokenSupplyStats?.vault_contract_balance) && (
                   <div className="flex justify-center w-full">
                     <button
