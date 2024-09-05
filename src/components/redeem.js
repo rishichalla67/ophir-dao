@@ -393,7 +393,9 @@ const Redeem = () => {
 
     // Query all balances for the address
     const balances = await client.getAllBalances(
-      isTestnet ? daoConfig["DAO_ADDRESS_TESTNET"] : daoConfig["DAO_VAULT_ADDRESS"]
+      isTestnet
+        ? daoConfig["DAO_ADDRESS_TESTNET"]
+        : daoConfig["DAO_VAULT_ADDRESS"]
     );
     // console.log(balances)
     // setAllBalancesTestnet(balances);
@@ -644,7 +646,7 @@ const Redeem = () => {
       get_token_supply: {},
     };
     const data = await queryContract(message);
-    console.log(data)
+    console.log(data);
     setTokenSupplyStats(data);
   };
 
@@ -1052,14 +1054,21 @@ const Redeem = () => {
                   </div>
                 </div>
               )}
-              {ackFee && (connectedWalletAddress === "") &&
-                (isTestnet ? ophirAmount < tokenSupplyStats?.dao_contract_balance : ophirAmount < tokenSupplyStats?.vault_contract_balance) && (
+              {ackFee &&
+                connectedWalletAddress === "" &&
+                (isTestnet
+                  ? ophirAmount < tokenSupplyStats?.dao_contract_balance
+                  : ophirAmount < tokenSupplyStats?.vault_contract_balance) && (
                   <div className="flex justify-center w-full pt-2 text-red-700">
                     Please connect your wallet...
                   </div>
                 )}
-              {ackFee && (connectedWalletAddress !== "") &&
-                (isTestnet ? ophirAmount < tokenSupplyStats?.dao_contract_balance : ophirAmount < tokenSupplyStats?.vault_contract_balance) && (
+              {ackFee &&
+                isTestnet &&
+                connectedWalletAddress !== "" &&
+                (isTestnet
+                  ? ophirAmount < tokenSupplyStats?.dao_contract_balance
+                  : ophirAmount < tokenSupplyStats?.vault_contract_balance) && (
                   <div className="flex justify-center w-full">
                     <button
                       className="redeem-button py-2 px-4 font-medium rounded hover:bg-yellow-500 transition duration-300 ease-in-out flex items-center justify-center"
