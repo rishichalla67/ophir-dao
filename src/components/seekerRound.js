@@ -646,7 +646,7 @@ const SeekerRound = () => {
         </div>
       </>
       <div className="max-w-lg mt-4 mx-auto p-1 text-center">
-        {vestingData && (
+        {vestingData && Number(vestingData.amountVesting) > 1 && (
           <>
             <div className="text-2xl mb-2">Vesting Details</div>
             <div className="border border-gray-200 rounded-lg overflow-hidden ">
