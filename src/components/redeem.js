@@ -1064,7 +1064,6 @@ const Redeem = () => {
                   </div>
                 )}
               {ackFee &&
-                isTestnet &&
                 connectedWalletAddress !== "" &&
                 (isTestnet
                   ? ophirAmount < tokenSupplyStats?.dao_contract_balance
