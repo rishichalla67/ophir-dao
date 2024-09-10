@@ -664,23 +664,28 @@ const SeekerRound = () => {
                 <div className="font-bold text-sm text-white">
                   Amount Vesting:
                 </div>
-                <div className="text-white">{vestingData.amountVesting}</div>
+                <div className="text-white">
+                  {Number(vestingData.amountVesting).toLocaleString(undefined, {
+                    maximumFractionDigits: 6,
+                  })}{" "}
+                  OPHIR
+                </div>
               </div>
               <div className="p-4 border-b border-gray-200">
                 <div className="font-bold text-sm text-white">
                   Vesting Start:
                 </div>
                 <div className="text-white">
-                  {new Date(vestingData.vestingStart * 1000).toLocaleString()}
+                  {new Date(vestingData.vestingStart).toLocaleString()}
                 </div>
               </div>
               <div className="p-4 border-b border-gray-200">
                 <div className="font-bold text-sm text-white">Vesting End:</div>
                 <div className="text-white">
-                  {new Date(vestingData.vestingEnd * 1000).toLocaleString()}
+                  {new Date(vestingData.vestingEnd).toLocaleString()}
                 </div>
               </div>
-              {new Date() > new Date(vestingData.vestingEnd * 1000) && (
+              {new Date() > new Date(vestingData.vestingEnd) && (
                 <div className="p-4">
                   <button
                     className="bg-yellow-400 hover:bg-yellow-600 text-black font-bold py-1 px-2 rounded"
