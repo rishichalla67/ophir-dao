@@ -218,7 +218,7 @@ const RedemptionAnalyticsDashboard = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container sm:mt-16 mx-auto p-4">
       {refreshing && <LoadingSpinner />}
       <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
         <h1 className="text-2xl font-bold mb-4 sm:mb-0">
