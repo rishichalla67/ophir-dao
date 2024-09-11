@@ -14,6 +14,7 @@ import WasmDev from "./components/wasmdev";
 import RestakeDashboard from "./components/restakeDashboard";
 import Swap from "./components/swap";
 import Govern from "./components/govern";
+import RedemptionAnalyticsDashboard from "./components/redeemAnalytics";
 
 function App() {
   return (
@@ -32,6 +33,10 @@ function App() {
         <Route path="restake" element={<RestakeDashboard />} />
         <Route path="swap" element={<Swap />} />
         <Route path="govern" element={<Govern />} />
+        <Route
+          path="redeem-analytics"
+          element={<RedemptionAnalyticsDashboard />}
+        />
       </Routes>
     </Router>
   );
