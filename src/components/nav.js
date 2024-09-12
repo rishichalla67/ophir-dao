@@ -5,6 +5,7 @@ const Nav = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isBuyMenuOpen, setIsBuyMenuOpen] = useState(false);
   const [isDevMenuOpen, setIsDevMenuOpen] = useState(false);
+  const [isAnalyticsMenuOpen, setIsAnalyticsMenuOpen] = useState(false);
 
   return (
     <header className="nav-color text-white w-full fixed top-0 left-0 z-50">
@@ -55,6 +56,48 @@ const Nav = () => {
           >
             Swap
           </a>
+          <div className="text-white text-lg py-2 rounded group cursor-pointer">
+            <div
+              onClick={() => setIsAnalyticsMenuOpen(!isAnalyticsMenuOpen)}
+              className="flex justify-between items-center"
+            >
+              Analytics
+              <svg
+                className="w-4 h-4 ml-2"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d={isAnalyticsMenuOpen ? "M19 9l-7 7-7-7" : "M9 5l7 7-7 7"}
+                ></path>
+              </svg>
+            </div>
+            <div
+              className={`nav-color rounded-md mt-2 ${
+                isAnalyticsMenuOpen ? "block" : "hidden"
+              }`}
+            >
+              <a
+                href="/analytics"
+                className="text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center"
+                rel="noopener noreferrer"
+              >
+                Treasury Dashboard
+              </a>
+              <a
+                href="/redeem-analytics"
+                className="text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center"
+                rel="noopener noreferrer"
+              >
+                Redemption Dashboard
+              </a>
+            </div>
+          </div>
           <a
             href="/analytics"
             className="text-white text-lg py-2 hover:text-yellow-400 rounded"
