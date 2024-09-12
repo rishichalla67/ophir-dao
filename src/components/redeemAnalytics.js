@@ -76,7 +76,8 @@ const RedemptionAnalyticsDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState(null);
-  const [chartView, setChartView] = useState("redeemed"); // 'redeemed' or 'fees'
+  const [chartView, setChartView] = useState("redeemed"); // 'redeemed' or 'fees'\
+  const [averageRedemptionPrice, setAverageRedemptionPrice] = useState(0);
 
   const fetchData = async () => {
     setRefreshing(true);
@@ -134,6 +135,29 @@ const RedemptionAnalyticsDashboard = () => {
       return total;
     }, 0);
   };
+
+  useEffect(() => {
+    if (data && prices) {
+      let totalRedeemedValue = 0;
+      let totalOphirRedeemed = 0;
+
+      Object.values(data.redeemSummary).forEach((info) => {
+        info.redemptions.forEach((redemption) => {
+          if (redemption.receivedAssets) {
+            totalRedeemedValue += redemption.receivedAssets.reduce(
+              (total, asset) => total + calculateAssetValue(asset, prices),
+              0
+            );
+          }
+          totalOphirRedeemed += redemption.redeemedAmount;
+        });
+      });
+
+      const avgPrice =
+        totalOphirRedeemed > 0 ? totalRedeemedValue / totalOphirRedeemed : 0;
+      setAverageRedemptionPrice(avgPrice);
+    }
+  }, [data, prices]);
 
   if (loading) {
     return <LoadingSpinner />;
@@ -230,7 +254,7 @@ const RedemptionAnalyticsDashboard = () => {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <div className="bg-white shadow rounded p-4">
           <h2 className="text-lg font-semibold mb-2">Unique Redeemers</h2>
           <p className="text-3xl font-bold">{uniqueRedeemers}</p>
@@ -250,6 +274,14 @@ const RedemptionAnalyticsDashboard = () => {
                 .reduce((sum, item) => sum + parseFloat(item.totalValue), 0)
                 .toFixed(2)}
             />
+          </p>
+        </div>
+        <div className="bg-white shadow rounded p-4">
+          <h2 className="text-lg font-semibold mb-2">
+            Average Redemption Price
+          </h2>
+          <p className="text-3xl font-bold">
+            ${averageRedemptionPrice.toFixed(4)}
           </p>
         </div>
       </div>
