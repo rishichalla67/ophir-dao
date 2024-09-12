@@ -87,23 +87,17 @@ const Nav = () => {
                 className="text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center"
                 rel="noopener noreferrer"
               >
-                Treasury Dashboard
+                Treasury
               </a>
               <a
                 href="/redeem-analytics"
                 className="text-yellow-400 px-4 py-2 hover:text-white rounded flex items-center"
                 rel="noopener noreferrer"
               >
-                Redemption Dashboard
+                Redemption
               </a>
             </div>
           </div>
-          <a
-            href="/analytics"
-            className="text-white text-lg py-2 hover:text-yellow-400 rounded"
-          >
-            Analytics Dashboard
-          </a>
           <a
             href="/govern"
             className="text-white text-lg py-2 hover:text-yellow-400 rounded"
