@@ -403,6 +403,10 @@ tbody .table-box:last-of-type{
 
 /* redeem analytics */
 
+.main-container-margin-top {
+  margin-top: 4rem;
+}
+
 .refresh-button {
   background: linear-gradient(135deg, rgba(58, 52, 28, 1) 0%, rgb(155, 132, 51) 100%);
   margin: 2rem 0 1.5rem;
