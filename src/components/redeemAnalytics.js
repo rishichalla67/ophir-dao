@@ -198,7 +198,7 @@ const RedemptionAnalyticsDashboard = () => {
         </div>
         <button
           onClick={fetchData}
-          className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="mt-4 refresh-button font-bold py-2 px-4 rounded"
         >
           Refresh
         </button>
@@ -225,7 +225,7 @@ const RedemptionAnalyticsDashboard = () => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-4 border rounded shadow">
+        <div className="redeem-stats p-4 border rounded shadow">
           <p className="font-bold">{`Address: ${label}`}</p>
           <p>{`${payload[0].name}: ${payload[0].value.toFixed(3)}`}</p>
           {chartView === "fees" && (
@@ -239,167 +239,169 @@ const RedemptionAnalyticsDashboard = () => {
   };
 
   return (
-    <div className="container sm:mt-16 mx-auto p-4">
-      {refreshing && <LoadingSpinner />}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold mb-4 sm:mb-0">
-          Redemption Analytics Dashboard
-        </h1>
-        <button
-          onClick={fetchData}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full sm:w-auto"
-          disabled={refreshing}
-        >
-          {refreshing ? "Refreshing..." : "Refresh Data"}
-        </button>
-      </div>
+    <div className="global-bg">
+      <div className="container sm:mt-16 mx-auto p-4">
+        {refreshing && <LoadingSpinner />}
+        <div className="title flex flex-col sm:flex-row justify-between items-center mb-6">
+          <h1 className="text-2xl font-bold mb-4 sm:mb-0">
+            Redemption Analytics Dashboard
+          </h1>
+          <button
+            onClick={fetchData}
+            className="refresh-button font-bold py-2 px-4 rounded w-full sm:w-auto"
+            disabled={refreshing}
+          >
+            {refreshing ? "Refreshing..." : "Refresh Data"}
+          </button>
+        </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white shadow rounded p-4">
-          <h2 className="text-lg font-semibold mb-2">Unique Redeemers</h2>
-          <p className="text-3xl font-bold">{uniqueRedeemers}</p>
-        </div>
-        <div className="bg-white shadow rounded p-4">
-          <h2 className="text-lg font-semibold mb-2">Total Redemptions</h2>
-          <p className="text-3xl font-bold">{totalRedemptions}</p>
-        </div>
-        <div className="bg-white shadow rounded p-4">
-          <h2 className="text-lg font-semibold mb-2">Total Redeemed Value</h2>
-          <p className="text-3xl font-bold">
-            <ToggleableAmount
-              amount={`${Object.values(redeemSummary)
-                .reduce((sum, info) => sum + info.totalRedeemed, 0)
-                .toFixed(3)} OPHIR`}
-              value={chartData
-                .reduce((sum, item) => sum + parseFloat(item.totalValue), 0)
-                .toFixed(2)}
-            />
-          </p>
-        </div>
-        <div className="bg-white shadow rounded p-4">
-          <h2 className="text-lg font-semibold mb-2">
-            Average Redemption Price
-          </h2>
-          <p className="text-3xl font-bold">
-            ${averageRedemptionPrice.toFixed(4)}
-          </p>
-        </div>
-      </div>
-
-      <div className="bg-white shadow rounded p-4 mb-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Redemptions by Address</h2>
-          <div className="flex space-x-2">
-            <button
-              onClick={() => setChartView("redeemed")}
-              className={`px-3 py-1 rounded ${
-                chartView === "redeemed"
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-200"
-              }`}
-            >
-              Redeemed
-            </button>
-            <button
-              onClick={() => setChartView("fees")}
-              className={`px-3 py-1 rounded ${
-                chartView === "fees" ? "bg-blue-500 text-white" : "bg-gray-200"
-              }`}
-            >
-              Fees
-            </button>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div className="redeem-stats shadow rounded p-4">
+            <h2 className="text-lg font-semibold mb-2">Unique Redeemers</h2>
+            <p className="text-3xl font-bold">{uniqueRedeemers}</p>
           </div>
-        </div>
-        <div className="h-80 sm:h-96">
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={chartData}>
-              <XAxis dataKey="address" tick={{ fontSize: 12 }} interval={0} />
-              <YAxis />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-              <Bar
-                dataKey={
-                  chartView === "redeemed" ? "totalRedeemed" : "totalFees"
-                }
-                fill={chartView === "redeemed" ? "#8884d8" : "#82ca9d"}
-                name={
-                  chartView === "redeemed" ? "Total Redeemed" : "Total Fees"
-                }
-              />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-
-      <div className="space-y-4">
-        {Object.entries(redeemSummary).map(([address, info]) => (
-          <div key={address} className="bg-white shadow rounded p-4">
-            <h2 className="text-lg font-semibold mb-2 break-all">
-              {truncateAddress(address)}
-            </h2>
-            <p>
-              <strong>Total Redeemed:</strong>{" "}
+          <div className="redeem-stats shadow rounded p-4">
+            <h2 className="text-lg font-semibold mb-2">Total Redemptions</h2>
+            <p className="text-3xl font-bold">{totalRedemptions}</p>
+          </div>
+          <div className="redeem-stats shadow rounded p-4">
+            <h2 className="text-lg font-semibold mb-2">Total Redeemed Value</h2>
+            <p className="text-3xl font-bold">
               <ToggleableAmount
-                amount={`${info.totalRedeemed.toFixed(3)} OPHIR`}
-                value={calculateTotalValue(info.redemptions).toFixed(2)}
+                amount={`${Object.values(redeemSummary)
+                  .reduce((sum, info) => sum + info.totalRedeemed, 0)
+                  .toFixed(3)} OPHIR`}
+                value={chartData
+                  .reduce((sum, item) => sum + parseFloat(item.totalValue), 0)
+                  .toFixed(2)}
               />
             </p>
-            <p>
-              <strong>Total Fees:</strong> {info.totalFees.toFixed(3)} OPHIR
-            </p>
-            <h4 className="font-semibold mt-4 mb-2">Redemption History:</h4>
-            {info.redemptions.map((redemption, index) => (
-              <div key={index} className="mb-4 p-3 bg-gray-100 rounded">
-                <p>
-                  <strong>Amount:</strong>{" "}
-                  {redemption.redeemedAmount.toFixed(3)} OPHIR
-                </p>
-                <p>
-                  <strong>Fee:</strong> {redemption.feeAmount.toFixed(3)} OPHIR
-                </p>
-                <p>
-                  <strong>Date:</strong>{" "}
-                  {new Date(redemption.timestamp).toLocaleString()}
-                </p>
-                {redemption.receivedAssets && (
-                  <div>
-                    <h5 className="font-semibold mt-2 mb-1">
-                      Received Assets:
-                    </h5>
-                    <ul className="list-disc pl-5">
-                      {redemption.receivedAssets.map((asset, assetIndex) => {
-                        const { amount, value } = formatAmount(
-                          asset.amount,
-                          asset.denom,
-                          prices
-                        );
-                        return (
-                          <li
-                            key={assetIndex}
-                            className="flex items-center mb-1"
-                          >
-                            <TokenIcon denom={asset.denom} />
-                            <ToggleableAmount amount={amount} value={value} />
-                          </li>
-                        );
-                      })}
-                    </ul>
-                    <p className="mt-2 font-semibold">
-                      Total Value: $
-                      {redemption.receivedAssets
-                        .reduce(
-                          (total, asset) =>
-                            total + calculateAssetValue(asset, prices),
-                          0
-                        )
-                        .toFixed(2)}
-                    </p>
-                  </div>
-                )}
-              </div>
-            ))}
           </div>
-        ))}
+          <div className="redeem-stats shadow rounded p-4">
+            <h2 className="text-lg font-semibold mb-2">
+              Average Redemption Price
+            </h2>
+            <p className="text-3xl font-bold">
+              ${averageRedemptionPrice.toFixed(4)}
+            </p>
+          </div>
+        </div>
+
+        <div className="redeem-stats shadow rounded p-4 mb-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold">Redemptions by Address</h2>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => setChartView("redeemed")}
+                className={`px-3 py-1 rounded ${
+                  chartView === "redeemed"
+                    ? "redeemed-fees-button"
+                    : "no-redeemed-fees-button"
+                }`}
+              >
+                Redeemed
+              </button>
+              <button
+                onClick={() => setChartView("fees")}
+                className={`px-3 py-1 rounded ${
+                  chartView === "fees" ? "redeemed-fees-button" : "no-redeemed-fees-button"
+                }`}
+              >
+                Fees
+              </button>
+            </div>
+          </div>
+          <div className="h-80 sm:h-96 redemption-chart-text-color">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={chartData}>
+                <XAxis dataKey="address" tick={{ fontSize: 12 }} interval={0} />
+                <YAxis />
+                <Tooltip content={<CustomTooltip />} />
+                <Legend />
+                <Bar
+                  dataKey={
+                    chartView === "redeemed" ? "totalRedeemed" : "totalFees"
+                  }
+                  fill={chartView === "redeemed" ? "#8884d8" : "#82ca9d"}
+                  name={
+                    chartView === "redeemed" ? "Total Redeemed" : "Total Fees"
+                  }
+                />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="space-y-4 redemption-data-flex">
+          {Object.entries(redeemSummary).map(([address, info]) => (
+            <div key={address} className="redeem-stats redeem-data-width shadow rounded p-4">
+              <h2 className="text-lg font-semibold mb-2 break-all">
+                {truncateAddress(address)}
+              </h2>
+              <p>
+                <strong>Total Redeemed:</strong>{" "}
+                <ToggleableAmount
+                  amount={`${info.totalRedeemed.toFixed(3)} OPHIR`}
+                  value={calculateTotalValue(info.redemptions).toFixed(2)}
+                />
+              </p>
+              <p>
+                <strong>Total Fees:</strong> {info.totalFees.toFixed(3)} OPHIR
+              </p>
+              <h4 className="font-semibold mt-4 mb-2">Redemption History:</h4>
+              {info.redemptions.map((redemption, index) => (
+                <div key={index} className="mb-4 p-3 bg-redemption-history rounded">
+                  <p>
+                    <strong>Amount:</strong>{" "}
+                    {redemption.redeemedAmount.toFixed(3)} OPHIR
+                  </p>
+                  <p>
+                    <strong>Fee:</strong> {redemption.feeAmount.toFixed(3)} OPHIR
+                  </p>
+                  <p>
+                    <strong>Date:</strong>{" "}
+                    {new Date(redemption.timestamp).toLocaleString()}
+                  </p>
+                  {redemption.receivedAssets && (
+                    <div>
+                      <h5 className="font-semibold mt-2 mb-1">
+                        Received Assets:
+                      </h5>
+                      <ul className="list-disc pl-5">
+                        {redemption.receivedAssets.map((asset, assetIndex) => {
+                          const { amount, value } = formatAmount(
+                            asset.amount,
+                            asset.denom,
+                            prices
+                          );
+                          return (
+                            <li
+                              key={assetIndex}
+                              className="flex items-center mb-1"
+                            >
+                              <TokenIcon denom={asset.denom} />
+                              <ToggleableAmount amount={amount} value={value} />
+                            </li>
+                          );
+                        })}
+                      </ul>
+                      <p className="mt-2 font-semibold">
+                        Total Value: $
+                        {redemption.receivedAssets
+                          .reduce(
+                            (total, asset) =>
+                              total + calculateAssetValue(asset, prices),
+                            0
+                          )
+                          .toFixed(2)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

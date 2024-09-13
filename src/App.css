@@ -2,9 +2,12 @@
 :root{
   --main-gold: rgba(255, 184, 0, 1);
   --semi-transparent-gold: rgba(255, 184, 0, 0.7);
+  --transparent-gold: rgba(255, 183, 0, 0.1);
   --darker-gold: rgb(163, 117, 0);
   --faded-gold: rgba(148, 141, 104, 1);
+  --transparent-faded-gold: rgba(148, 141, 104, 0.4);
   --light-gold: rgb(250, 213, 90);
+  --lighter-gold: rgb(252, 226, 142);
   --h1-text-faint-gold: rgb(255, 242, 205);
   --text-gold: rgba(205, 199, 167, 1);
   --text-gold-lighter: rgb(212, 185, 116);
@@ -15,6 +18,7 @@
   --dark-grey: rgba(37, 37, 37, 1);
   --lighter-grey: rgba(55, 55, 55, 1);
   --main-black: rgba(27, 27, 27, 1);
+  --transparent-black: rgba(27, 27, 27, 0.5);
   --table-head-grey: rgba(43, 43, 43, 1);
 }
 
@@ -397,6 +401,46 @@ tbody .table-box:last-of-type{
   font-weight: 500;
 }
 
+/* redeem analytics */
+
+.refresh-button {
+  background: linear-gradient(135deg, rgba(58, 52, 28, 1) 0%, rgb(155, 132, 51) 100%);
+  margin: 2rem 0 1.5rem;
+  transition: all 300ms ease-in-out;
+}
+
+.refresh-button:hover{
+  background: linear-gradient(135deg, rgb(73, 66, 36) 0%, rgb(168, 144, 56) 100%);
+  box-shadow: 0 0 7px 0 rgba(255, 235, 183, 0.247);
+  margin: 2rem 0 1.5rem;
+  transition: all 300ms ease-in-out;
+}
+
+.redeem-stats {
+  background-color: var(--transparent-black);
+  color: var(--main-white);
+  border: 1px solid var(--faded-gold);
+  box-shadow: inset 0 0 5rem 0 var(--transparent-faded-gold);
+}
+
+.redeemed-fees-button {
+  background: var(--lighter-gold);
+  color: var(--main-black);
+  font-weight: 700;
+}
+
+.no-redeemed-fees-button {
+  background: var(--faded-white);
+  color: var(--main-black);
+  font-weight: 500;
+}
+
+.bg-redemption-history{
+ background: var(--main-black);
+}
+
+
+
 
 @media screen and (min-width: 1300px) {
 
@@ -426,6 +470,26 @@ tbody .table-box:last-of-type{
   @keyframes spinner {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
+  }
+
+  /* redeem analytics desktop */
+
+  .redemption-data-flex {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .redeem-data-width {
+    flex: 1 1 0;
+    min-width: fit-content;
+    box-sizing: border-box;
+  }
+
+  .space-y-4 > :not([hidden]) ~ :not([hidden]) {
+    margin-top: 0;
+    margin-bottom: 0;
   }
 
 
