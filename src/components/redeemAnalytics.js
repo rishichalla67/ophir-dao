@@ -211,26 +211,7 @@ const RedemptionAnalyticsDashboard = () => {
   }
 
   if (!data) {
-    return (
-      <div className="container mx-auto p-4">
-        <div
-          className="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative"
-          role="alert"
-        >
-          <strong className="font-bold">No Data!</strong>
-          <span className="block sm:inline">
-            {" "}
-            No data is currently available.
-          </span>
-        </div>
-        <button
-          onClick={fetchData}
-          className="mt-4 refresh-button font-bold py-2 px-4 rounded"
-        >
-          Refresh
-        </button>
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   const { redeemSummary, uniqueRedeemers, totalRedemptions } = data;
