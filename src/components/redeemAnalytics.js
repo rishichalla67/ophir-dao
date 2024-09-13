@@ -81,6 +81,10 @@ const RedemptionAnalyticsDashboard = () => {
   const [error, setError] = useState(null);
   const [chartView, setChartView] = useState("redeemed"); // 'redeemed' or 'fees'\
   const [averageRedemptionPrice, setAverageRedemptionPrice] = useState(0);
+  const [totalOphirRedeemed, setTotalOphirRedeemed] = useState(0);
+  const [totalRedeemedValue, setTotalRedeemedValue] = useState(0.0);
+  const [showDetailedAvgPrice, setShowDetailedAvgPrice] = useState(false);
+
   const [refreshAvailable, setRefreshAvailable] = useState(true);
 
   const handleClick = () => {
@@ -173,8 +177,14 @@ const RedemptionAnalyticsDashboard = () => {
       const avgPrice =
         totalOphirRedeemed > 0 ? totalRedeemedValue / totalOphirRedeemed : 0;
       setAverageRedemptionPrice(avgPrice);
+      setTotalOphirRedeemed(totalOphirRedeemed);
+      setTotalRedeemedValue(totalRedeemedValue);
     }
   }, [data, prices]);
+
+  const toggleAveragePriceDisplay = () => {
+    setShowDetailedAvgPrice(!showDetailedAvgPrice);
+  };
 
   // if (loading) {
   //   return <LoadingSpinner />;
@@ -324,8 +334,17 @@ const RedemptionAnalyticsDashboard = () => {
             <h2 className="text-lg font-semibold mb-2">
               Average Redemption Price
             </h2>
-            <p className="text-3xl font-bold">
-              ${averageRedemptionPrice.toFixed(4)}
+            <p
+              className={`${
+                showDetailedAvgPrice ? "text-xl" : "text-3xl"
+              }  font-bold cursor-pointer`}
+              onClick={toggleAveragePriceDisplay}
+            >
+              {showDetailedAvgPrice
+                ? `$${totalRedeemedValue.toFixed(
+                    2
+                  )}/${totalOphirRedeemed.toFixed(3)} OPHIR`
+                : `$${averageRedemptionPrice.toFixed(4)}`}
             </p>
           </div>
         </div>
