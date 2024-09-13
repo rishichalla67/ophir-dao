@@ -84,6 +84,9 @@ const RedemptionAnalyticsDashboard = () => {
   const [totalOphirRedeemed, setTotalOphirRedeemed] = useState(0);
   const [totalRedeemedValue, setTotalRedeemedValue] = useState(0.0);
   const [showDetailedAvgPrice, setShowDetailedAvgPrice] = useState(false);
+  const [totalFees, setTotalFees] = useState(0);
+  const [averageFeePercentage, setAverageFeePercentage] = useState(0);
+  const [showTotalFees, setShowTotalFees] = useState(true);
 
   const [refreshAvailable, setRefreshAvailable] = useState(true);
 
@@ -157,6 +160,28 @@ const RedemptionAnalyticsDashboard = () => {
     }, 0);
   };
 
+  const calculateTotalFees = (redeemSummary) => {
+    let fees = 0;
+    Object.values(redeemSummary).forEach((info) => {
+      fees += info.totalFees;
+    });
+    return fees;
+  };
+
+  const calculateAverageFeePercentage = (redeemSummary) => {
+    let totalFees = 0;
+    let totalRedeemed = 0;
+    Object.values(redeemSummary).forEach((info) => {
+      totalFees += info.totalFees;
+      totalRedeemed += info.totalRedeemed;
+    });
+    return (totalFees / (totalRedeemed + totalFees)) * 100;
+  };
+
+  const toggleFeesDisplay = () => {
+    setShowTotalFees(!showTotalFees);
+  };
+
   useEffect(() => {
     if (data && prices) {
       let totalRedeemedValue = 0;
@@ -178,7 +203,14 @@ const RedemptionAnalyticsDashboard = () => {
         totalOphirRedeemed > 0 ? totalRedeemedValue / totalOphirRedeemed : 0;
       setAverageRedemptionPrice(avgPrice);
       setTotalOphirRedeemed(totalOphirRedeemed);
-      setTotalRedeemedValue(totalRedeemedValue);
+
+      // Calculate total fees
+      const fees = calculateTotalFees(data.redeemSummary);
+      setTotalFees(fees);
+      const avgFeePercentage = calculateAverageFeePercentage(
+        data.redeemSummary
+      );
+      setAverageFeePercentage(avgFeePercentage);
     }
   }, [data, prices]);
 
@@ -250,11 +282,11 @@ const RedemptionAnalyticsDashboard = () => {
     <div className="global-bg">
       <div className="container main-container-margin-top mx-auto p-4">
         {/* {refreshing && <LoadingSpinner />} */}
-        <div className="title flex flex-col sm:flex-row justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold mb-4 sm:mb-0">
+        <div className="title flex flex-col sm:flex-row justify-between items-center sm:mb-6 mb-0">
+          <h1 className="text-2xl font-bold mb-0 sm:mb-4">
             Redemption Analytics Dashboard
           </h1>
-          <div className="flex space-x-2 py-2 px-4">
+          <div className="flex space-x-2 px-4">
             {/* <svg
               xmlns="http://www.w3.org/2000/svg"
               fill="none"
@@ -291,13 +323,16 @@ const RedemptionAnalyticsDashboard = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           <div className="redeem-stats shadow rounded p-4">
-            <h2 className="text-lg font-semibold mb-2">Unique Redeemers</h2>
-            <p className="text-3xl font-bold">{uniqueRedeemers}</p>
+            <h2 className="text-lg font-semibold mb-2">Total Redemptions</h2>
+            <p className="text-3xl font-bold">
+              {totalRedemptions}
+              <sub className="text-lg ml-1">({uniqueRedeemers} unique)</sub>
+            </p>
           </div>
-          <div className="redeem-stats shadow rounded p-4">
+          {/* <div className="redeem-stats shadow rounded p-4">
             <h2 className="text-lg font-semibold mb-2">Total Redemptions</h2>
             <p className="text-3xl font-bold">{totalRedemptions}</p>
-          </div>
+          </div> */}
           <div className="redeem-stats shadow rounded p-4">
             <h2 className="text-lg font-semibold mb-2">Total Redeemed Value</h2>
             <p className="text-3xl font-bold">
@@ -326,6 +361,21 @@ const RedemptionAnalyticsDashboard = () => {
                     2
                   )}/${totalOphirRedeemed.toFixed(3)} OPHIR`
                 : `$${averageRedemptionPrice.toFixed(4)}`}
+            </p>
+          </div>
+          <div
+            className="redeem-stats shadow rounded p-4 cursor-pointer"
+            onClick={toggleFeesDisplay}
+          >
+            <h2 className="text-lg font-semibold mb-2">
+              {showTotalFees
+                ? "Total Fees Generated"
+                : "Average Fee Percentage"}
+            </h2>
+            <p className="text-3xl font-bold">
+              {showTotalFees
+                ? `${totalFees.toFixed(3)} OPHIR`
+                : `${averageFeePercentage.toFixed(2)}%`}
             </p>
           </div>
         </div>
