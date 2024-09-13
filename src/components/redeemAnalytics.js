@@ -8,7 +8,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
-
+import { useNavigate } from "react-router-dom";
 import allowedAddresses from "../auth/security.json"; // Adjust the path as necessary
 import { tokenMappings } from "../helper/tokenMappings";
 import { daoConfig } from "../helper/daoConfig";
@@ -71,6 +71,9 @@ const LoadingSpinner = () => (
 );
 
 const RedemptionAnalyticsDashboard = () => {
+  const navigate = useNavigate();
+
+  const [isSpinning, setIsSpinning] = useState(false);
   const [data, setData] = useState(null);
   const [prices, setPrices] = useState({});
   const [loading, setLoading] = useState(true);
@@ -78,6 +81,20 @@ const RedemptionAnalyticsDashboard = () => {
   const [error, setError] = useState(null);
   const [chartView, setChartView] = useState("redeemed"); // 'redeemed' or 'fees'\
   const [averageRedemptionPrice, setAverageRedemptionPrice] = useState(0);
+  const [refreshAvailable, setRefreshAvailable] = useState(true);
+
+  const handleClick = () => {
+    navigate("/redeem");
+  };
+
+  const handleRefreshClick = () => {
+    if (refreshAvailable && !isSpinning) {
+      setIsSpinning(true);
+      fetchData().finally(() => {
+        setTimeout(() => setIsSpinning(false), 1000); // Ensure the icon spins for at least 1 second
+      });
+    }
+  };
 
   const fetchData = async () => {
     setRefreshing(true);
@@ -159,9 +176,9 @@ const RedemptionAnalyticsDashboard = () => {
     }
   }, [data, prices]);
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
+  // if (loading) {
+  //   return <LoadingSpinner />;
+  // }
 
   if (error) {
     return (
@@ -241,18 +258,44 @@ const RedemptionAnalyticsDashboard = () => {
   return (
     <div className="global-bg">
       <div className="container main-container-margin-top mx-auto p-4">
-        {refreshing && <LoadingSpinner />}
+        {/* {refreshing && <LoadingSpinner />} */}
         <div className="title flex flex-col sm:flex-row justify-between items-center mb-6">
           <h1 className="text-2xl font-bold mb-4 sm:mb-0">
             Redemption Analytics Dashboard
           </h1>
-          <button
-            onClick={fetchData}
-            className="refresh-button font-bold py-2 px-4 rounded w-full sm:w-auto"
-            disabled={refreshing}
-          >
-            {refreshing ? "Refreshing..." : "Refresh Data"}
-          </button>
+          <div className="flex space-x-2 py-2 px-4">
+            {/* <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={1.5}
+              stroke={refreshAvailable ? "#0092ff" : "#aec5d6"}
+              className={`w-6 h-6 hover:cursor-pointer mr-2 transition-transform duration-1000 ease-in-out ${
+                isSpinning ? "animate-spin" : ""
+              }`}
+              onClick={handleRefreshClick}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+              />
+            </svg> */}
+
+            <button
+              onClick={handleClick}
+              className="refresh-button text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out"
+            >
+              Redeem
+            </button>
+            <button
+              onClick={fetchData}
+              disabled={refreshing}
+              className="refresh-button text-white font-semibold py-2 px-4 rounded transition duration-300 ease-in-out disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {refreshing ? "Refreshing..." : "Refresh Data"}
+            </button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -304,7 +347,9 @@ const RedemptionAnalyticsDashboard = () => {
               <button
                 onClick={() => setChartView("fees")}
                 className={`px-3 py-1 rounded ${
-                  chartView === "fees" ? "redeemed-fees-button" : "no-redeemed-fees-button"
+                  chartView === "fees"
+                    ? "redeemed-fees-button"
+                    : "no-redeemed-fees-button"
                 }`}
               >
                 Fees
@@ -334,7 +379,10 @@ const RedemptionAnalyticsDashboard = () => {
 
         <div className="space-y-4 redemption-data-flex">
           {Object.entries(redeemSummary).map(([address, info]) => (
-            <div key={address} className="redeem-stats redeem-data-width shadow rounded p-4">
+            <div
+              key={address}
+              className="redeem-stats redeem-data-width shadow rounded p-4"
+            >
               <h2 className="text-lg font-semibold mb-2 break-all">
                 {truncateAddress(address)}
               </h2>
@@ -350,13 +398,17 @@ const RedemptionAnalyticsDashboard = () => {
               </p>
               <h4 className="font-semibold mt-4 mb-2">Redemption History:</h4>
               {info.redemptions.map((redemption, index) => (
-                <div key={index} className="mb-4 p-3 bg-redemption-history rounded">
+                <div
+                  key={index}
+                  className="mb-4 p-3 bg-redemption-history rounded"
+                >
                   <p>
                     <strong>Amount:</strong>{" "}
                     {redemption.redeemedAmount.toFixed(3)} OPHIR
                   </p>
                   <p>
-                    <strong>Fee:</strong> {redemption.feeAmount.toFixed(3)} OPHIR
+                    <strong>Fee:</strong> {redemption.feeAmount.toFixed(3)}{" "}
+                    OPHIR
                   </p>
                   <p>
                     <strong>Date:</strong>{" "}
