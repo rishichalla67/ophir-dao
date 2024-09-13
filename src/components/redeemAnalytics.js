@@ -203,6 +203,7 @@ const RedemptionAnalyticsDashboard = () => {
         totalOphirRedeemed > 0 ? totalRedeemedValue / totalOphirRedeemed : 0;
       setAverageRedemptionPrice(avgPrice);
       setTotalOphirRedeemed(totalOphirRedeemed);
+      setTotalRedeemedValue(totalRedeemedValue);
 
       // Calculate total fees
       const fees = calculateTotalFees(data.redeemSummary);
