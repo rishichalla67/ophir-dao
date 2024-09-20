@@ -20,6 +20,12 @@
   --main-black: rgba(27, 27, 27, 1);
   --transparent-black: rgba(27, 27, 27, 0.5);
   --table-head-grey: rgba(43, 43, 43, 1);
+  --light-green: rgb(164, 255, 164);
+  --transparent-green: rgba(164, 255, 164, 0.1);
+  --light-amber: rgb(253, 212, 101);
+  --transparent-amber: rgba(253, 212, 101, 0.2);
+  --light-red: rgb(252, 84, 84);
+  --transparent-red: rgba(252, 84, 84, 0.3);
 }
 
 *{
@@ -259,7 +265,7 @@
   background-color: var(--main-black);
   box-shadow: 0 4px 60px -15px var(--drop-shadow-gold);
   max-width: 100%;
-  padding: 1rem 3rem;
+  padding: 1rem 2rem;
   margin-top: 1rem;
   border-radius: 10px;
 }
@@ -314,17 +320,47 @@ tbody .table-box:last-of-type{
   background-color: var(--dark-grey);
   border-radius: 10px;
   padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  text-align: center;
 }
 
-.value-redeem{
+.value-redeem, .value-redeemsm{
   color: var(--text-gold-lighter);
-  margin-right: 2rem;
+}
+
+.redeem-val-flex, .value-redeemsm {
+  display: flex;
+  justify-content: space-between;
+  margin-right: 1rem;
 }
 
 .value-redeemsm{
-  color: var(--text-gold-lighter);
-  margin-left: 1rem;
-  margin-right: 0.25rem;
+  margin-top: 0.5rem;
+}
+
+.bg-color-s-fees {
+  background-color: var(--transparent-green);
+  color: var(--main-white);
+  border: 1px solid var(--light-green);
+  box-shadow: inset 0 0 2rem 0 var(--light-green);
+  padding: 1.3rem;
+}
+
+.bg-color-m-fees {
+  background-color: var(--transparent-amber);
+  color: var(--main-white);
+  border: 1px solid var(--light-amber);
+  box-shadow: inset 0 0 2rem 0 var(--light-amber);
+  padding: 1.3rem;
+}
+
+.bg-color-l-fees {
+  background-color: var(--transparent-red);
+  color: var(--main-white);
+  border: 1px solid var(--light-red);
+  box-shadow: inset 0 0 2rem 0 var(--light-red);
+  padding: 1.3rem;
 }
 
 .redeem-button{
@@ -338,6 +374,11 @@ tbody .table-box:last-of-type{
   background: linear-gradient(135deg, rgb(68, 61, 33) 0%, rgb(212, 180, 62) 100%);
   transform: translateY(-2px);
   box-shadow: 0 5px 0 0 rgba(255, 235, 183, 0.5);
+}
+
+.rel-return{
+  margin-right: 2rem;
+  padding-left: 0.5rem;
 }
 
 /*restake page*/

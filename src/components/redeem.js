@@ -162,22 +162,22 @@ const Redeem = () => {
       simulationResponse.fee_rate >= 0 &&
       simulationResponse.fee_rate < 0.075
     ) {
-      setBgColorClass("bg-green-100"); // Light orange (amber)
+      setBgColorClass("bg-color-s-fees"); // Light orange (amber)
     } else if (
       simulationResponse.fee_rate >= 0.075 &&
       simulationResponse.fee_rate < 0.3
     ) {
-      setBgColorClass("bg-amber-300"); // Light orange (amber)
+      setBgColorClass("bg-color-m-fees"); // Light orange (amber)
     } else if (
       simulationResponse.fee_rate >= 0.3 &&
       simulationResponse.fee_rate < 0.6
     ) {
-      setBgColorClass("bg-red-300"); // Light red
+      setBgColorClass("bg-color-l-fees"); // Light red
     } else if (
       simulationResponse.fee_rate >= 0.6 &&
       simulationResponse.fee_rate < 1
     ) {
-      setBgColorClass("bg-red-500 text-white font-bold animate-pulse"); // Alarming red with pulse effect
+      setBgColorClass("bg-color-l-fees font-bold animate-pulse"); // Alarming red with pulse effect
     }
   };
 
@@ -908,7 +908,7 @@ const Redeem = () => {
                                 </span>
                               </div>
                             ) : (
-                              <div className="flex items-center py-1">
+                              <div className="flex items-center py-1 align">
                                 <img
                                   src={tokenImages[asset]}
                                   alt={asset}
@@ -930,23 +930,25 @@ const Redeem = () => {
                         ))}
                 </tbody>
               </table>
-              <div className="redeem-assets text-center mt-2 text-sm sm:text-base">
-                <span className="value-redeem px-2 text-xs sm:text-sm">
-                  Total Value of Redeemed Assets:
-                </span>
-                <span className="px-2 text-xs sm:text-sm">
-                  {totalValueInfo.allDenomsUsed
-                    ? `$${totalValueInfo.totalValue.toFixed(2)}`
-                    : `~$${totalValueInfo.totalValue.toFixed(2)}`}
-                </span>
+              <div className="redeem-assets text-center mt-3 text-sm sm:text-base">
+                <div className="redeem-val-flex">
+                  <span className="value-redeem px-2 text-sm sm:text-base">
+                    Total Value of Redeemed Assets:
+                  </span>
+                  <span className="text-sm sm:text-base">
+                    {totalValueInfo.allDenomsUsed
+                      ? `$${totalValueInfo.totalValue.toFixed(2)}`
+                      : `~$${totalValueInfo.totalValue.toFixed(2)}`}
+                  </span>
+                </div>                
                 <div className="value-redeemsm mt-1">
-                  <span className="text-xxs sm:text-xs">
+                  <span className="text-xxs sm:text-xs rel-return">
                     Relative Return vs. Current Market Sell (
                     {ophirPrices["ophir"]?.toFixed(4)}):{" "}
                   </span>
                   {ophirPrices["ophir"] && ophirAmount ? (
                     <span
-                      className={`px-2 text-xxs sm:text-xs ${
+                      className={`text-xs sm:text-sm ${
                         ((totalValueInfo.totalValue -
                           ophirPrices["ophir"] * ophirAmount) /
                           (ophirPrices["ophir"] * ophirAmount)) *
@@ -1044,7 +1046,7 @@ const Redeem = () => {
                         />
                         <label
                           htmlFor="ackFeeCheckbox"
-                          className="text-gray-800 pl-2"
+                          className="text-white pl-2"
                         >
                           I acknowledge the fee is{" "}
                           {(simulationResponse.fee_rate * 100).toFixed(2)}%
