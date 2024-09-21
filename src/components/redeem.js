@@ -54,6 +54,7 @@ const Redeem = () => {
   const [isChecked, setIsChecked] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [bgColorClass, setBgColorClass] = useState("bg-green-100");
+  const [circulatingSupply, setCirculatingSupply] = useState(null);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -382,6 +383,31 @@ const Redeem = () => {
     } else {
       console.log("Ophir Balance: 0");
       return 0;
+    }
+  };
+  
+  useEffect(() => {
+    getCirculatingSupply();
+  }, [isTestnet, contractAddress]); // Re-run when isTestnet or contractAddress changes
+
+  const getCirculatingSupply = async () => {
+    try {
+      const message = {
+        get_debug_values: {},
+      };
+
+      const signer = await getSigner();
+      const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
+
+      const queryResponse = await client.queryContractSmart(contractAddress, message);
+
+      if (queryResponse && queryResponse.circulating_supply_14d) {
+        const supply = Number(queryResponse.circulating_supply_14d) / OPHIR_DECIMAL;
+        setCirculatingSupply(supply);
+      }
+    } catch (error) {
+      console.error("Error fetching circulating supply:", error);
+      showAlert(`Error fetching circulating supply. ${error.message}`, "error");
     }
   };
 

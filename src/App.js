@@ -15,6 +15,7 @@ import RestakeDashboard from "./components/restakeDashboard";
 import Swap from "./components/swap";
 import Govern from "./components/govern";
 import RedemptionAnalyticsDashboard from "./components/redeemAnalytics";
+import Bonds from "./components/bonds";
 
 function App() {
   return (
@@ -36,7 +37,8 @@ function App() {
         <Route
           path="redeem-analytics"
           element={<RedemptionAnalyticsDashboard />}
-        />
+        ß/>
+        <Route path="bonds" element={<Bonds />} />
       </Routes>
     </Router>
   );
