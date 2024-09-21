@@ -16,6 +16,7 @@ import Swap from "./components/swap";
 import Govern from "./components/govern";
 import RedemptionAnalyticsDashboard from "./components/redeemAnalytics";
 import Bonds from "./components/bonds";
+import OTCDesk from "./components/otc";
 
 function App() {
   return (
@@ -39,6 +40,7 @@ function App() {
           element={<RedemptionAnalyticsDashboard />}
         ß/>
         <Route path="bonds" element={<Bonds />} />
+        <Route path="otc" element={<OTCDesk />} />
       </Routes>
     </Router>
   );
