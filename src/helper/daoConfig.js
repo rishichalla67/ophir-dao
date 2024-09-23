@@ -19,9 +19,15 @@ export const daoConfig = {
     "migaloo1dpchsx70fe6gu9ljtnknsvd2dx9u7ztrxz9dr6ypfkj4fvv0re6qkdrwkh",
   DAO_MINE_ADDRESS_TESTNET: "migaloo17ephyl7pxx7hrauhu6guf62z7nrtszj23wwdt8",
 
-  // Contract Addresses
+  // REDEEM Contract Addresses
   CONTRACT_ADDRESS:
     "migaloo10p9ttf976c4q7czknd3z7saejsmx0uwvy4lgzyg09jmtq6up9e3s3wga9m",
   CONTRACT_ADDRESS_TESTNET:
     "migaloo1ypk96ekjz0w6q2hlm6khaya9d2agrjw96lcxnczh7yvyrwjqy38st7n82t",
+
+  //BONDS Contract Addresses
+  BONDS_CONTRACT_ADDRESS:
+    "",
+  BONDS_CONTRACT_ADDRESS_TESTNET:
+    "migaloo1wu03gflr9358qmhn8jzct4caduexjcfy84yrugt3zpdcryq8lu3q5caeuf",
 };
