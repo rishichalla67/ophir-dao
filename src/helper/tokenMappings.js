@@ -17,6 +17,7 @@ export const tokenMappings = {
   },
   "factory/migaloo1t862qdu9mj5hr3j727247acypym3ej47axu22rrapm4tqlcpuseqltxwq5/ophir":
     { symbol: "ophir", decimals: 6 },
+  "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir": { symbol: "daoOphir", decimals: 6 },
   uwhale: { symbol: "whale", decimals: 6 },
   uluna: { symbol: "luna", decimals: 6 },
   "ibc/EDD6F0D66BCD49C1084FB2C35353B4ACD7B9191117CE63671B61320548F7C89D": {

@@ -9,6 +9,7 @@ import BigInt from "big-integer";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import SnackbarContent from "@mui/material/SnackbarContent";
+import { Link } from "react-router-dom";
 
 // const contractAddress = "migaloo1wu03gflr9358qmhn8jzct4caduexjcfy84yrugt3zpdcryq8lu3q5caeuf";
 const migalooRPC = "https://migaloo-rpc.polkachu.com/";
@@ -228,12 +229,12 @@ const Bonds = () => {
         <div className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold h1-color">Bond Listing</h1>
           <div className="flex space-x-4 items-center">
-            <button
-              onClick={openModal}
-              className="landing-button px-4 py-1.5 rounded-md hover:bg-yellow-500 transition duration-300 text-sm"
-            >
-              Create Bond
-            </button>
+                <Link
+                  to="/bonds/create"
+                  className="landing-button px-4 py-1.5 rounded-md hover:bg-yellow-500 transition duration-300 text-sm"
+                >
+                  Create Bond
+                </Link>
             <WalletConnect
               handleConnectedWalletAddress={handleConnectedWalletAddress}
               handleLedgerConnectionBool={handleLedgerConnection}

@@ -17,6 +17,7 @@ import Govern from "./components/govern";
 import RedemptionAnalyticsDashboard from "./components/redeemAnalytics";
 import Bonds from "./components/bonds";
 import OTCDesk from "./components/otc";
+import CreateBonds from "./components/createBonds";
 
 function App() {
   return (
@@ -41,6 +42,7 @@ function App() {
         ß/>
         <Route path="bonds" element={<Bonds />} />
         <Route path="otc" element={<OTCDesk />} />
+        <Route path="bonds/create" element={<CreateBonds />} />
       </Routes>
     </Router>
   );
