@@ -142,4 +142,8 @@ export const tokenMappings = {
     symbol: "lab",
     decimals: 6,
   },
+  "factory/migaloo1mf6ptkssddfmxvhdx0ech0k03ktp6kf9yk59renau2gvht3nq2gqdhts4u/boneWhale": {
+    symbol: "bWhale",
+    decimals: 6,
+  },
 };
