@@ -281,7 +281,7 @@ const Bonds = () => {
           )}
         </Snackbar>
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold h1-color">Bond Listing</h1>
+          { isTestnet ? <h1 className="text-3xl font-bold h1-color">Bonds (Testnet)</h1> : <h1 className="text-3xl font-bold h1-color">Bonds</h1>}
           <div className="flex space-x-4 items-center">
                 <Link
                   to="/bonds/create"

@@ -11,6 +11,8 @@ import { tokenMappings } from "../helper/tokenMappings";
 import TokenDropdown from './TokenDropdown'; // Import the new TokenDropdown
 import { SigningStargateClient } from "@cosmjs/stargate";
 import ConfirmationModal from './ConfirmationModal';
+import { ArrowLeftIcon } from '@heroicons/react/24/solid';
+import '../App.css';
 
 const migalooTestnetRPC = "https://migaloo-testnet-rpc.polkachu.com:443";
 
@@ -357,9 +359,21 @@ const CreateBonds = () => {
     executeCreateBond();
   };
 
+  const handleGoBack = () => {
+    navigate('/bonds');
+  };
+
   return (
-    <div className="bg-[#1a1b23] text-white min-h-screen w-full pt-20 p-8">
+    <div className="global-bg text-white min-h-screen w-full pt-20 p-8">
       <div className="max-w-3xl mx-auto">
+        <button
+          onClick={handleGoBack}
+          className="mb-4 flex items-center text-gray-300 hover:text-white transition duration-300"
+        >
+          <ArrowLeftIcon className="h-5 w-5 mr-2" />
+          Back to Bonds
+        </button>
+
         <div className="flex justify-between items-center mb-8">
           { isTestnet ? <h1 className="text-4xl font-bold mb-4">Create a Bond (Testnet)</h1> : <h1 className="text-4xl font-bold mb-4">Create a Bond</h1>}
           <WalletConnect
