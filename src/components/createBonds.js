@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from "react";
 import WalletConnect from "./walletConnect";
 import { SigningCosmWasmClient } from "@cosmjs/cosmwasm-stargate";
 import { daoConfig } from "../helper/daoConfig";
@@ -8,11 +8,11 @@ import Snackbar from "@mui/material/Snackbar";
 import SnackbarContent from "@mui/material/SnackbarContent";
 import { Link, useNavigate } from "react-router-dom";
 import { tokenMappings } from "../helper/tokenMappings";
-import TokenDropdown from './TokenDropdown'; // Import the new TokenDropdown
+import TokenDropdown from "./TokenDropdown"; // Import the new TokenDropdown
 import { SigningStargateClient } from "@cosmjs/stargate";
-import ConfirmationModal from './ConfirmationModal';
-import { ArrowLeftIcon } from '@heroicons/react/24/solid';
-import '../App.css';
+import ConfirmationModal from "./ConfirmationModal";
+import { ArrowLeftIcon } from "@heroicons/react/24/solid";
+import "../App.css";
 
 const migalooTestnetRPC = "https://migaloo-testnet-rpc.polkachu.com:443";
 
@@ -31,12 +31,12 @@ const CreateBonds = () => {
     const now = new Date();
     now.setDate(now.getDate() + 1); // Add 1 day to current date for start time
     const startTime = now.toTimeString().slice(0, 5); // Format as HH:MM
-    const startDate = now.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    const startDate = now.toISOString().split("T")[0]; // Format as YYYY-MM-DD
 
     const endDate = new Date(now);
     endDate.setDate(endDate.getDate() + 1); // Add another day for end time
     const endTime = endDate.toTimeString().slice(0, 5);
-    const endDateString = endDate.toISOString().split('T')[0];
+    const endDateString = endDate.toISOString().split("T")[0];
 
     const maturityDate = new Date(endDate);
     maturityDate.setHours(maturityDate.getHours() + 1); // Add 1 hour for maturity time
@@ -49,55 +49,58 @@ const CreateBonds = () => {
       end_time_hour: endTime,
       maturity_date: endDateString,
       maturity_date_hour: maturityTime,
-      token_denom: '',
-      total_supply: '',
-      purchasing_denom: '',
-      price: '',
-      bond_denom_name: '',
+      token_denom: "",
+      total_supply: "",
+      purchasing_denom: "",
+      price: "",
+      bond_denom_name: "",
       bond_denom_suffix: 1,
       immediate_claim: false,
       flow_schedule: {
         percentage: 100,
         start_date: startDate,
         initial_delay: 0,
-        duration: 0
-      }
+        duration: 0,
+      },
     };
   });
   const [walletBalances, setWalletBalances] = useState({});
-  const [fullBondDenomName, setFullBondDenomName] = useState('');
-  const [userTimezone, setUserTimezone] = useState('');
+  const [fullBondDenomName, setFullBondDenomName] = useState("");
+  const [userTimezone, setUserTimezone] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   const allowedDenoms = [
     "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir",
-    'uwhale',
+    "uwhale",
   ];
 
-  const filteredTokenMappings = Object.entries(tokenMappings).reduce((acc, [denom, value]) => {
-    if (allowedDenoms.includes(denom)) {
-      acc[denom] = value;
-    }
-    return acc;
-  }, {});
+  const filteredTokenMappings = Object.entries(tokenMappings).reduce(
+    (acc, [denom, value]) => {
+      if (allowedDenoms.includes(denom)) {
+        acc[denom] = value;
+      }
+      return acc;
+    },
+    {}
+  );
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: type === "checkbox" ? checked : value,
     }));
   };
 
   const handleFlowScheduleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prevState => ({
+    setFormData((prevState) => ({
       ...prevState,
       flow_schedule: {
         ...prevState.flow_schedule,
-        [name]: value
-      }
+        [name]: value,
+      },
     }));
   };
 
@@ -121,13 +124,21 @@ const CreateBonds = () => {
           bech32PrefixConsAddr: "migaloovalcons",
           bech32PrefixConsPub: "migaloovalconspub",
         },
-        currencies: [{ coinDenom: "whale", coinMinimalDenom: "uwhale", coinDecimals: 6 }],
-        feeCurrencies: [{ coinDenom: "whale", coinMinimalDenom: "uwhale", coinDecimals: 6 }],
-        stakeCurrency: { coinDenom: "whale", coinMinimalDenom: "uwhale", coinDecimals: 6 },
+        currencies: [
+          { coinDenom: "whale", coinMinimalDenom: "uwhale", coinDecimals: 6 },
+        ],
+        feeCurrencies: [
+          { coinDenom: "whale", coinMinimalDenom: "uwhale", coinDecimals: 6 },
+        ],
+        stakeCurrency: {
+          coinDenom: "whale",
+          coinMinimalDenom: "uwhale",
+          coinDecimals: 6,
+        },
         gasPriceStep: { low: 0.2, average: 0.45, high: 0.75 },
       });
     }
-  
+
     await window.keplr?.enable("narwhal-2");
     const offlineSigner = window.keplr?.getOfflineSigner("narwhal-2");
     return offlineSigner;
@@ -150,59 +161,95 @@ const CreateBonds = () => {
         bond_denom_name,
         bond_denom_suffix,
         immediate_claim,
-        flow_schedule
+        flow_schedule,
       } = formData;
 
       // Ensure bond_denom_name is prefixed with "o"
-      const fullBondDenomName = `ob${(tokenMappings[formData.token_denom]?.symbol || formData.token_denom).toUpperCase()}${bond_denom_suffix.toString()}`;
+      const fullBondDenomName = `ob${(
+        tokenMappings[formData.token_denom]?.symbol || formData.token_denom
+      ).toUpperCase()}${bond_denom_suffix.toString()}`;
 
       const contractAddress = daoConfig.BONDS_CONTRACT_ADDRESS_TESTNET;
 
       // Convert dates to UTC
       const convertToUTC = (date, time) => {
         const localDate = new Date(`${date}T${time}`);
-        return new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+        return new Date(
+          localDate.getTime() - localDate.getTimezoneOffset() * 60000
+        );
       };
 
-      const message = { 
+      const message = {
         issue_bond: {
           bond_denom_name: fullBondDenomName,
-          total_supply: String(BigInt(total_supply) * BigInt(10 ** (tokenMappings[token_denom]?.decimals || 6))),
-          price: String(BigInt(price) * BigInt(10 ** (tokenMappings[token_denom]?.decimals || 6))), // Assuming 6 decimal places for price
-          start_time: String(Math.floor(convertToUTC(start_time, start_time_hour).getTime() / 1000)),
-          end_time: String(Math.floor(convertToUTC(end_time, end_time_hour).getTime() / 1000)),
-          maturity_date: String(Math.floor(convertToUTC(maturity_date, maturity_date_hour).getTime() / 1000)),
+          total_supply: String(
+            BigInt(total_supply) *
+              BigInt(10 ** (tokenMappings[token_denom]?.decimals || 6))
+          ),
+          price: String(
+            BigInt(price) *
+              BigInt(10 ** (tokenMappings[token_denom]?.decimals || 6))
+          ), // Assuming 6 decimal places for price
+          start_time: String(
+            Math.floor(
+              convertToUTC(start_time, start_time_hour).getTime() / 1000
+            )
+          ),
+          end_time: String(
+            Math.floor(convertToUTC(end_time, end_time_hour).getTime() / 1000)
+          ),
+          maturity_date: String(
+            Math.floor(
+              convertToUTC(maturity_date, maturity_date_hour).getTime() / 1000
+            )
+          ),
           token_denom,
           purchasing_denom,
           immediate_claim,
-          flow_schedule: immediate_claim ? null : [{
-            percentage: String(flow_schedule.percentage),
-            start_time: String(Math.floor(convertToUTC(flow_schedule.start_date, '00:00').getTime() / 1000)),
-            initial_delay: String(Number(flow_schedule.initial_delay) * 86400), // Convert days to seconds
-            duration: String(Number(flow_schedule.duration) * 86400), // Convert days to seconds
-          }],
+          flow_schedule: immediate_claim
+            ? null
+            : [
+                {
+                  percentage: String(flow_schedule.percentage),
+                  start_time: String(
+                    Math.floor(
+                      convertToUTC(
+                        flow_schedule.start_date,
+                        "00:00"
+                      ).getTime() / 1000
+                    )
+                  ),
+                  initial_delay: String(
+                    Number(flow_schedule.initial_delay) * 86400
+                  ), // Convert days to seconds
+                  duration: String(Number(flow_schedule.duration) * 86400), // Convert days to seconds
+                },
+              ],
           description: "",
-          token_factory_contract: "migaloo1q90frwj79y2gdjjdk49nqyacn9jw3uchcnq885",
-          reward_token_contract_address: "migaloo1jgcyqm7ykqm2hr446mdhr9gys6dzuzzzvy5phk",
-          partial_fills_enabled: false
-        }
+          token_factory_contract:
+            "migaloo1q90frwj79y2gdjjdk49nqyacn9jw3uchcnq885",
+          reward_token_contract_address:
+            "migaloo1jgcyqm7ykqm2hr446mdhr9gys6dzuzzzvy5phk",
+          partial_fills_enabled: false,
+        },
       };
 
       const signer = await getSigner();
 
       const client = await SigningCosmWasmClient.connectWithSigner(rpc, signer);
-      
+
       // Calculate the fee in uwhale (25 WHALE)
       const whaleFee = "25000000"; // 25 WHALE in uwhale
 
       // Calculate the total supply in the smallest unit of the token
       const tokenDecimals = tokenMappings[token_denom]?.decimals || 6; // Default to 6 if not found
-      const adjustedTotalSupply = BigInt(total_supply) * BigInt(10 ** tokenDecimals);
+      const adjustedTotalSupply =
+        BigInt(total_supply) * BigInt(10 ** tokenDecimals);
 
       // Prepare the funds array
       const funds = [
         { denom: "uwhale", amount: whaleFee },
-        // { denom: token_denom, amount: adjustedTotalSupply.toString() }
+        { denom: token_denom, amount: adjustedTotalSupply.toString() },
       ];
 
       const fee = {
@@ -215,7 +262,7 @@ const CreateBonds = () => {
         contractAddress,
         message,
         fee,
-        "", // memo
+        `Create Bond: ${fullBondDenomName}`, // memo
         funds // Add the funds array here
       );
 
@@ -238,16 +285,16 @@ const CreateBonds = () => {
       setIsModalOpen(false);
 
       // Reset form
-      setFormData(prevState => {
+      setFormData((prevState) => {
         const now = new Date();
         now.setDate(now.getDate() + 1); // Add 1 day to current date for start time
         const startTime = now.toTimeString().slice(0, 5);
-        const startDate = now.toISOString().split('T')[0];
+        const startDate = now.toISOString().split("T")[0];
 
         const endDate = new Date(now);
         endDate.setDate(endDate.getDate() + 1); // Add another day for end time
         const endTime = endDate.toTimeString().slice(0, 5);
-        const endDateString = endDate.toISOString().split('T')[0];
+        const endDateString = endDate.toISOString().split("T")[0];
 
         const maturityDate = new Date(endDate);
         maturityDate.setHours(maturityDate.getHours() + 1); // Add 1 hour for maturity time
@@ -261,25 +308,24 @@ const CreateBonds = () => {
           end_time_hour: endTime,
           maturity_date: endDateString,
           maturity_date_hour: maturityTime,
-          token_denom: '',
-          total_supply: '',
-          purchasing_denom: '',
-          price: '',
-          bond_denom_name: '',
+          token_denom: "",
+          total_supply: "",
+          purchasing_denom: "",
+          price: "",
+          bond_denom_name: "",
           bond_denom_suffix: 1,
           immediate_claim: false,
           flow_schedule: {
             percentage: 100,
             start_date: startDate,
             initial_delay: 0,
-            duration: 0
-          }
+            duration: 0,
+          },
         };
       });
 
       // Redirect to /bonds page
-      navigate('/bonds');
-
+      navigate("/bonds");
     } catch (error) {
       console.error("Error creating bond:", error);
       showAlert(`Error creating bond. ${error.message}`, "error");
@@ -307,10 +353,14 @@ const CreateBonds = () => {
       const signer = await getSigner();
       const client = await SigningStargateClient.connectWithSigner(rpc, signer);
       const balances = await client.getAllBalances(connectedWalletAddress);
-      
+
       const formattedBalances = balances.reduce((acc, balance) => {
-        const tokenInfo = tokenMappings[balance.denom] || { symbol: balance.denom, decimals: 6 };
-        const amount = parseFloat(balance.amount) / Math.pow(10, tokenInfo.decimals);
+        const tokenInfo = tokenMappings[balance.denom] || {
+          symbol: balance.denom,
+          decimals: 6,
+        };
+        const amount =
+          parseFloat(balance.amount) / Math.pow(10, tokenInfo.decimals);
         acc[balance.denom] = amount;
         return acc;
       }, {});
@@ -323,7 +373,9 @@ const CreateBonds = () => {
   };
 
   useEffect(() => {
-    const name = `ob${(tokenMappings[formData.token_denom]?.symbol || formData.token_denom).toUpperCase()}`;
+    const name = `ob${(
+      tokenMappings[formData.token_denom]?.symbol || formData.token_denom
+    ).toUpperCase()}`;
     const suffix = formData.bond_denom_suffix.toString();
     setFullBondDenomName(`${name}${suffix}`);
   }, [formData.bond_denom_name, formData.bond_denom_suffix]);
@@ -335,12 +387,15 @@ const CreateBonds = () => {
       const timezoneName = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
       // Get abbreviation
-      const abbreviation = now.toLocaleTimeString('en-us', { timeZoneName: 'short' }).split(' ').pop();
+      const abbreviation = now
+        .toLocaleTimeString("en-us", { timeZoneName: "short" })
+        .split(" ")
+        .pop();
 
       // Get UTC offset in hours
       const offsetInMinutes = now.getTimezoneOffset();
       const offsetHours = -offsetInMinutes / 60;
-      const sign = offsetHours >= 0 ? '+' : '-';
+      const sign = offsetHours >= 0 ? "+" : "-";
       const absoluteOffset = Math.abs(offsetHours);
       const formattedOffset = `UTC${sign}${absoluteOffset}`;
 
@@ -360,7 +415,7 @@ const CreateBonds = () => {
   };
 
   const handleGoBack = () => {
-    navigate('/bonds');
+    navigate("/bonds");
   };
 
   return (
@@ -375,7 +430,11 @@ const CreateBonds = () => {
         </button>
 
         <div className="flex justify-between items-center mb-8">
-          { isTestnet ? <h1 className="text-4xl font-bold mb-4">Create a Bond (Testnet)</h1> : <h1 className="text-4xl font-bold mb-4">Create a Bond</h1>}
+          {isTestnet ? (
+            <h1 className="text-4xl font-bold mb-4">Create a Bond (Testnet)</h1>
+          ) : (
+            <h1 className="text-4xl font-bold mb-4">Create a Bond</h1>
+          )}
           <WalletConnect
             handleConnectedWalletAddress={handleConnectedWalletAddress}
             handleLedgerConnectionBool={handleLedgerConnection}
@@ -384,15 +443,17 @@ const CreateBonds = () => {
         <p className="text-gray-400 mb-2">
           A 25 whale fee is charged to create an obTOKEN denom.
         </p>
-        
 
         <div className="bg-[#23242f] p-6 rounded-lg shadow-lg mb-8">
           <div className="space-y-6">
             <p className="text-gray-400 mb-8">
-                Your current timezone: {userTimezone}. All times will be converted to UTC for submission.
+              Your current timezone: {userTimezone}. All times will be converted
+              to UTC for submission.
             </p>
             <div>
-              <label className="block text-sm font-medium mb-1">Bond Start Date and Time</label>
+              <label className="block text-sm font-medium mb-1">
+                Bond Start Date and Time
+              </label>
               <div className="flex space-x-2">
                 <input
                   type="date"
@@ -412,7 +473,9 @@ const CreateBonds = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Bond End Date and Time</label>
+              <label className="block text-sm font-medium mb-1">
+                Bond End Date and Time
+              </label>
               <div className="flex space-x-2">
                 <input
                   type="date"
@@ -432,7 +495,9 @@ const CreateBonds = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Bond Maturity Date</label>
+              <label className="block text-sm font-medium mb-1">
+                Bond Maturity Date
+              </label>
               <div className="flex space-x-2">
                 <input
                   type="date"
@@ -463,7 +528,9 @@ const CreateBonds = () => {
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-sm font-medium mb-1">Token Quantity</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Token Quantity
+                  </label>
                   <input
                     type="number"
                     name="total_supply"
@@ -472,11 +539,18 @@ const CreateBonds = () => {
                     className="bg-[#2c2d3a] w-full px-3 py-2 rounded-md"
                     placeholder="0"
                   />
-                  {formData.token_denom && walletBalances[formData.token_denom] && (
-                    <p className="text-xs text-gray-400 mt-1">
-                      Available: {(walletBalances[formData.token_denom]).toLocaleString(undefined, {minimumFractionDigits: 6, maximumFractionDigits: 6})} {tokenMappings[formData.token_denom]?.symbol || formData.token_denom}
-                    </p>
-                  )}
+                  {formData.token_denom &&
+                    walletBalances[formData.token_denom] && (
+                      <p className="text-xs text-gray-400 mt-1">
+                        Available:{" "}
+                        {walletBalances[formData.token_denom].toLocaleString(
+                          undefined,
+                          { minimumFractionDigits: 6, maximumFractionDigits: 6 }
+                        )}{" "}
+                        {tokenMappings[formData.token_denom]?.symbol ||
+                          formData.token_denom}
+                      </p>
+                    )}
                 </div>
               </div>
             </div>
@@ -493,7 +567,9 @@ const CreateBonds = () => {
                   />
                 </div>
                 <div className="flex-1">
-                  <label className="block text-sm font-medium mb-1">Purchasing Price</label>
+                  <label className="block text-sm font-medium mb-1">
+                    Purchasing Price
+                  </label>
                   <input
                     type="number"
                     name="price"
@@ -507,7 +583,9 @@ const CreateBonds = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Bond Denom Name</label>
+              <label className="block text-sm font-medium mb-1">
+                Bond Denom Name
+              </label>
               <div className="flex items-center">
                 {/* <div className="flex-1 flex items-center">
                   <span className="inline-flex items-center px-3 py-2 bg-[#2c2d3a] text-white rounded-l-md w-1/2 justify-center">
@@ -517,11 +595,17 @@ const CreateBonds = () => {
                 <input
                   type="text"
                   name="bond_name"
-                  value={`ob${(tokenMappings[formData.token_denom]?.symbol || formData.token_denom).toUpperCase()}`}
+                  value={`ob${(
+                    tokenMappings[formData.token_denom]?.symbol ||
+                    formData.token_denom
+                  ).toUpperCase()}`}
                   onChange={handleInputChange}
                   className="bg-[#2c2d3a] w-1/4 px-3 py-2 rounded-l-md"
                   disabled={true}
-                  placeholder={`ob${(tokenMappings[formData.token_denom]?.symbol || formData.token_denom).toUpperCase()}`}
+                  placeholder={`ob${(
+                    tokenMappings[formData.token_denom]?.symbol ||
+                    formData.token_denom
+                  ).toUpperCase()}`}
                 />
                 <input
                   type="number"
@@ -535,7 +619,8 @@ const CreateBonds = () => {
                 />
               </div>
               <p className="text-xs text-gray-500 mt-1">
-                Use a number suffix (01-99) to ensure a unique name for your bond denom.
+                Use a number suffix (01-99) to ensure a unique name for your
+                bond denom.
               </p>
             </div>
           </div>
@@ -543,9 +628,12 @@ const CreateBonds = () => {
 
         <h2 className="text-3xl font-bold mb-4">Create a flow</h2>
         <p className="text-gray-400 mb-8">
-          A Flow manages the distribution of the tokens in a deal. You can add multiple schedules to a flow. Tokens in deals without a flow will be
-          available to deal takers immediately. Please ensure you have read through and understood the guidelines regarding flows at our
-          documentation hub and the Terms and Conditions regarding the use of this product.
+          A Flow manages the distribution of the tokens in a deal. You can add
+          multiple schedules to a flow. Tokens in deals without a flow will be
+          available to deal takers immediately. Please ensure you have read
+          through and understood the guidelines regarding flows at our
+          documentation hub and the Terms and Conditions regarding the use of
+          this product.
         </p>
 
         <div className="mb-4">
@@ -553,17 +641,24 @@ const CreateBonds = () => {
             <input
               type="checkbox"
               checked={formData.immediate_claim}
-              onChange={(e) => setFormData({...formData, immediate_claim: e.target.checked})}
+              onChange={(e) =>
+                setFormData({ ...formData, immediate_claim: e.target.checked })
+              }
               className="mr-2"
             />
-            <span>Check box for all tokens to be available to claim immediately after the bond activates.</span>
+            <span>
+              Check box for all tokens to be available to claim immediately
+              after the bond activates.
+            </span>
           </label>
         </div>
 
         <h3 className="text-2xl font-bold mb-4">Submit Bond</h3>
         <p className="text-gray-400 mb-8">
-            Happy with the Bond? Click Submit to make it public. You will be prompted to approve a transaction.
-            Please note, there is a 25 whale fee charged to create the denom for {fullBondDenomName !== "ob01" ? fullBondDenomName : 'the obTOKEN'}.
+          Happy with the Bond? Click Submit to make it public. You will be
+          prompted to approve a transaction. Please note, there is a 25 whale
+          fee charged to create the denom for{" "}
+          {fullBondDenomName !== "ob01" ? fullBondDenomName : "the obTOKEN"}.
         </p>
 
         <button
@@ -571,7 +666,7 @@ const CreateBonds = () => {
           className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300"
           disabled={isLoading}
         >
-          {isLoading ? 'Submitting...' : 'Submit'}
+          {isLoading ? "Submitting..." : "Submit"}
         </button>
       </div>
 
