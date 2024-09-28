@@ -10,6 +10,8 @@ import Snackbar from "@mui/material/Snackbar";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import Countdown from 'react-countdown';
 import { ArrowLeftIcon } from '@heroicons/react/24/solid';
+import { CircularProgressbar, buildStyles } from 'react-circular-progressbar';
+import 'react-circular-progressbar/dist/styles.css';
 
 const BuyBonds = () => {
   const { bondId } = useParams();
@@ -210,6 +212,15 @@ const BuyBonds = () => {
     }
   };
 
+  const calculateSoldPercentage = (remainingSupply, totalSupply) => {
+    const soldSupply = totalSupply - remainingSupply;
+    return Math.round((soldSupply / totalSupply) * 100);
+  };
+
+  const formatBondDenom = (denom) => {
+    return extractLastSection(denom);
+  };
+
   if (!bond) {
     return (<>
       <div className="global-bg flex flex-col justify-center items-center h-screen">
@@ -219,8 +230,8 @@ const BuyBonds = () => {
     </>);
   }
 
-  const bondSymbol = getTokenSymbol(bond.token_denom);
-  const purchasingSymbol = getTokenSymbol(bond.purchasing_denom);
+  const bondSymbol = formatBondDenom(getTokenSymbol(bond.token_denom));
+  const purchasingSymbol = formatBondDenom(getTokenSymbol(bond.purchasing_denom));
 
   const handleGoBack = () => {
     navigate('/bonds');
@@ -262,6 +273,29 @@ const BuyBonds = () => {
             <div>
               <p className="text-gray-400">Maturity Date:</p>
               <p>{formatDate(bond.maturity_date)}</p>
+            </div>
+            
+            {/* New section for bond sale progress */}
+            <div className="col-span-2 mt-4">
+              <p className="text-gray-400 mb-2">Bond Sale Progress:</p>
+              <div className="flex items-center">
+                <div className="w-20 h-20 mr-4">
+                  <CircularProgressbar
+                    value={calculateSoldPercentage(bond.remaining_supply, bond.total_supply)}
+                    text={`${calculateSoldPercentage(bond.remaining_supply, bond.total_supply)}%`}
+                    styles={buildStyles({
+                      textSize: '24px',
+                      pathColor: '#3B82F6',
+                      textColor: '#FFFFFF',
+                      trailColor: '#1F2937',
+                    })}
+                  />
+                </div>
+                <div>
+                  <p>Sold: {((bond.total_supply - bond.remaining_supply) / 1000000).toFixed(2)} {bondSymbol}</p>
+                  <p>Remaining: {(bond.remaining_supply / 1000000).toFixed(2)} {bondSymbol}</p>
+                </div>
+              </div>
             </div>
           </div>
           
@@ -319,5 +353,13 @@ const BuyBonds = () => {
     </div>
   );
 };
+
+function extractLastSection(address) {
+  if (address.includes('factory')) {
+    const sections = address.split('/');
+    return sections[sections.length - 1];
+  }
+  return address;
+}
 
 export default BuyBonds;

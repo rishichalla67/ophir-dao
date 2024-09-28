@@ -170,19 +170,32 @@ const Bonds = () => {
 
   const sortedBonds = useMemo(() => {
     let sortableBonds = [...bonds];
-    if (sortConfig.key !== null) {
-      sortableBonds.sort((a, b) => {
+    
+    // Custom sorting function
+    sortableBonds.sort((a, b) => {
+      const statusOrder = { 'UPCOMING': 0, 'ACTIVE': 1, 'COMPLETED': 2 };
+      const statusA = getBondStatus(a);
+      const statusB = getBondStatus(b);
+      
+      // First, sort by status
+      if (statusOrder[statusA] !== statusOrder[statusB]) {
+        return statusOrder[statusA] - statusOrder[statusB];
+      }
+      
+      // If status is the same, use the existing sorting logic
+      if (sortConfig.key !== null) {
         if (a[sortConfig.key] < b[sortConfig.key]) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
         if (a[sortConfig.key] > b[sortConfig.key]) {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
-        return 0;
-      });
-    }
+      }
+      return 0;
+    });
+
     return sortableBonds;
-  }, [bonds, sortConfig]);
+  }, [bonds, sortConfig, getBondStatus]);
 
   const requestSort = (key) => {
     let direction = 'ascending';
