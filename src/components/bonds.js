@@ -29,7 +29,7 @@ const Bonds = () => {
     message: "",
     severity: "info",
   });
-  const [isLoading, setIsLoading] = useState(false); // Added isLoading state
+  const [isLoading, setIsLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false); // Added isModalOpen state
   const [formData, setFormData] = useState({
     bond_id: "",
@@ -129,12 +129,14 @@ const Bonds = () => {
   };
 
   const fetchData = async () => {
+    setIsLoading(true);
     const message = { get_all_bond_offers: {} }; 
     const data = await queryContract(message);
     if (data && Array.isArray(data)) {
       setBonds(data);
     }
     console.log(data);
+    setIsLoading(false);
   };
 
   useEffect(() => {
@@ -309,92 +311,101 @@ const Bonds = () => {
           </div>
         </div>
 
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Search bonds..."
-            value={searchTerm}
-            onChange={handleSearchChange}
-            className="w-full p-2 rounded-md bg-gray-700 text-white"
-          />
-        </div>
+        {isLoading ? (
+          <div className="flex flex-col justify-center items-center h-[calc(100vh-200px)]">
+            <div className="text-white mb-4">Fetching Bond Data...</div>
+            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-yellow-400"></div>
+          </div>
+        ) : (
+          <>
+            <div className="mb-4">
+              <input
+                type="text"
+                placeholder="Search bonds..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+                className="w-full p-2 rounded-md bg-gray-700 text-white"
+              />
+            </div>
 
-        {/* Desktop view */}
-        <div className="hidden md:block">
-          <table className="w-full">
-            <thead>
-              <tr className="text-gray-400 border-b border-gray-800">
-                <th className="text-left py-2 cursor-pointer" onClick={() => requestSort('bond_denom_name')}>
-                  <span className="flex items-center">
-                    Bond Name {renderSortIcon('bond_denom_name')}
-                  </span>
-                </th>
-                <th className="text-left py-2 cursor-pointer" onClick={() => requestSort('status')}>
-                  <span className="flex items-center">
-                    Status {renderSortIcon('status')}
-                  </span>
-                </th>
-                <th className="text-left py-2 cursor-pointer" onClick={() => requestSort('total_supply')}>
-                  <span className="flex items-center">
-                    Total Supply {renderSortIcon('total_supply')}
-                  </span>
-                </th>
-                <th className="text-left py-2 cursor-pointer" onClick={() => requestSort('price')}>
-                  <span className="flex items-center">
-                    Price {renderSortIcon('price')}
-                  </span>
-                </th>
-                <th className="text-left py-2 cursor-pointer" onClick={() => requestSort('maturity_date')}>
-                  <span className="flex items-center">
-                    Maturity Date {renderSortIcon('maturity_date')}
-                  </span>
-                </th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredBonds.map((bond, index) => {
-                const bondSymbol = getTokenSymbol(bond.token_denom);
-                const purchasingSymbol = getTokenSymbol(bond.purchasing_denom);
-                return (
-                  <tr 
-                    key={index} 
-                    className="border-b border-gray-800 cursor-pointer hover:bg-gray-700 transition duration-300"
-                    onClick={() => handleBondClick(bond.bond_id)}
-                  >
-                    <td className="py-4 flex items-center">
-                      <div className="w-8 h-8 rounded-full mr-2 overflow-hidden">
-                        <img src={getTokenImage(bondSymbol)} alt={bondSymbol} className="w-full h-full object-cover" />
-                      </div>
-                      {bond.bond_denom_name}
-                    </td>
-                    <td className="py-4">
-                      {getBondStatus(bond)}
-                    </td>
-                    <td className="py-4">{bond.total_supply/1000000}</td>
-                    <td className="py-4 flex items-center">
-                      <span className="mr-2">{bond.price/1000000} {purchasingSymbol}</span>
-                      <div className="w-5 h-5 rounded-full overflow-hidden">
-                        <img src={getTokenImage(purchasingSymbol)} alt={purchasingSymbol} className="w-full h-full object-cover" />
-                      </div>
-                    </td>
-                    <td className="py-4">{formatDate(bond.maturity_date)}</td>
-                    <td className="py-4">
-                      <button className="text-gray-400 hover:text-white transition duration-300">→</button>
-                    </td>
+            {/* Desktop view */}
+            <div className="hidden md:block">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-gray-400 border-b border-gray-800">
+                    <th className="text-left py-2 cursor-pointer" onClick={() => requestSort('bond_denom_name')}>
+                      <span className="flex items-center">
+                        Bond Name {renderSortIcon('bond_denom_name')}
+                      </span>
+                    </th>
+                    <th className="text-left py-2 cursor-pointer" onClick={() => requestSort('status')}>
+                      <span className="flex items-center">
+                        Status {renderSortIcon('status')}
+                      </span>
+                    </th>
+                    <th className="text-left py-2 cursor-pointer" onClick={() => requestSort('total_supply')}>
+                      <span className="flex items-center">
+                        Total Supply {renderSortIcon('total_supply')}
+                      </span>
+                    </th>
+                    <th className="text-left py-2 cursor-pointer" onClick={() => requestSort('price')}>
+                      <span className="flex items-center">
+                        Price {renderSortIcon('price')}
+                      </span>
+                    </th>
+                    <th className="text-left py-2 cursor-pointer" onClick={() => requestSort('maturity_date')}>
+                      <span className="flex items-center">
+                        Maturity Date {renderSortIcon('maturity_date')}
+                      </span>
+                    </th>
+                    <th></th>
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                </thead>
+                <tbody>
+                  {filteredBonds.map((bond, index) => {
+                    const bondSymbol = getTokenSymbol(bond.token_denom);
+                    const purchasingSymbol = getTokenSymbol(bond.purchasing_denom);
+                    return (
+                      <tr 
+                        key={index} 
+                        className="border-b border-gray-800 cursor-pointer hover:bg-gray-700 transition duration-300"
+                        onClick={() => handleBondClick(bond.bond_id)}
+                      >
+                        <td className="py-4 flex items-center">
+                          <div className="w-8 h-8 rounded-full mr-2 overflow-hidden">
+                            <img src={getTokenImage(bondSymbol)} alt={bondSymbol} className="w-full h-full object-cover" />
+                          </div>
+                          {bond.bond_denom_name}
+                        </td>
+                        <td className="py-4">
+                          {getBondStatus(bond)}
+                        </td>
+                        <td className="py-4">{bond.total_supply/1000000}</td>
+                        <td className="py-4 flex items-center">
+                          <span className="mr-2">{bond.price/1000000} {purchasingSymbol}</span>
+                          <div className="w-5 h-5 rounded-full overflow-hidden">
+                            <img src={getTokenImage(purchasingSymbol)} alt={purchasingSymbol} className="w-full h-full object-cover" />
+                          </div>
+                        </td>
+                        <td className="py-4">{formatDate(bond.maturity_date)}</td>
+                        <td className="py-4">
+                          <button className="text-gray-400 hover:text-white transition duration-300">→</button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
 
-        {/* Mobile view */}
-        <div className="md:hidden">
-          {filteredBonds.map((bond, index) => (
-            <BondCard key={index} bond={bond} />
-          ))}
-        </div>
+            {/* Mobile view */}
+            <div className="md:hidden">
+              {filteredBonds.map((bond, index) => (
+                <BondCard key={index} bond={bond} />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
