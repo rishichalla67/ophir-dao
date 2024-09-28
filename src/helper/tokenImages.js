@@ -5,6 +5,7 @@ export const tokenImages = {
     "https://assets.coingecko.com/coins/images/34506/standard/bWHALE.png?1711563051",
   ampWhale: "https://app.whitewhale.money/logos/ampWhale.svg",
   ampwhale: "https://app.whitewhale.money/logos/ampWhale.svg",
+  daoophir: "https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png",
   ophir:
     "https://raw.githubusercontent.com/cosmos/chain-registry/master/migaloo/images/ophir.png",
   whale:

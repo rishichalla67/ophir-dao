@@ -18,6 +18,7 @@ import RedemptionAnalyticsDashboard from "./components/redeemAnalytics";
 import Bonds from "./components/bonds";
 import OTCDesk from "./components/otc";
 import CreateBonds from "./components/createBonds";
+import BuyBonds from "./components/BuyBonds";
 
 function App() {
   return (
@@ -41,8 +42,9 @@ function App() {
           element={<RedemptionAnalyticsDashboard />}
         ß/>
         <Route path="bonds" element={<Bonds />} />
-        <Route path="otc" element={<OTCDesk />} />
+        <Route path="bonds/buy/:bondId" element={<BuyBonds />} />
         <Route path="bonds/create" element={<CreateBonds />} />
+        <Route path="otc" element={<OTCDesk />} />
       </Routes>
     </Router>
   );

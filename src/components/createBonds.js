@@ -6,7 +6,7 @@ import BigInt from "big-integer";
 import Alert from "@mui/material/Alert";
 import Snackbar from "@mui/material/Snackbar";
 import SnackbarContent from "@mui/material/SnackbarContent";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { tokenMappings } from "../helper/tokenMappings";
 import TokenDropdown from './TokenDropdown'; // Import the new TokenDropdown
 import { SigningStargateClient } from "@cosmjs/stargate";
@@ -27,17 +27,26 @@ const CreateBonds = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState(() => {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 30); // Add 30 minutes to current time
-    const defaultTime = now.toTimeString().slice(0, 5); // Format as HH:MM
-    const defaultDate = now.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+    now.setDate(now.getDate() + 1); // Add 1 day to current date for start time
+    const startTime = now.toTimeString().slice(0, 5); // Format as HH:MM
+    const startDate = now.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+    const endDate = new Date(now);
+    endDate.setDate(endDate.getDate() + 1); // Add another day for end time
+    const endTime = endDate.toTimeString().slice(0, 5);
+    const endDateString = endDate.toISOString().split('T')[0];
+
+    const maturityDate = new Date(endDate);
+    maturityDate.setHours(maturityDate.getHours() + 1); // Add 1 hour for maturity time
+    const maturityTime = maturityDate.toTimeString().slice(0, 5);
 
     return {
-      start_time: defaultDate,
-      start_time_hour: defaultTime,
-      end_time: defaultDate,
-      end_time_hour: defaultTime,
-      maturity_date: defaultDate,
-      maturity_date_hour: defaultTime,
+      start_time: startDate,
+      start_time_hour: startTime,
+      end_time: endDateString,
+      end_time_hour: endTime,
+      maturity_date: endDateString,
+      maturity_date_hour: maturityTime,
       token_denom: '',
       total_supply: '',
       purchasing_denom: '',
@@ -47,7 +56,7 @@ const CreateBonds = () => {
       immediate_claim: false,
       flow_schedule: {
         percentage: 100,
-        start_date: defaultDate,
+        start_date: startDate,
         initial_delay: 0,
         duration: 0
       }
@@ -57,6 +66,7 @@ const CreateBonds = () => {
   const [fullBondDenomName, setFullBondDenomName] = useState('');
   const [userTimezone, setUserTimezone] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate();
 
   const allowedDenoms = [
     "factory/migaloo17c5ped2d24ewx9964ul6z2jlhzqtz5gvvg80z6x9dpe086v9026qfznq2e/daoophir",
@@ -154,23 +164,25 @@ const CreateBonds = () => {
 
       const message = { 
         issue_bond: {
-          bond_id: fullBondDenomName,
           bond_denom_name: fullBondDenomName,
-          total_supply: String(BigInt(total_supply)),
-          price: String(price),
-          start_time: Math.floor(convertToUTC(start_time, start_time_hour).getTime() / 1000),
-          end_time: Math.floor(convertToUTC(end_time, end_time_hour).getTime() / 1000),
-          maturity_date: Math.floor(convertToUTC(maturity_date, maturity_date_hour).getTime() / 1000),
+          total_supply: String(BigInt(total_supply) * BigInt(10 ** (tokenMappings[token_denom]?.decimals || 6))),
+          price: String(BigInt(price) * BigInt(10 ** (tokenMappings[token_denom]?.decimals || 6))), // Assuming 6 decimal places for price
+          start_time: String(Math.floor(convertToUTC(start_time, start_time_hour).getTime() / 1000)),
+          end_time: String(Math.floor(convertToUTC(end_time, end_time_hour).getTime() / 1000)),
+          maturity_date: String(Math.floor(convertToUTC(maturity_date, maturity_date_hour).getTime() / 1000)),
           token_denom,
           purchasing_denom,
           immediate_claim,
           flow_schedule: immediate_claim ? null : [{
             percentage: String(flow_schedule.percentage),
-            start_time: Math.floor(convertToUTC(flow_schedule.start_date, '00:00').getTime() / 1000),
-            initial_delay: Number(flow_schedule.initial_delay) * 86400, // Convert days to seconds
-            duration: Number(flow_schedule.duration) * 86400, // Convert days to seconds
+            start_time: String(Math.floor(convertToUTC(flow_schedule.start_date, '00:00').getTime() / 1000)),
+            initial_delay: String(Number(flow_schedule.initial_delay) * 86400), // Convert days to seconds
+            duration: String(Number(flow_schedule.duration) * 86400), // Convert days to seconds
           }],
-          description: null
+          description: "",
+          token_factory_contract: "migaloo1q90frwj79y2gdjjdk49nqyacn9jw3uchcnq885",
+          reward_token_contract_address: "migaloo1jgcyqm7ykqm2hr446mdhr9gys6dzuzzzvy5phk",
+          partial_fills_enabled: false
         }
       };
 
@@ -188,7 +200,7 @@ const CreateBonds = () => {
       // Prepare the funds array
       const funds = [
         { denom: "uwhale", amount: whaleFee },
-        { denom: token_denom, amount: adjustedTotalSupply.toString() }
+        // { denom: token_denom, amount: adjustedTotalSupply.toString() }
       ];
 
       const fee = {
@@ -220,21 +232,33 @@ const CreateBonds = () => {
         showAlert("Bond created successfully!", "success");
       }
 
+      // Close the modal after successful execution
+      setIsModalOpen(false);
+
       // Reset form
       setFormData(prevState => {
         const now = new Date();
-        now.setMinutes(now.getMinutes() + 30);
-        const defaultTime = now.toTimeString().slice(0, 5);
-        const defaultDate = now.toISOString().split('T')[0];
+        now.setDate(now.getDate() + 1); // Add 1 day to current date for start time
+        const startTime = now.toTimeString().slice(0, 5);
+        const startDate = now.toISOString().split('T')[0];
+
+        const endDate = new Date(now);
+        endDate.setDate(endDate.getDate() + 1); // Add another day for end time
+        const endTime = endDate.toTimeString().slice(0, 5);
+        const endDateString = endDate.toISOString().split('T')[0];
+
+        const maturityDate = new Date(endDate);
+        maturityDate.setHours(maturityDate.getHours() + 1); // Add 1 hour for maturity time
+        const maturityTime = maturityDate.toTimeString().slice(0, 5);
 
         return {
           ...prevState,
-          start_time: defaultDate,
-          start_time_hour: defaultTime,
-          end_time: defaultDate,
-          end_time_hour: defaultTime,
-          maturity_date: defaultDate,
-          maturity_date_hour: defaultTime,
+          start_time: startDate,
+          start_time_hour: startTime,
+          end_time: endDateString,
+          end_time_hour: endTime,
+          maturity_date: endDateString,
+          maturity_date_hour: maturityTime,
           token_denom: '',
           total_supply: '',
           purchasing_denom: '',
@@ -244,12 +268,16 @@ const CreateBonds = () => {
           immediate_claim: false,
           flow_schedule: {
             percentage: 100,
-            start_date: defaultDate,
+            start_date: startDate,
             initial_delay: 0,
             duration: 0
           }
         };
       });
+
+      // Redirect to /bonds page
+      navigate('/bonds');
+
     } catch (error) {
       console.error("Error creating bond:", error);
       showAlert(`Error creating bond. ${error.message}`, "error");
@@ -326,7 +354,6 @@ const CreateBonds = () => {
   };
 
   const handleConfirm = () => {
-    setIsModalOpen(false);
     executeCreateBond();
   };
 
@@ -539,6 +566,7 @@ const CreateBonds = () => {
         onClose={() => setIsModalOpen(false)}
         onConfirm={handleConfirm}
         formData={formData}
+        isLoading={isLoading}
       />
 
       <Snackbar

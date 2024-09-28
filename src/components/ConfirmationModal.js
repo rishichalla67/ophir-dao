@@ -1,7 +1,7 @@
 import React from 'react';
 import { tokenMappings } from '../helper/tokenMappings';
 
-const ConfirmationModal = ({ isOpen, onClose, onConfirm, formData }) => {
+const ConfirmationModal = ({ isOpen, onClose, onConfirm, formData, isLoading }) => {
   if (!isOpen) return null;
 
   const formatDate = (date, time) => {
@@ -43,14 +43,25 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, formData }) => {
           <button
             onClick={onClose}
             className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition duration-300"
+            disabled={isLoading}
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition duration-300 relative"
+            disabled={isLoading}
           >
-            Confirm
+            {isLoading ? (
+              <>
+                <span className="opacity-0">Confirm</span>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
+                </div>
+              </>
+            ) : (
+              'Confirm'
+            )}
           </button>
         </div>
       </div>
