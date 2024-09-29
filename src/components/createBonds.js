@@ -87,10 +87,21 @@ const CreateBonds = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: type === "checkbox" ? checked : value,
-    }));
+    if (type === "number") {
+      // Allow decimal inputs
+      const regex = /^\d*\.?\d*$/;
+      if (regex.test(value) || value === '') {
+        setFormData((prevState) => ({
+          ...prevState,
+          [name]: value,
+        }));
+      }
+    } else {
+      setFormData((prevState) => ({
+        ...prevState,
+        [name]: type === "checkbox" ? checked : value,
+      }));
+    }
   };
 
   const handleFlowScheduleChange = (e) => {
@@ -183,12 +194,10 @@ const CreateBonds = () => {
         issue_bond: {
           bond_denom_name: fullBondDenomName,
           total_supply: String(
-            BigInt(total_supply) *
-              BigInt(10 ** (tokenMappings[token_denom]?.decimals || 6))
+            BigInt(Math.round(parseFloat(total_supply) * 10 ** (tokenMappings[token_denom]?.decimals || 6)))
           ),
           price: String(
-            BigInt(price) *
-              BigInt(10 ** (tokenMappings[token_denom]?.decimals || 6))
+            BigInt(Math.round(parseFloat(price) * 10 ** (tokenMappings[token_denom]?.decimals || 6)))
           ), // Assuming 6 decimal places for price
           start_time: String(
             Math.floor(
@@ -538,6 +547,7 @@ const CreateBonds = () => {
                     onChange={handleInputChange}
                     className="bg-[#2c2d3a] w-full px-3 py-2 rounded-md"
                     placeholder="0"
+                    step="any" // Allow any decimal input
                   />
                   {formData.token_denom &&
                     walletBalances[formData.token_denom] && (
@@ -577,6 +587,7 @@ const CreateBonds = () => {
                     onChange={handleInputChange}
                     className="bg-[#2c2d3a] w-full px-3 py-2 rounded-md"
                     placeholder="0"
+                    step="any" // Allow any decimal input
                   />
                 </div>
               </div>
