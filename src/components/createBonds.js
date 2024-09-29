@@ -206,31 +206,31 @@ const CreateBonds = () => {
           token_denom,
           purchasing_denom,
           immediate_claim,
-          flow_schedule: immediate_claim
-            ? null
-            : [
-                {
-                  percentage: String(flow_schedule.percentage),
-                  start_time: String(
-                    Math.floor(
-                      convertToUTC(
-                        flow_schedule.start_date,
-                        "00:00"
-                      ).getTime() / 1000
-                    )
-                  ),
-                  initial_delay: String(
-                    Number(flow_schedule.initial_delay) * 86400
-                  ), // Convert days to seconds
-                  duration: String(Number(flow_schedule.duration) * 86400), // Convert days to seconds
-                },
-              ],
+          // flow_schedule: immediate_claim
+          //   ? null
+          //   : [
+          //       {
+          //         percentage: String(flow_schedule.percentage),
+          //         start_time: String(
+          //           Math.floor(
+          //             convertToUTC(
+          //               flow_schedule.start_date,
+          //               "00:00"
+          //             ).getTime() / 1000
+          //           )
+          //         ),
+          //         initial_delay: String(
+          //           Number(flow_schedule.initial_delay) * 86400
+          //         ), // Convert days to seconds
+          //         duration: String(Number(flow_schedule.duration) * 86400), // Convert days to seconds
+          //       },
+          //     ],
           description: "",
-          token_factory_contract:
-            "migaloo1q90frwj79y2gdjjdk49nqyacn9jw3uchcnq885",
-          reward_token_contract_address:
-            "migaloo1jgcyqm7ykqm2hr446mdhr9gys6dzuzzzvy5phk",
-          partial_fills_enabled: false,
+          // token_factory_contract:
+          //   "migaloo1q90frwj79y2gdjjdk49nqyacn9jw3uchcnq885",
+          // reward_token_contract_address:
+          //   "migaloo1jgcyqm7ykqm2hr446mdhr9gys6dzuzzzvy5phk",
+          // partial_fills_enabled: false,
         },
       };
 
@@ -248,8 +248,8 @@ const CreateBonds = () => {
 
       // Prepare the funds array
       const funds = [
-        { denom: "uwhale", amount: whaleFee },
         { denom: token_denom, amount: adjustedTotalSupply.toString() },
+        { denom: "uwhale", amount: whaleFee },
       ];
 
       const fee = {

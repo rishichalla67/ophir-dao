@@ -23,6 +23,22 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, formData, isLoading }) 
     </div>
   );
 
+  // Calculate the total amount of purchasing tokens
+  const calculatePurchasingTokens = () => {
+    const totalSupply = parseFloat(formData.total_supply);
+    const price = parseFloat(formData.price);
+    if (isNaN(totalSupply) || isNaN(price) || price === 0) {
+      return 'N/A';
+    }
+    const totalPurchasingTokens = totalSupply * price;
+    return totalPurchasingTokens.toLocaleString(undefined, {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 6
+    });
+  };
+
+  const purchasingTokenSymbol = tokenMappings[formData.purchasing_denom]?.symbol || formData.purchasing_denom;
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div className="bg-[#23242f] p-6 rounded-lg shadow-lg w-full max-w-md">
@@ -33,10 +49,19 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, formData, isLoading }) 
           <DetailItem label="Maturity" value={formatDate(formData.maturity_date, formData.maturity_date_hour)} />
           <DetailItem label="Token" value={tokenMappings[formData.token_denom]?.symbol || formData.token_denom} />
           <DetailItem label="Quantity" value={formData.total_supply} />
-          <DetailItem label="Purchasing" value={tokenMappings[formData.purchasing_denom]?.symbol || formData.purchasing_denom} />
+          <DetailItem label="Purchasing" value={purchasingTokenSymbol} />
           <DetailItem label="Price" value={formData.price} />
           <DetailItem label="Bond Name" value={`ob${(tokenMappings[formData.token_denom]?.symbol || formData.token_denom).toUpperCase()}${formData.bond_denom_suffix}`} />
           <DetailItem label="Immediate Claim" value={formData.immediate_claim ? 'Yes' : 'No'} />
+          
+          {/* New section for total purchasing tokens */}
+          <div className="mt-4 p-3 bg-gray-800 rounded-md">
+            <h3 className="text-lg font-semibold mb-2">Total {purchasingTokenSymbol} to Receive</h3>
+            <p className="text-xl font-bold">{calculatePurchasingTokens()} {purchasingTokenSymbol}</p>
+            <p className="text-sm text-gray-400 mt-1">
+              This is the total amount of {purchasingTokenSymbol} you would receive if all bonds are sold.
+            </p>
+          </div>
         </div>
         
         <div className="mt-6 flex justify-end space-x-4">
