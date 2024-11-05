@@ -128,14 +128,35 @@ const Bonds = () => {
     setIsLedgerConnected(bool);
   };
 
+  // Add this helper function to convert contract timestamps to JS Date objects
+  const convertContractTimeToDate = (contractTime) => {
+    // Convert from nanoseconds to milliseconds by dividing by 1_000_000
+    return new Date(parseInt(contractTime) / 1_000_000);
+  };
+
   const fetchData = async () => {
     setIsLoading(true);
-    const message = { get_all_bond_offers: {} }; 
+    const message = { get_all_bond_offers: {} };
     const data = await queryContract(message);
-    if (data && Array.isArray(data)) {
-      setBonds(data);
+    if (data && Array.isArray(data.bond_offers)) {
+      const transformedBonds = data.bond_offers.map(bond => ({
+        bond_id: bond.bond_id,
+        bond_denom_name: bond.bond_name,
+        token_denom: bond.token_denom,
+        purchasing_denom: bond.purchase_denom,
+        total_supply: bond.total_amount,
+        price: bond.price,
+        // Convert timestamps using the helper function
+        start_time: convertContractTimeToDate(bond.purchase_start_time),
+        end_time: convertContractTimeToDate(bond.purchase_end_time),
+        maturity_date: convertContractTimeToDate(bond.claim_end_time),
+        description: bond.description,
+        immediate_claim: bond.immediate_claim,
+        remaining_supply: bond.remaining_supply,
+        issuer: bond.issuer
+      }));
+      setBonds(transformedBonds);
     }
-    console.log(data);
     setIsLoading(false);
   };
 
@@ -151,19 +172,32 @@ const Bonds = () => {
     return tokenImages[symbol.toLowerCase()] || '';
   };
 
-  const formatDate = (timestamp) => {
-    const date = new Date(parseInt(timestamp) * 1000); // Convert seconds to milliseconds
-    return date.toLocaleDateString();
+  // Update the formatDate function to handle Date objects
+  const formatDate = (date) => {
+    if (!date) return 'N/A';
+    return date.toLocaleString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZoneName: 'short'
+    });
   };
 
+  // Update getBondStatus to handle Date objects
   const getBondStatus = (bond) => {
-    const now = Date.now();
-    const startTime = parseInt(bond.start_time) * 1000;
-    const endTime = parseInt(bond.end_time) * 1000;
-
-    if (now < startTime) return 'UPCOMING';
-    if (now > endTime) return 'COMPLETED';
-    return 'ACTIVE';
+    const now = new Date();
+    
+    if (now < bond.start_time) {
+      return 'Upcoming';
+    } else if (now >= bond.start_time && now <= bond.end_time) {
+      return 'Active';
+    } else if (now > bond.end_time && now <= bond.maturity_date) {
+      return 'Ended';
+    } else {
+      return 'Matured';
+    }
   };
 
   const handleBondClick = (bondId) => {
@@ -234,6 +268,10 @@ const Bonds = () => {
     );
   }, [sortedBonds, debouncedSearchTerm]);
 
+  const formatAmount = (amount) => {
+    return parseInt(amount) / OPHIR_DECIMAL;
+  };
+
   const BondCard = ({ bond }) => {
     const bondSymbol = getTokenSymbol(bond.token_denom);
     const purchasingSymbol = getTokenSymbol(bond.purchasing_denom);
@@ -250,14 +288,17 @@ const Bonds = () => {
           <h3 className="text-lg font-semibold">{bond.bond_denom_name}</h3>
         </div>
         <p className="text-sm text-gray-400 mb-2">Status: {getBondStatus(bond)}</p>
-        <p className="text-sm mb-1">Total Supply: {bond.total_supply/1000000}</p>
+        <p className="text-sm mb-1">Total Supply: {formatAmount(bond.total_supply)}</p>
+        <p className="text-sm mb-1">Remaining Supply: {formatAmount(bond.remaining_supply)}</p>
         <div className="flex items-center mb-1">
-          <p className="text-sm mr-2">Price: {bond.price/1000000} {purchasingSymbol}</p>
+          <p className="text-sm mr-2">Price: {formatAmount(bond.price)} {purchasingSymbol}</p>
           <div className="w-5 h-5 rounded-full overflow-hidden">
             <img src={getTokenImage(purchasingSymbol)} alt={purchasingSymbol} className="w-full h-full object-cover" />
           </div>
         </div>
         <p className="text-sm">Maturity Date: {formatDate(bond.maturity_date)}</p>
+        {bond.immediate_claim && <p className="text-sm text-green-400">Immediate Claim Available</p>}
+        {bond.description && <p className="text-sm text-gray-400 mt-2">{bond.description}</p>}
       </div>
     );
   };
@@ -376,13 +417,18 @@ const Bonds = () => {
                             <img src={getTokenImage(bondSymbol)} alt={bondSymbol} className="w-full h-full object-cover" />
                           </div>
                           {bond.bond_denom_name}
+                          {bond.immediate_claim && <span className="ml-2 text-green-400 text-sm">(Immediate)</span>}
                         </td>
+                        <td className="py-4">{getBondStatus(bond)}</td>
                         <td className="py-4">
-                          {getBondStatus(bond)}
+                          {formatAmount(bond.total_supply)}
+                          <br />
+                          <span className="text-sm text-gray-400">
+                            Remaining: {formatAmount(bond.remaining_supply)}
+                          </span>
                         </td>
-                        <td className="py-4">{bond.total_supply/1000000}</td>
                         <td className="py-4 flex items-center">
-                          <span className="mr-2">{bond.price/1000000} {purchasingSymbol}</span>
+                          <span className="mr-2">{formatAmount(bond.price)} {purchasingSymbol}</span>
                           <div className="w-5 h-5 rounded-full overflow-hidden">
                             <img src={getTokenImage(purchasingSymbol)} alt={purchasingSymbol} className="w-full h-full object-cover" />
                           </div>

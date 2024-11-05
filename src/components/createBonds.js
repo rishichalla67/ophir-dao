@@ -29,17 +29,17 @@ const CreateBonds = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState(() => {
     const now = new Date();
-    now.setDate(now.getDate() + 1); // Add 1 day to current date for start time
+    now.setMinutes(now.getMinutes() + 30); // Add 30 minutes to current time only
     const startTime = now.toTimeString().slice(0, 5); // Format as HH:MM
     const startDate = now.toISOString().split("T")[0]; // Format as YYYY-MM-DD
 
     const endDate = new Date(now);
-    endDate.setDate(endDate.getDate() + 1); // Add another day for end time
+    endDate.setDate(endDate.getDate() + 1); // Add one day
     const endTime = endDate.toTimeString().slice(0, 5);
     const endDateString = endDate.toISOString().split("T")[0];
 
     const maturityDate = new Date(endDate);
-    maturityDate.setHours(maturityDate.getHours() + 1); // Add 1 hour for maturity time
+    maturityDate.setHours(maturityDate.getHours() + 1); // Add 1 hour for maturity only
     const maturityTime = maturityDate.toTimeString().slice(0, 5);
 
     return {
@@ -55,13 +55,13 @@ const CreateBonds = () => {
       price: "",
       bond_denom_name: "",
       bond_denom_suffix: 1,
+      description: "",
       immediate_claim: false,
-      flow_schedule: {
-        percentage: 100,
-        start_date: startDate,
-        initial_delay: 0,
-        duration: 0,
-      },
+      nft_metadata: {
+        name: "",
+        symbol: "",
+        token_uri: ""
+      }
     };
   });
   const [walletBalances, setWalletBalances] = useState({});
@@ -87,7 +87,18 @@ const CreateBonds = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    if (type === "number") {
+    
+    if (name.startsWith('nft_metadata.')) {
+      // Handle nested nft_metadata fields
+      const field = name.split('.')[1];
+      setFormData(prevState => ({
+        ...prevState,
+        nft_metadata: {
+          ...prevState.nft_metadata,
+          [field]: value
+        }
+      }));
+    } else if (type === "number") {
       // Allow decimal inputs
       const regex = /^\d*\.?\d*$/;
       if (regex.test(value) || value === '') {
@@ -172,7 +183,7 @@ const CreateBonds = () => {
         bond_denom_name,
         bond_denom_suffix,
         immediate_claim,
-        flow_schedule,
+        nft_metadata
       } = formData;
 
       // Ensure bond_denom_name is prefixed with "o"
@@ -193,53 +204,30 @@ const CreateBonds = () => {
       const message = {
         issue_bond: {
           bond_denom_name: fullBondDenomName,
-          total_supply: String(
-            BigInt(Math.round(parseFloat(total_supply) * 10 ** (tokenMappings[token_denom]?.decimals || 6)))
-          ),
-          price: String(
-            BigInt(Math.round(parseFloat(price) * 10 ** (tokenMappings[token_denom]?.decimals || 6)))
-          ), // Assuming 6 decimal places for price
-          start_time: String(
-            Math.floor(
-              convertToUTC(start_time, start_time_hour).getTime() / 1000
+          expect_to_receive: {
+            denom: token_denom,
+            amount: String(
+              Math.round(parseFloat(total_supply) * 10 ** (tokenMappings[token_denom]?.decimals || 6))
             )
-          ),
-          end_time: String(
-            Math.floor(convertToUTC(end_time, end_time_hour).getTime() / 1000)
-          ),
-          maturity_date: String(
-            Math.floor(
-              convertToUTC(maturity_date, maturity_date_hour).getTime() / 1000
-            )
-          ),
-          token_denom,
-          purchasing_denom,
+          },
+          purchase_start_time: String(Math.floor(
+            convertToUTC(start_time, start_time_hour).getTime() * 1_000_000
+          )),
+          purchase_end_time: String(Math.floor(
+            convertToUTC(end_time, end_time_hour).getTime() * 1_000_000
+          )),
+          claim_start_time: String(Math.floor(
+            convertToUTC(end_time, end_time_hour).getTime() * 1_000_000
+          )),
+          claim_end_time: String(Math.floor(
+            convertToUTC(maturity_date, maturity_date_hour).getTime() * 1_000_000
+          )),
           immediate_claim,
-          // flow_schedule: immediate_claim
-          //   ? null
-          //   : [
-          //       {
-          //         percentage: String(flow_schedule.percentage),
-          //         start_time: String(
-          //           Math.floor(
-          //             convertToUTC(
-          //               flow_schedule.start_date,
-          //               "00:00"
-          //             ).getTime() / 1000
-          //           )
-          //         ),
-          //         initial_delay: String(
-          //           Number(flow_schedule.initial_delay) * 86400
-          //         ), // Convert days to seconds
-          //         duration: String(Number(flow_schedule.duration) * 86400), // Convert days to seconds
-          //       },
-          //     ],
-          description: "",
-          // token_factory_contract:
-          //   "migaloo1q90frwj79y2gdjjdk49nqyacn9jw3uchcnq885",
-          // reward_token_contract_address:
-          //   "migaloo1jgcyqm7ykqm2hr446mdhr9gys6dzuzzzvy5phk",
-          // partial_fills_enabled: false,
+          description: formData.description,
+          nft_metadata: {
+            name: nft_metadata.name || `${fullBondDenomName} Bond NFT`,
+            symbol: nft_metadata.symbol || fullBondDenomName,
+          }
         },
       };
 
@@ -258,7 +246,7 @@ const CreateBonds = () => {
       // Prepare the funds array
       const funds = [
         { denom: token_denom, amount: adjustedTotalSupply.toString() },
-        { denom: "uwhale", amount: whaleFee },
+        // { denom: "uwhale", amount: whaleFee },
       ];
 
       const fee = {
@@ -296,17 +284,17 @@ const CreateBonds = () => {
       // Reset form
       setFormData((prevState) => {
         const now = new Date();
-        now.setDate(now.getDate() + 1); // Add 1 day to current date for start time
+        now.setMinutes(now.getMinutes() + 30); // Add 30 minutes only
         const startTime = now.toTimeString().slice(0, 5);
         const startDate = now.toISOString().split("T")[0];
 
         const endDate = new Date(now);
-        endDate.setDate(endDate.getDate() + 1); // Add another day for end time
+        endDate.setDate(endDate.getDate() + 1);
         const endTime = endDate.toTimeString().slice(0, 5);
         const endDateString = endDate.toISOString().split("T")[0];
 
         const maturityDate = new Date(endDate);
-        maturityDate.setHours(maturityDate.getHours() + 1); // Add 1 hour for maturity time
+        maturityDate.setHours(maturityDate.getHours() + 1); // Add 1 hour for maturity only
         const maturityTime = maturityDate.toTimeString().slice(0, 5);
 
         return {
@@ -323,6 +311,7 @@ const CreateBonds = () => {
           price: "",
           bond_denom_name: "",
           bond_denom_suffix: 1,
+          description: "",
           immediate_claim: false,
           flow_schedule: {
             percentage: 100,
@@ -330,6 +319,11 @@ const CreateBonds = () => {
             initial_delay: 0,
             duration: 0,
           },
+          nft_metadata: {
+            name: "",
+            symbol: "",
+            token_uri: ""
+          }
         };
       });
 
@@ -634,17 +628,28 @@ const CreateBonds = () => {
                 bond denom.
               </p>
             </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Description
+              </label>
+              <textarea
+                name="description"
+                value={formData.description}
+                onChange={handleInputChange}
+                className="bg-[#2c2d3a] w-full px-3 py-2 rounded-md min-h-[100px]"
+                placeholder="Enter a description for your bond..."
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Provide details about your bond offering to help users understand its purpose and terms.
+              </p>
+            </div>
           </div>
         </div>
 
-        <h2 className="text-3xl font-bold mb-4">Create a flow</h2>
+        <h3 className="text-3xl font-bold mb-4">Immediate Claim</h3>
         <p className="text-gray-400 mb-8">
-          A Flow manages the distribution of the tokens in a deal. You can add
-          multiple schedules to a flow. Tokens in deals without a flow will be
-          available to deal takers immediately. Please ensure you have read
-          through and understood the guidelines regarding flows at our
-          documentation hub and the Terms and Conditions regarding the use of
-          this product.
+          
         </p>
 
         <div className="mb-4">
@@ -662,6 +667,60 @@ const CreateBonds = () => {
               after the bond activates.
             </span>
           </label>
+        </div>
+
+        <h3 className="text-3xl font-bold mb-4">NFT Metadata</h3>
+        <p className="text-gray-400 mb-8">
+          Configure the metadata for the NFT that represents this bond.
+        </p>
+
+        <div className="bg-[#23242f] p-6 rounded-lg shadow-lg mb-8">
+          <div className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                NFT Name
+              </label>
+              <input
+                type="text"
+                name="nft_metadata.name"
+                value={formData.nft_metadata.name}
+                onChange={handleInputChange}
+                className="bg-[#2c2d3a] w-full px-3 py-2 rounded-md"
+                placeholder={`${fullBondDenomName} Bond NFT`}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                NFT Symbol
+              </label>
+              <input
+                type="text"
+                name="nft_metadata.symbol"
+                value={formData.nft_metadata.symbol}
+                onChange={handleInputChange}
+                className="bg-[#2c2d3a] w-full px-3 py-2 rounded-md"
+                placeholder={fullBondDenomName}
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-1">
+                Token URI (Optional)
+              </label>
+              <input
+                type="text"
+                name="nft_metadata.token_uri"
+                value={formData.nft_metadata.token_uri}
+                onChange={handleInputChange}
+                className="bg-[#2c2d3a] w-full px-3 py-2 rounded-md"
+                placeholder="https://example.com/metadata/1"
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                External URI for additional NFT metadata (optional)
+              </p>
+            </div>
+          </div>
         </div>
 
         <h3 className="text-2xl font-bold mb-4">Submit Bond</h3>

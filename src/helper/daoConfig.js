@@ -28,6 +28,10 @@ export const daoConfig = {
   //BONDS Contract Addresses
   BONDS_CONTRACT_ADDRESS:
     "",
+  BONDS_NFT_CONTRACT_ADDRESS: "",
+  
   BONDS_CONTRACT_ADDRESS_TESTNET:
-    "migaloo1djzt3t0au7umapkqgadazyxltqv0f65rnvxwlajv4r4nx3eale5sg8aq52",
+    "migaloo10f73hyudjt7sv5xlpn6rnl2gxpkjdnxc2wvnjqu04dhqrnvh2u8qk0n7pe",
+  BONDS_NFT_CONTRACT_ADDRESS_TESTNET:
+    "migaloo1kqx6lwmeq9w2yj8yd5mdcphjvcp32v2z3ugk5wndt5h4vyms3kfsuwnlxm",
 };
