@@ -268,8 +268,26 @@ const Bonds = () => {
     );
   }, [sortedBonds, debouncedSearchTerm]);
 
-  const formatAmount = (amount) => {
-    return parseInt(amount) / OPHIR_DECIMAL;
+  const formatAmount = (amount, isPrice = false) => {
+    if (isPrice) {
+      return amount;
+    }
+    
+    // Convert to number and divide by OPHIR_DECIMAL
+    const num = parseInt(amount) / OPHIR_DECIMAL;
+    
+    // Split number into integer and decimal parts
+    const [integerPart, decimalPart] = num.toString().split('.');
+    
+    // Add commas to integer part
+    const formattedIntegerPart = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    
+    // Combine with decimal part if it exists
+    return decimalPart ? `${formattedIntegerPart}.${decimalPart}` : formattedIntegerPart;
+  };
+
+  const isSoldOut = (remainingSupply) => {
+    return parseInt(remainingSupply) / OPHIR_DECIMAL < 0.00001;
   };
 
   const BondCard = ({ bond }) => {
@@ -289,9 +307,15 @@ const Bonds = () => {
         </div>
         <p className="text-sm text-gray-400 mb-2">Status: {getBondStatus(bond)}</p>
         <p className="text-sm mb-1">Total Supply: {formatAmount(bond.total_supply)}</p>
-        <p className="text-sm mb-1">Remaining Supply: {formatAmount(bond.remaining_supply)}</p>
+        <p className="text-sm mb-1">
+          {isSoldOut(bond.remaining_supply) ? (
+            <span className="text-red-500">Sold Out</span>
+          ) : (
+            `Remaining: ${formatAmount(bond.remaining_supply)}`
+          )}
+        </p>
         <div className="flex items-center mb-1">
-          <p className="text-sm mr-2">Price: {formatAmount(bond.price)} {purchasingSymbol}</p>
+          <p className="text-sm mr-2">Price: {formatAmount(bond.price, true)} {purchasingSymbol}</p>
           <div className="w-5 h-5 rounded-full overflow-hidden">
             <img src={getTokenImage(purchasingSymbol)} alt={purchasingSymbol} className="w-full h-full object-cover" />
           </div>
@@ -424,11 +448,15 @@ const Bonds = () => {
                           {formatAmount(bond.total_supply)}
                           <br />
                           <span className="text-sm text-gray-400">
-                            Remaining: {formatAmount(bond.remaining_supply)}
+                            {isSoldOut(bond.remaining_supply) ? (
+                              <span className="text-red-500">Sold Out</span>
+                            ) : (
+                              `Remaining: ${formatAmount(bond.remaining_supply)}`
+                            )}
                           </span>
                         </td>
                         <td className="py-4 flex items-center">
-                          <span className="mr-2">{formatAmount(bond.price)} {purchasingSymbol}</span>
+                          <span className="mr-2">{formatAmount(bond.price, true)} {purchasingSymbol}</span>
                           <div className="w-5 h-5 rounded-full overflow-hidden">
                             <img src={getTokenImage(purchasingSymbol)} alt={purchasingSymbol} className="w-full h-full object-cover" />
                           </div>

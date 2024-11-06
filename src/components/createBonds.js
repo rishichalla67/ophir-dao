@@ -16,6 +16,8 @@ import "../App.css";
 
 const migalooTestnetRPC = "https://migaloo-testnet-rpc.polkachu.com:443";
 
+const ADDITIONAL_MINUTES_BUFFER = 5; // Easily adjustable buffer time in minutes
+
 const CreateBonds = () => {
   const [connectedWalletAddress, setConnectedWalletAddress] = useState("");
   const [isLedgerConnected, setIsLedgerConnected] = useState(false);
@@ -29,7 +31,7 @@ const CreateBonds = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState(() => {
     const now = new Date();
-    now.setMinutes(now.getMinutes() + 30); // Add 30 minutes to current time only
+    now.setMinutes(now.getMinutes() + 60); // Changed from 30 to 60 minutes
     const startTime = now.toTimeString().slice(0, 5); // Format as HH:MM
     const startDate = now.toISOString().split("T")[0]; // Format as YYYY-MM-DD
 
@@ -193,21 +195,33 @@ const CreateBonds = () => {
 
       const contractAddress = daoConfig.BONDS_CONTRACT_ADDRESS_TESTNET;
 
-      // Convert dates to UTC
-      const convertToUTC = (date, time) => {
+      // Convert dates to UTC and add 4 hours plus buffer minutes
+      const convertToUTC = (date, time, addExtraHour = false) => {
         const localDate = new Date(`${date}T${time}`);
-        return new Date(
+        const utcDate = new Date(
           localDate.getTime() - localDate.getTimezoneOffset() * 60000
         );
+        // Add 4 hours plus buffer minutes
+        utcDate.setHours(utcDate.getHours() + 4);
+        utcDate.setMinutes(utcDate.getMinutes() + ADDITIONAL_MINUTES_BUFFER);
+        // Add extra hour if needed
+        if (addExtraHour) {
+          utcDate.setHours(utcDate.getHours() + 1);
+        }
+        return utcDate;
       };
 
       const message = {
         issue_bond: {
           bond_denom_name: fullBondDenomName,
           expect_to_receive: {
-            denom: token_denom,
+            denom: formData.purchasing_denom,
             amount: String(
-              Math.round(parseFloat(total_supply) * 10 ** (tokenMappings[token_denom]?.decimals || 6))
+              Math.round(
+                parseFloat(formData.total_supply) * 
+                parseFloat(formData.price) * 
+                10 ** (tokenMappings[formData.purchasing_denom]?.decimals || 6)
+              )
             )
           },
           purchase_start_time: String(Math.floor(
@@ -217,10 +231,10 @@ const CreateBonds = () => {
             convertToUTC(end_time, end_time_hour).getTime() * 1_000_000
           )),
           claim_start_time: String(Math.floor(
-            convertToUTC(end_time, end_time_hour).getTime() * 1_000_000
+            convertToUTC(end_time, end_time_hour, true).getTime() * 1_000_000 // Add extra hour
           )),
           claim_end_time: String(Math.floor(
-            convertToUTC(maturity_date, maturity_date_hour).getTime() * 1_000_000
+            convertToUTC(maturity_date, maturity_date_hour, true).getTime() * 1_000_000 // Add extra hour
           )),
           immediate_claim,
           description: formData.description,
@@ -284,7 +298,7 @@ const CreateBonds = () => {
       // Reset form
       setFormData((prevState) => {
         const now = new Date();
-        now.setMinutes(now.getMinutes() + 30); // Add 30 minutes only
+        now.setMinutes(now.getMinutes() + 60); // Changed from 30 to 60 minutes
         const startTime = now.toTimeString().slice(0, 5);
         const startDate = now.toISOString().split("T")[0];
 
@@ -746,36 +760,20 @@ const CreateBonds = () => {
         onConfirm={handleConfirm}
         formData={formData}
         isLoading={isLoading}
+        className="bg-gray-800/80 backdrop-blur-sm rounded-lg p-8 shadow-xl border border-gray-700"
       />
 
       <Snackbar
         open={alertInfo.open}
         autoHideDuration={6000}
         onClose={() => setAlertInfo({ ...alertInfo, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
       >
-        {alertInfo.htmlContent ? (
-          <SnackbarContent
-            style={{
-              color: "black",
-              backgroundColor:
-                alertInfo.severity === "error" ? "#ffcccc" : "#ccffcc",
-            }}
-            message={
-              <span
-                dangerouslySetInnerHTML={{ __html: alertInfo.htmlContent }}
-              />
-            }
-          />
-        ) : (
-          <Alert
-            onClose={() => setAlertInfo({ ...alertInfo, open: false })}
-            severity={alertInfo.severity}
-            sx={{ width: "100%" }}
-          >
-            {alertInfo.message}
-          </Alert>
-        )}
+        <Alert 
+          onClose={() => setAlertInfo({ ...alertInfo, open: false })} 
+          severity={alertInfo.severity}
+        >
+          {alertInfo.message}
+        </Alert>
       </Snackbar>
     </div>
   );
