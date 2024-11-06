@@ -293,6 +293,7 @@ const Bonds = () => {
   const BondCard = ({ bond }) => {
     const bondSymbol = getTokenSymbol(bond.token_denom);
     const purchasingSymbol = getTokenSymbol(bond.purchasing_denom);
+    const status = getBondStatus(bond);
     
     return (
       <div 
@@ -320,7 +321,12 @@ const Bonds = () => {
             <img src={getTokenImage(purchasingSymbol)} alt={purchasingSymbol} className="w-full h-full object-cover" />
           </div>
         </div>
-        <p className="text-sm">Maturity Date: {formatDate(bond.maturity_date)}</p>
+        <p className="text-sm">
+          {status === 'Upcoming' 
+            ? `Opens: ${formatDate(bond.start_time)}`
+            : `Maturity Date: ${formatDate(bond.maturity_date)}`
+          }
+        </p>
         {bond.immediate_claim && <p className="text-sm text-green-400">Immediate Claim Available</p>}
         {bond.description && <p className="text-sm text-gray-400 mt-2">{bond.description}</p>}
       </div>
@@ -420,7 +426,7 @@ const Bonds = () => {
                     </th>
                     <th className="text-left py-2 cursor-pointer" onClick={() => requestSort('maturity_date')}>
                       <span className="flex items-center">
-                        Maturity Date {renderSortIcon('maturity_date')}
+                        {sortConfig.key === 'start_time' ? 'Start Date' : 'Maturity Date'} {renderSortIcon('maturity_date')}
                       </span>
                     </th>
                     <th></th>
@@ -461,7 +467,12 @@ const Bonds = () => {
                             <img src={getTokenImage(purchasingSymbol)} alt={purchasingSymbol} className="w-full h-full object-cover" />
                           </div>
                         </td>
-                        <td className="py-4">{formatDate(bond.maturity_date)}</td>
+                        <td className="py-4">
+                          {getBondStatus(bond) === 'Upcoming' 
+                            ? formatDate(bond.start_time)
+                            : formatDate(bond.maturity_date)
+                          }
+                        </td>
                         <td className="py-4">
                           <button className="text-gray-400 hover:text-white transition duration-300">→</button>
                         </td>
