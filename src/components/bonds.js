@@ -73,27 +73,27 @@ const Bonds = () => {
   };
 
   const getSigner = async () => {
-    if (window.keplr?.experimentalSuggestChain) {
-      await window.keplr?.experimentalSuggestChain({
-        chainId: "narwhal-2",
-        chainName: "Migaloo Testnet",
-        rpc: rpc,
-        rest: "https://migaloo-testnet-api.polkachu.com",
-        bip44: { coinType: 118 },
-        bech32Config: {
-          bech32PrefixAccAddr: "migaloo",
-          bech32PrefixAccPub: "migaloopub",
-          bech32PrefixValAddr: "migaloovaloper",
-          bech32PrefixValPub: "migaloovaloperpub",
-          bech32PrefixConsAddr: "migaloovalcons",
-          bech32PrefixConsPub: "migaloovalconspub",
-        },
-        currencies: [{ coinDenom: "whale", coinMinimalDenom: "uwhale", coinDecimals: 6 }],
-        feeCurrencies: [{ coinDenom: "whale", coinMinimalDenom: "uwhale", coinDecimals: 6 }],
-        stakeCurrency: { coinDenom: "whale", coinMinimalDenom: "uwhale", coinDecimals: 6 },
-        gasPriceStep: { low: 0.2, average: 0.45, high: 0.75 },
-      });
-    }
+    // if (window.keplr?.experimentalSuggestChain) {
+    //   await window.keplr?.experimentalSuggestChain({
+    //     chainId: "narwhal-2",
+    //     chainName: "Migaloo Testnet",
+    //     rpc: rpc,
+    //     rest: "https://migaloo-testnet-api.polkachu.com",
+    //     bip44: { coinType: 118 },
+    //     bech32Config: {
+    //       bech32PrefixAccAddr: "migaloo",
+    //       bech32PrefixAccPub: "migaloopub",
+    //       bech32PrefixValAddr: "migaloovaloper",
+    //       bech32PrefixValPub: "migaloovaloperpub",
+    //       bech32PrefixConsAddr: "migaloovalcons",
+    //       bech32PrefixConsPub: "migaloovalconspub",
+    //     },
+    //     currencies: [{ coinDenom: "whale", coinMinimalDenom: "uwhale", coinDecimals: 6 }],
+    //     feeCurrencies: [{ coinDenom: "whale", coinMinimalDenom: "uwhale", coinDecimals: 6 }],
+    //     stakeCurrency: { coinDenom: "whale", coinMinimalDenom: "uwhale", coinDecimals: 6 },
+    //     gasPriceStep: { low: 0.2, average: 0.45, high: 0.75 },
+    //   });
+    // }
   
     await window.keplr?.enable("narwhal-2");
     const offlineSigner = window.keplr?.getOfflineSigner("narwhal-2");
