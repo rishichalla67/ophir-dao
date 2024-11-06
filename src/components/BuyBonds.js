@@ -268,7 +268,7 @@ const BuyBonds = () => {
   const calculateMaxPurchaseAmount = (bond) => {
     if (!bond || !bond.remaining_supply || !bond.price) return 0;
     const remainingSupply = parseFloat(formatAmount(bond.remaining_supply));
-    const price = parseFloat(formatAmount(bond.price));
+    const price = parseFloat(bond.price);
     return remainingSupply * price;
   };
 
@@ -495,7 +495,7 @@ const BuyBonds = () => {
             <div className="p-2 sm:p-4 bg-gray-900/50 rounded-lg hover:bg-gray-900/70 transition-all duration-300">
               <p className="text-gray-400 text-xs sm:text-sm font-medium mb-0.5 sm:mb-1">Price:</p>
               <div className="flex items-center space-x-2">
-                <p className="text-base sm:text-xl font-bold">{bond ? `${formatAmount(bond.price)}` : 'N/A'}</p>
+                <p className="text-base sm:text-xl font-bold">{bond ? bond.price : 'N/A'}</p>
                 <div className="flex items-center">
                   <span className="ml-1 text-base sm:text-xl">{purchasingSymbol} </span>
                   <img 
