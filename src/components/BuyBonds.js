@@ -541,10 +541,9 @@ const BuyBonds = () => {
           
           {getBondStatus(bond) === "Upcoming" && (
             <div className="mt-4 sm:mt-6 p-2 sm:p-4 bg-gray-700 rounded-lg overflow-hidden">
-              <CountdownRenderer
-                date={parseInt(bond.purchase_start_time) / 1_000_000}
+              <Countdown
+                date={new Date(Number(bond.purchase_start_time) / 1_000_000)}
                 renderer={CountdownRenderer}
-                className="text-sm sm:text-base"
               />
             </div>
           )}
